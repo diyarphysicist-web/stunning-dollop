@@ -1,31 +1,15 @@
-# Architectural Guidelines for AI-Assisted Development
+# CLAUDE Documentation
 
-## Overview
-In this document, we provide comprehensive guidelines for integrating AI into the development process. These guidelines aim to enhance productivity, maintain quality, and ensure ethical practices.
+## Key Guidelines
 
-## 1. Understanding AI in Development
-- **Definition:** AI-assisted development refers to the use of artificial intelligence tools to aid developers in coding, testing, and maintaining software.
-- **Benefits:** Increased efficiency, improved accuracy in code, and reduced repetitive tasks.
+1. **Use NDK for Pixel Manipulation**: Ensure that the NDK is utilized for all pixel manipulation tasks to enhance performance and efficiency.
+2. **Leverage Hardware Acceleration for 3D**: Implement hardware acceleration methods to ensure smooth rendering and performance in 3D environments.
+3. **Maintain 60FPS Target for MPR Slicing**: It’s crucial to maintain a 60fps target for MPR (Multi-Planar Reconstruction) slicing to provide a seamless user experience.
 
-## 2. Integrating AI Tools
-- **Selection Criteria:** Choose AI tools that align with your team's needs. Consider their capabilities, integration options, and user reviews.
-- **Training and Familiarization:** Ensure that all team members are trained on the selected AI tools to maximize their benefits.
+## Previous Architectural Guidelines
 
-## 3. Workflow Enhancements
-- **Code Generation:** Use AI for boilerplate code and function generation to speed up the development process.
-- **Automated Testing:** Implement AI-driven testing tools to enhance code quality through predictive analytics.
-
-## 4. Maintaining Code Quality
-- **Human Oversight:** Always review AI-generated code to ensure it meets your project's standards.
-- **Continuous Integration:** Integrate AI tools into your CI/CD pipelines to automate quality checks throughout development.
-
-## 5. Ethical Considerations
-- **Bias in AI:** Be aware of potential biases in AI tools and take measures to mitigate them.
-- **Transparency:** Maintain transparency in AI-assisted decisions to build trust within the development team and stakeholders.
-
-## 6. Documentation
-- **Best Practices:** Regularly update documentation to reflect any changes in tools and processes.
-- **Sharing Knowledge:** Encourage team members to document their experiences with AI tools for future reference.
-
-## Conclusion
-By following these architectural guidelines, teams can effectively leverage AI to enhance their development processes, leading to better quality software and more satisfied developers.
+- Follow DICOM (Digital Imaging and Communications in Medicine) standards for all imaging data exchanges and storage.
+- Adhere to the specified protocols for data privacy and security according to healthcare regulations.
+- Utilize standardized formats for image processing and ensure compatibility with various imaging modalities.
+- Optimize data flow to minimize latency during image retrieval and processing.
+- Implement necessary error handling and logging for maintenance and troubleshooting purposes.
