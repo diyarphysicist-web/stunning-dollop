@@ -58,23 +58,40 @@ python/
 └── run.py
 ```
 
-## Install
+## Quick start (Windows)
+
+If you don't already have the repo, double-click **`install_and_run.bat`**
+in the repo root — it clones, sets up, and launches the viewer for you.
+
+If you already have the repo, from inside the `python\` folder:
+
+```bat
+setup.bat        :: pick a Python (prefers 3.12), pip install, build the phantom, run tests
+run.bat          :: launch the GUI on the synthetic phantom
+run.bat C:\my\dicoms     :: launch the GUI on a real folder
+score.bat        :: headless Agatston report on the phantom
+score.bat C:\my\dicoms   :: headless Agatston report on a real folder
+mockup.bat       :: regenerate docs\viewer_screenshot.png
+```
+
+The setup script auto-selects Python 3.12 / 3.11 / 3.13 / 3.10 if any
+of them is installed via the `py` launcher, falling back to whatever
+`python` is on `PATH`. PyQt5 has no wheels for Python 3.14 yet, so if
+you only have 3.14 installed `setup.bat` will warn you and recommend
+installing 3.12 from python.org.
+
+## Quick start (macOS / Linux)
 
 ```bash
 cd python
 pip install -r requirements.txt
-```
-
-VTK is optional; without it the 3D pane shows a placeholder and every
-other feature continues to work.
-
-## Run
-
-```bash
 python run.py                          # empty viewer
 python run.py /data/cardiac_study      # pre-scan a folder
 python run.py score /data/cardiac/cs   # headless Agatston report
 ```
+
+VTK is optional; without it the 3D pane shows a placeholder and every
+other feature continues to work.
 
 ## Testing
 
