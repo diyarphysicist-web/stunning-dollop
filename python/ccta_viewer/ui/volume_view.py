@@ -13,7 +13,15 @@ from typing import Optional
 import numpy as np
 from PyQt5 import QtCore, QtWidgets
 
+import os
+
+# Detect headless Qt — VTK's GL context creation segfaults there.
+_HEADLESS = os.environ.get("QT_QPA_PLATFORM", "").startswith("offscreen") or \
+            os.environ.get("CCTA_DISABLE_VTK") == "1"
+
 try:
+    if _HEADLESS:
+        raise RuntimeError("Headless Qt — skipping VTK")
     import vtk
     from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
     from vtkmodules.util import numpy_support
@@ -83,29 +91,41 @@ class VolumeView(QtWidgets.QWidget):
         toolbar.addWidget(reset_btn)
         layout.addWidget(toolbar)
 
+        self._volume_actor = None
+        self.iren = None
+        self.renderer = None
+
         if not HAVE_VTK:
-            placeholder = QtWidgets.QLabel(
-                "VTK is not available — install `vtk` to enable 3D volume rendering."
+            self._install_placeholder(
+                layout, "VTK is not available — install `vtk` to enable 3D volume rendering."
             )
-            placeholder.setAlignment(QtCore.Qt.AlignCenter)
-            placeholder.setStyleSheet("color: #9fb6d6;")
-            layout.addWidget(placeholder)
-            self.iren = None
-            self.renderer = None
             return
 
-        self.iren = QVTKRenderWindowInteractor(self)
-        layout.addWidget(self.iren)
-        self.renderer = vtk.vtkRenderer()
-        self.renderer.SetBackground(0.04, 0.06, 0.09)
-        self.iren.GetRenderWindow().AddRenderer(self.renderer)
-        self.iren.Initialize()
+        try:
+            self.iren = QVTKRenderWindowInteractor(self)
+            layout.addWidget(self.iren)
+            self.renderer = vtk.vtkRenderer()
+            self.renderer.SetBackground(0.04, 0.06, 0.09)
+            self.iren.GetRenderWindow().AddRenderer(self.renderer)
+            self.iren.Initialize()
+        except Exception as exc:
+            # Headless / no GL context — fall back to a placeholder.
+            self.iren = None
+            self.renderer = None
+            self._install_placeholder(
+                layout, f"3D rendering disabled (no GPU/GL context): {exc}"
+            )
 
-        self._volume_actor: Optional[vtk.vtkVolume] = None
+    def _install_placeholder(self, layout, message: str) -> None:
+        placeholder = QtWidgets.QLabel(message)
+        placeholder.setAlignment(QtCore.Qt.AlignCenter)
+        placeholder.setStyleSheet("color: #9fb6d6;")
+        placeholder.setWordWrap(True)
+        layout.addWidget(placeholder)
 
     # ------------------------------------------------------------------
     def set_volume(self, volume: Volume) -> None:
-        if not HAVE_VTK:
+        if not HAVE_VTK or self.renderer is None:
             return
         if self._volume_actor is not None:
             self.renderer.RemoveVolume(self._volume_actor)
@@ -144,12 +164,15 @@ class VolumeView(QtWidgets.QWidget):
         self.reset_view()
 
     def reset_view(self) -> None:
-        if HAVE_VTK and self.renderer is not None:
-            self.renderer.ResetCamera()
-            self.iren.GetRenderWindow().Render()
+        if HAVE_VTK and self.renderer is not None and self.iren is not None:
+            try:
+                self.renderer.ResetCamera()
+                self.iren.GetRenderWindow().Render()
+            except Exception:
+                pass
 
     def _apply_preset(self, name: str) -> None:
-        if not HAVE_VTK or self._volume_actor is None:
+        if not HAVE_VTK or self._volume_actor is None or self.iren is None:
             return
         spec = PRESETS.get(name)
         if not spec:
@@ -169,7 +192,10 @@ class VolumeView(QtWidgets.QWidget):
         self.iren.GetRenderWindow().Render()
 
     def _toggle_shading(self, on: bool) -> None:
-        if not HAVE_VTK or self._volume_actor is None:
+        if not HAVE_VTK or self._volume_actor is None or self.iren is None:
             return
         self._volume_actor.GetProperty().SetShade(1 if on else 0)
-        self.iren.GetRenderWindow().Render()
+        try:
+            self.iren.GetRenderWindow().Render()
+        except Exception:
+            pass

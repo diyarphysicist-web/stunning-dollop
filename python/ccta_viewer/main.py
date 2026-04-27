@@ -9,7 +9,6 @@ Usage::
 
 from __future__ import annotations
 
-import argparse
 import logging
 import sys
 from typing import List, Optional
@@ -53,20 +52,23 @@ def _score(folder: str) -> int:
 
 
 def main(argv: Optional[List[str]] = None) -> int:
-    parser = argparse.ArgumentParser(description="Coronary CT Angiography viewer")
-    parser.add_argument("--verbose", "-v", action="store_true")
-    sub = parser.add_subparsers(dest="cmd")
-    sub.add_parser("gui", help="Launch the GUI (default)")
-    score_p = sub.add_parser("score", help="Headless Agatston calcium score")
-    score_p.add_argument("folder")
-    parser.add_argument("folder", nargs="?", help="Optional DICOM folder for the GUI")
+    raw = list(sys.argv[1:] if argv is None else argv)
+    verbose = False
+    if "-v" in raw:
+        raw.remove("-v"); verbose = True
+    if "--verbose" in raw:
+        raw.remove("--verbose"); verbose = True
+    logging.basicConfig(level=logging.DEBUG if verbose else logging.INFO)
 
-    args = parser.parse_args(argv)
-    logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO)
-
-    if args.cmd == "score":
-        return _score(args.folder)
-    return _gui(args.folder)
+    if raw and raw[0] == "score":
+        if len(raw) < 2:
+            print("usage: ccta-viewer score <folder>", file=sys.stderr)
+            return 2
+        return _score(raw[1])
+    if raw and raw[0] == "gui":
+        raw = raw[1:]
+    folder = raw[0] if raw else None
+    return _gui(folder)
 
 
 if __name__ == "__main__":

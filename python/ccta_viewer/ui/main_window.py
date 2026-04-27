@@ -243,33 +243,33 @@ class MainWindow(QtWidgets.QMainWindow):
         menu = self.menuBar()
         file_menu = menu.addMenu("&File")
 
-        open_dir = QtGui.QAction("Open DICOM &folder…", self)
+        open_dir = QtWidgets.QAction("Open DICOM &folder…", self)
         open_dir.setShortcut(QtGui.QKeySequence.Open)
         open_dir.triggered.connect(self._open_folder)
         file_menu.addAction(open_dir)
 
-        export_png_act = QtGui.QAction("Export current &slice (PNG)…", self)
+        export_png_act = QtWidgets.QAction("Export current &slice (PNG)…", self)
         export_png_act.triggered.connect(self._export_current_png)
         file_menu.addAction(export_png_act)
 
-        export_cine_act = QtGui.QAction("Export &cine (MP4)…", self)
+        export_cine_act = QtWidgets.QAction("Export &cine (MP4)…", self)
         export_cine_act.triggered.connect(self._export_cine)
         file_menu.addAction(export_cine_act)
 
         file_menu.addSeparator()
-        quit_act = QtGui.QAction("&Quit", self)
+        quit_act = QtWidgets.QAction("&Quit", self)
         quit_act.setShortcut(QtGui.QKeySequence.Quit)
         quit_act.triggered.connect(self.close)
         file_menu.addAction(quit_act)
 
         view_menu = menu.addMenu("&View")
         for name in CT_PRESETS:
-            act = QtGui.QAction(name, self)
+            act = QtWidgets.QAction(name, self)
             act.triggered.connect(lambda _=False, n=name: self._apply_wl_preset(n))
             view_menu.addAction(act)
 
         help_menu = menu.addMenu("&Help")
-        about = QtGui.QAction("About", self)
+        about = QtWidgets.QAction("About", self)
         about.triggered.connect(self._show_about)
         help_menu.addAction(about)
 
