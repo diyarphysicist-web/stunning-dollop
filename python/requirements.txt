@@ -1,0 +1,10 @@
+pydicom>=2.4
+numpy>=1.24
+scipy>=1.11
+scikit-image>=0.22
+PyQt5>=5.15
+pyqtgraph>=0.13
+vtk>=9.2
+matplotlib>=3.8
+imageio>=2.31
+imageio-ffmpeg>=0.4
