@@ -1,0 +1,23 @@
+{
+  "name": "neuromr-pro",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "packageManager": "pnpm@10.28.0",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc -b",
+    "test": "vitest run",
+    "phantoms": "uv run --project engine python scripts/make_phantoms.py",
+    "trace": "uv run --project engine python scripts/trace.py",
+    "engine:test": "uv run --project engine pytest engine/tests"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.36.0",
+    "eslint": "^9.36.0",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.44.0",
+    "vitest": "^3.2.4"
+  }
+}

@@ -1,0 +1,4 @@
+{
+  "files": [],
+  "references": [{ "path": "packages/contracts" },{ "path": "packages/workspace" },{ "path": "packages/ui" },{ "path": "packages/viewer" },{ "path": "packages/packages-neuro" }]
+}
