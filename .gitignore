@@ -1,0 +1,10 @@
+# Vendor manual and extracted text: local reference only, never pushed
+docs/reference/
+# Downloaded public datasets and generated phantoms
+data/
+# Never commit DICOM files
+*.dcm
+node_modules/
+__pycache__/
+.venv/
+dist/
