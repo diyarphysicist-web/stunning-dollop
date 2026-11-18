@@ -18,6 +18,10 @@ export default tseslint.config(
     rules: { "no-restricted-syntax": ["error", ...NO_RAW_STYLE] },
   },
   {
+    files: ["scripts/**/*.mjs"],
+    languageOptions: { globals: { console: "readonly", process: "readonly" } },
+  },
+  {
     files: ["packages/ui/src/tokens/**", "packages/viewer/src/luts/**", "**/*.test.ts"],
     rules: { "no-restricted-syntax": "off" },
   },

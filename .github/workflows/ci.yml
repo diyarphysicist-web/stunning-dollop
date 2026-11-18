@@ -1,0 +1,78 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  # Last completed phase; requirements of this and earlier phases must have tests (scripts/trace.py).
+  CURRENT_PHASE: "0"
+
+jobs:
+  node:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+
+  engine:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: engine } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --locked
+      - run: uv run ruff check . ../scripts
+      - run: uv run ruff format --check . ../scripts
+      - run: uv run pytest
+      - name: Phantom generator smoke run
+        run: uv run python ../scripts/make_phantoms.py --out ${{ runner.temp }}/phantoms
+
+  traceability:
+    runs-on: ubuntu-latest
+    needs: [node, engine]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv run --project engine python scripts/trace.py --phase "$CURRENT_PHASE"
+      - uses: actions/upload-artifact@v4
+        with: { name: traceability, path: docs/dhf/TRACEABILITY.md }
+
+  compliance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - uses: astral-sh/setup-uv@v6
+      - run: pnpm install --frozen-lockfile
+      - name: Licence check (Node)
+        run: node scripts/check_node_licenses.mjs
+      - name: Licence check (Python)
+        working-directory: engine
+        run: |
+          uv sync --locked --no-dev
+          uv run --no-sync --with pip-licenses pip-licenses --partial-match \
+            --fail-on="GNU General Public License;GNU Affero General Public License"
+      - name: Vulnerability scan (Node, fail on critical)
+        run: pnpm audit --prod --audit-level critical
+      - name: Vulnerability scan (Python)
+        working-directory: engine
+        run: uv export --no-dev --no-hashes --format requirements-txt > ${{ runner.temp }}/req.txt && uvx pip-audit -r ${{ runner.temp }}/req.txt
+      - name: SBOM (CycloneDX)
+        run: |
+          mkdir -p sbom
+          (cd engine && uvx --from cyclonedx-bom cyclonedx-py environment .venv -o ../sbom/engine.cdx.json)
+          npx --yes @cyclonedx/cdxgen@11 -t js --required-only -o sbom/node.cdx.json .
+      - uses: actions/upload-artifact@v4
+        with: { name: sbom, path: sbom/ }
