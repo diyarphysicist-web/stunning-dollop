@@ -710,6 +710,40 @@ def coreg(ph: Path, img: Path, data: dict, luts: dict[str, np.ndarray]) -> None:
     }
 
 
+# ── Display test pattern (brief §12.3, original design) ───────────────────────
+def test_pattern(img: Path, w: int = 1920, h: int = 1000) -> None:
+    """Grayscale steps, low-contrast patches, resolution bars and a ramp, 8-bit, pixel exact."""
+    a = np.full((h, w), 128, np.uint8)
+    a[:, [0, -1]] = 255
+    a[[0, -1], :] = 255
+    # 18 equal grayscale steps across the top band
+    sw = (w - 80) // 18
+    for k in range(18):
+        a[40:200, 40 + k * sw : 40 + (k + 1) * sw] = round(k * 255 / 17)
+    # continuous ramp
+    a[230:290, 40 : w - 40] = np.linspace(0, 255, w - 80).astype(np.uint8)[None, :]
+    # low-contrast patches: 5 % inside black, 95 % inside white (plus 2 % and 98 %)
+    for x0, base, patches in ((40, 0, (13, 5)), (w - 400, 255, (242, 250))):
+        a[330:690, x0 : x0 + 360] = base
+        a[400:500, x0 + 60 : x0 + 160] = patches[0]
+        a[520:620, x0 + 200 : x0 + 300] = patches[1]
+    # resolution bars: 1, 2 and 3 px line pairs, horizontal and vertical, black on white
+    cx = w // 2 - 330
+    for i, p in enumerate((1, 2, 3)):
+        x = cx + i * 230
+        blk = np.full((360, 200), 255, np.uint8)
+        for j in range(0, 200, 2 * p):
+            blk[:180, j : j + p] = 0
+        for j in range(0, 180, 2 * p):
+            blk[180 + j : 180 + j + p, :] = 0
+        a[330:690, x : x + 200] = blk
+    # mid-gray field with a 1 px grid for geometry
+    a[730 : h - 40, 40 : w - 40] = 128
+    a[730 : h - 40 : 40, 40 : w - 40] = 160
+    a[730 : h - 40, 40 : w - 40 : 40] = 160
+    Image.fromarray(a, "L").save(img / "test_pattern.png")
+
+
 # ── Tractography (TRK-006 rules on the in-plane DTI phantom tensors) ──────────
 def track(e1: np.ndarray, fa: np.ndarray, seeds: np.ndarray, px: float) -> list[np.ndarray]:
     """Deterministic streamlines (y, x in voxels): FA >= 0.20, turn <= 45 deg, length >= 10 mm, step 0.5 voxel."""
@@ -980,6 +1014,7 @@ def main() -> None:
     flair(a.phantoms, img, data, luts)
     coreg(a.phantoms, img, data, luts)
     tractography(a.phantoms, img, data)
+    test_pattern(img)
     mrs(a.phantoms, data)
     (dat / "_deficit.npy").unlink(missing_ok=True)
     (dat / "_deficit_px.npy").unlink(missing_ok=True)
