@@ -42,6 +42,7 @@ Out of scope: cardiac, cartilage, liver, breast, prostate and muscle workflows. 
 - **GEN-003** Task-guidance steps are numbered, show completion state, and can be reopened in any order once their prerequisites are met. Optional steps are hidden until enabled from the More menu.
 - **GEN-004** Most functions are reachable from three equivalent controls: task guidance, toolbar, and right-click menu. No function exists only in a context menu.
 - **GEN-005** Default viewport roles for map-producing packages: (1) source series at the mid-volume slice, (2) live parametric maps, (3) table ↔ anatomical (or subtracted series for DCE), (4) graph ↔ anatomical. Viewports 3 and 4 switch content via tabs.
+- **GEN-006** Context menus open at the pointer (or, from the keyboard with Shift+F10 or the Menu key, at the focused element) and stay inside the viewport that was clicked: a menu that would cross the viewport's right or bottom edge opens to the left of or above the pointer, and a submenu without room on the right opens to the left of its menu, with its chevron pointing that way. A menu or submenu never covers the inspector or the task panel; when the viewport is too small for it, it is clamped to the viewport grid. Esc or a click elsewhere closes it.
 
 ### 1.2 Mouse modes and resets
 
@@ -160,8 +161,8 @@ Out of scope: cardiac, cartilage, liver, breast, prostate and muscle workflows. 
 ### 1.21 Interface language
 
 - **GEN-200** The interface is English only; no other language ships. Every user-facing string (labels, tooltips, messages, launcher reasons, report text) comes from one message catalog in ICU message format, and components never hard-code strings, so a translation can be added later without code changes.
-
 - **GEN-201** Numbers use English (en-US) formatting everywhere they are displayed, including tables, overlays, colour bars, graph ticks, messages, tooltips and reports: a period as the decimal mark and a comma grouping thousands for every quantity of 1,000 or more (2,009 files; b 1,000 s/mm²; W 1,298.6). Identifiers are not grouped: DICOM tags, ports, AE titles, accession, series and instance numbers, dates and times, version numbers, and display resolutions written as width × height. Numeric inputs show the value as typed and accept it with or without grouping commas. Machine-readable exports (CSV, DICOM values, JSON) are never grouped.
+
 ### 1.22 Interface scale and text size
 
 - **GEN-210** Settings → Displays offers an interface scale of 100 %, 125 % or 150 % per user and per display, on top of the Windows display scale. It scales text, controls, icons and spacing of the chrome and the viewport overlays; image pixels are still drawn at the display's native resolution and are never resampled for the chrome scale. The change applies at once, without a restart, and is stored with the user's display profile. The setting shows the resulting workspace width; below 1600 CSS px the task panel and inspector become overlays, as on a laptop.

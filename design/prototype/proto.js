@@ -382,6 +382,79 @@
     if (target) { e.preventDefault(); target.click(); }
   });
 
+  // ---- Context menus (GEN-006) ----------------------------------------------
+  // The design draws the menu open; here it opens on right-click inside a viewport and stays inside it:
+  // it opens left of / above the pointer when it would cross the viewport edge, and its submenu opens
+  // on whichever side has room. Neither may cover the inspector or the task panel.
+  function contextMenus() {
+    const ctx = document.querySelector('[data-od-id^="context-menu"]');
+    if (!ctx) return;
+    const sub = document.querySelector('[data-od-id^="context-submenu"]');
+    const marks = document.querySelectorAll(".menu-pointer");
+    const all = [ctx, sub].filter(Boolean);
+    const parentItem = ctx.querySelector('[aria-haspopup="true"]');
+    const hide = () => {
+      all.forEach((m) => { m.style.display = "none"; });
+      parentItem?.setAttribute("aria-expanded", "false");
+    };
+    marks.forEach((m) => m.remove());
+    for (const m of all) {
+      document.body.appendChild(m);
+      Object.assign(m.style, { position: "fixed", right: "auto", bottom: "auto" });
+    }
+    hide();
+    const grid = () => document.querySelector(".vgrid, main")?.getBoundingClientRect();
+    function place(m, x, y, box, flipFrom) {
+      m.style.display = "block";
+      const w = m.offsetWidth, h = m.offsetHeight;
+      let left = flipFrom ? flipFrom.right : x;
+      if (left + w > box.right) left = (flipFrom ? flipFrom.left : x) - w;
+      let top = y;
+      if (top + h > box.bottom) top = (flipFrom ? y + parentItem.offsetHeight : y) - h;
+      const g = grid() || box;
+      left = Math.max(g.left, Math.min(left, g.right - w));
+      top = Math.max(g.top, Math.min(top, g.bottom - h));
+      m.style.left = `${left}px`;
+      m.style.top = `${top}px`;
+    }
+    let box = null;
+    document.addEventListener("contextmenu", (e) => {
+      const vp = e.target.closest(".vp");
+      if (!vp) return;
+      e.preventDefault();
+      box = vp.getBoundingClientRect();
+      hide();
+      place(ctx, e.clientX, e.clientY, box, null);
+      // Point the submenu chevrons to the side the submenu will open on.
+      const r = ctx.getBoundingClientRect();
+      const roomRight = sub ? r.right + ctx.offsetWidth <= box.right : true;
+      ctx.querySelectorAll('[aria-haspopup="true"] use').forEach((u) => u.setAttribute("href", roomRight ? "#i-chev-right" : "#i-chev-left"));
+    });
+    parentItem?.addEventListener("mouseenter", () => {
+      if (!sub || !box) return;
+      parentItem.setAttribute("aria-expanded", "true");
+      const r = ctx.getBoundingClientRect();
+      place(sub, r.right, parentItem.getBoundingClientRect().top, box, r);
+    });
+    ctx.querySelectorAll(".menu__item:not([aria-haspopup])").forEach((it) => it.addEventListener("mouseenter", () => {
+      if (sub) sub.style.display = "none";
+      parentItem?.setAttribute("aria-expanded", "false");
+    }));
+    sub?.querySelectorAll('[role="menuitemradio"]:not([aria-disabled="true"])').forEach((it) => it.addEventListener("click", () => {
+      sub.querySelectorAll('[role="menuitemradio"]').forEach((o) => {
+        const on = o === it;
+        o.setAttribute("aria-checked", String(on));
+        o.lastElementChild.outerHTML = on ? '<svg class="ic ic--check"><use href="#i-check"/></svg>' : "<span></span>";
+      });
+      hide();
+    }));
+    ctx.querySelectorAll(".menu__item:not([aria-haspopup])").forEach((it) => it.addEventListener("click", hide));
+    document.addEventListener("mousedown", (e) => { if (!e.target.closest('[data-od-id^="context-"]') && e.button === 0) hide(); });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && ctx.style.display !== "none") { e.stopImmediatePropagation(); e.preventDefault(); hide(); }
+    }, true);
+  }
+
   // ---- Start ----------------------------------------------------------------
   // Static design marks become live states.
   document.querySelectorAll(".is-hover").forEach((n) => n.classList.remove("is-hover"));
@@ -392,5 +465,6 @@
     inPage.set(d.dataset.odId, d);
   });
   buildMenu();
+  contextMenus();
   wire(document);
 })();

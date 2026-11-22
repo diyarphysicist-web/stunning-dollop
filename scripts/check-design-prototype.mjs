@@ -70,6 +70,31 @@ await expectAt("01-study-directory", "Ctrl+1");
 await page.locator(".lx__item", { hasText: "DSC Neuro Perfusion" }).click({ timeout: 5000 });
 await expectAt("03-dsc-perfusion", "launcher DSC");
 
+// 2b. Context menus (GEN-006) open on right-click and stay inside the clicked viewport (never over the inspector).
+{
+  const menuSel = '[data-od-id="context-menu-vp2"]';
+  const subSel = '[data-od-id="context-submenu-maps"]';
+  await expectVisible(menuSel, false, "context menu starts closed");
+  const vp = await page.locator(".vgrid .vp").nth(1).boundingBox();
+  const inside = async (sel, what) => {
+    steps += 1;
+    const b = await page.locator(sel).boundingBox();
+    const ok = b && b.x >= vp.x - 1 && b.y >= vp.y - 1 && b.x + b.width <= vp.x + vp.width + 1 && b.y + b.height <= vp.y + vp.height + 1;
+    if (!ok) problems.push(`${what}: ${sel} at ${JSON.stringify(b)} leaves viewport ${JSON.stringify(vp)}`);
+  };
+  for (const [x, y, where] of [[vp.x + vp.width - 16, vp.y + 60, "right edge"], [vp.x + 16, vp.y + vp.height - 16, "bottom-left corner"]]) {
+    await page.mouse.click(x, y, { button: "right" });
+    await expectVisible(menuSel, true, `right-click near the ${where} opens the menu`);
+    await inside(menuSel, `menu near the ${where}`);
+    await page.locator(`${menuSel} .menu__item`, { hasText: "Select map" }).hover({ timeout: 5000 });
+    await expectVisible(subSel, true, `submenu opens near the ${where}`);
+    await inside(subSel, `submenu near the ${where}`);
+    await page.keyboard.press("Escape");
+    await expectVisible(menuSel, false, `Esc closes the menu (${where})`);
+  }
+  await expectAt("03-dsc-perfusion", "Esc on a context menu stays on the screen");
+}
+
 // 3. DSC dialogs open over the screen and close with Esc or Cancel.
 await btn("Generate series").click({ timeout: 5000 });
 await expectAt("16-generate-series", "Generate series");
