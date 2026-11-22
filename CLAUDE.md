@@ -42,7 +42,13 @@ CI: `.github/workflows/ci.yml` (node, engine, traceability with `CURRENT_PHASE`,
 
 ## Handoff
 
-**Phase status:** Phase 0 (Foundation) complete. Phase 1 (Design) not started.
+**Phase status:** Phase 0 (Foundation) complete. Phase 1 (Design) in progress in Open Design (project **NeuroMR-PRO**, design system `neuromr-pro`); batch 1 committed.
+
+**Done in Phase 1 so far**
+- Batch 1: `design/BRIEF.md`, design system `design/design-system/` (DESIGN.md, tokens.css, manifest), tokens exported to `packages/ui/src/tokens/` with tests, phantom imagery (`design/tools/render_phantom_imagery.py` → `design/assets/img`, `assets/data/phantom-data.json`), Playwright PNG export (`pnpm design:render`), shared `design/screens/shell.css`, screens 02 Workspace shell and 03 DSC Perfusion.
+- Workflow: screens are written in `design/screens/`, mirrored into the Open Design project (`…/open-design/.od/projects/neuromr-pro/screens/`), rendered at 1920×1080 and 2560×1440, self-critiqued against brief §4.6.
+
+**Phase 1 batches remaining:** 2 Define AIF, Mismatch 2×2/2×3, Co-registration · 3 Directory, DCE, Permeability, Diffusion · 4 Tractography, fMRI, Spectroscopy · 5 Longitudinal, Advanced Diffusion, Subtraction/Echo Accumulation · 6 dialogs (Generate Series, Save Tables, layouts, settings, shortcuts), states · 7 sign-in/lock, multi-monitor, licence/system, audit/diagnostics, PDF reports · 8 laptop and RTL variants, `design/COMPONENTS.md`.
 
 **Done in Phase 0**
 - Manual chapters read (General, T1, T2*/Mismatch, Permeability, Diffusion, fiber tracking, Brain Function, spectroscopy, Longitudinal, Subtraction, Echo Accumulation, Advanced Diffusion); spec and algorithms written in original wording.
@@ -55,4 +61,4 @@ CI: `.github/workflows/ci.yml` (node, engine, traceability with `CURRENT_PHASE`,
 - `apps/desktop` (Electron) is created in Phase 2a.
 - Open Design MCP is not reachable from cloud sessions.
 
-**Exact next step:** Phase 1. Check for Open Design MCP tools; if absent, follow `docs/PROMPT.md` §3.9: write `design/BRIEF.md` and `design/DESIGN.md` from brief §4–5, export `packages/ui/src/tokens/tokens.css` and `tokens.ts` (replace the literals in `packages/ui/src/contrast.test.ts` with token imports), build the §5.2 screens as token-only HTML in `design/screens/` with grayscale imagery rendered from `data/phantoms/`, render PNGs with Playwright (1920×1080 and 2560×1440), self-critique against §4.6, write `design/COMPONENTS.md`, commit, push, report.
+**Exact next step:** Phase 1 batch 2 — screens 04 Define AIF, 05 Mismatch (2×2 and 2×3), 06 Co-registration Review & Edit, on `shell.css` and the `neuromr-pro` tokens; render, critique, commit, push; then the next batch. When all screens are done, mark the design "draft – awaiting Diyar's approval" (do not lock, do not start Phase 2 until Diyar writes "design approved").
