@@ -253,7 +253,7 @@ Out of scope: cardiac, cartilage, liver, breast, prostate and muscle workflows. 
 
 ## 6. Co-registration review and edit (shared workspace)
 
-Used by Mismatch, Tractography (anatomical underlay and fMRI overlay) and Brain Function.
+Used by Mismatch, Tractography (anatomical underlay and fMRI overlay), Brain Function, and Longitudinal Brain Analysis (LBA-012 edit registration between two time points).
 
 - **REG-001** Full workspace with fusion views of input and reference in three orthogonal planes; orientation can be changed.
 - **REG-002** Initial alignment by rigid Normalized Mutual Information; an algorithm selector offers at least NMI, local correlation, and mutual information (Mattes).
