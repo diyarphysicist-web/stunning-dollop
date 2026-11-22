@@ -12,3 +12,8 @@ dist/
 .ruff_cache/
 *.egg-info/
 *.tsbuildinfo
+# Machine-specific Claude Code / Open Design files (written by scripts/windows launcher)
+.mcp.json
+.agents/
+.claude/settings.local.json
+docs/PHASE1_PROMPT.md
