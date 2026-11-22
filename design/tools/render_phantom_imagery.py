@@ -70,6 +70,8 @@ def load_luts() -> tuple[dict[str, list[str]], list[str], dict[str, str]]:
     roi = re.findall(r'"(#[0-9A-Fa-f]{6})"', roi_block.group(1)) if roi_block else []
     assert len(roi) == 8, f"expected 8 ROI colours, found {len(roi)}"
     mm = dict(re.findall(r'(core|deficit|penumbra):\s*"(#[0-9A-Fa-f]{6})"', src))
+    dirs = re.search(r"FA_DIRECTION_PALETTE\s*=\s*\{([^}]*)\}", src)
+    mm |= {f"dir-{k}": v for k, v in re.findall(r'(rl|ap|si):\s*"(#[0-9A-Fa-f]{6})"', dirs.group(1))} if dirs else {}
     return luts, roi, mm
 
 
@@ -154,6 +156,11 @@ def seed_px(mask: np.ndarray) -> list[float]:
     cy, cx = ndimage.center_of_mass(mask)
     f = UPSAMPLE_TO / mask.shape[0]
     return [r((cx + 0.5) * f, 1), r((cy + 0.5) * f, 1)]
+
+
+def class_centres_px(labels: np.ndarray) -> dict[str, list[float]]:
+    """Centroid (x, y) in 512-px image coordinates for each tissue class label >= 0."""
+    return {f"class{int(k)}": seed_px(labels == k) for k in np.unique(labels) if k >= 0}
 
 
 def segmentation_overlay(rgb: np.ndarray, mask: np.ndarray, colour: np.ndarray, fill: float) -> np.ndarray:
@@ -423,6 +430,7 @@ def dti(ph: Path, img: Path, data: dict, luts: dict[str, np.ndarray], mm: dict[s
         "matrix": [int(ds[0].Rows), int(ds[0].Columns)],
         "pixel_mm": r(float(ds[0].PixelSpacing[0]), 2),
         "fa_classes_truth": [r(v, 3) for v in truth["fa"]],
+        "class_centres_px": class_centres_px(np.where(mask, truth["labels"][z], -1)),
         "fa_classes_measured": [r(fa[truth["labels"][z] == k].mean(), 3) for k in range(len(truth["fa"]))],
         "adc_classes_e6": [r(adc_e6[truth["labels"][z] == k].mean(), 0) for k in range(len(truth["fa"]))],
         "adc_window_e6": [0, 3000],
@@ -493,6 +501,8 @@ def dce(ph: Path, img: Path, data: dict, luts: dict[str, np.ndarray]) -> None:
         "dynamics": len(times),
         "curves": {f"class{k}": [r(v, 1) for v in s[:, lab == k].mean(1)] for k in range(len(truth["s0"]))},
         "maxrelenh_window": [0, r(np.percentile(maxrel[mask], 99), 0)],
+        "class_centres_px": class_centres_px(np.where(mask, lab, -1)),
+        "source_dynamic": int(np.argmax(relenh.mean((1, 2)))) + 1,
         "truth": {k: [r(v, 3) for v in truth[k]] for k in ("s0", "s1", "t0", "t1", "washin", "washout", "maxenh", "maxrelenh")},
     }
     # Tofts: maps from the phantom's ground-truth parameters per tissue class
@@ -519,6 +529,10 @@ def dce(ph: Path, img: Path, data: dict, luts: dict[str, np.ndarray]) -> None:
         "flip_deg": r(float(ds2[0].FlipAngle), 0),
         "aif_cp": [r(v, 3) for v in tr["aif_cp"]],
         "tissue_curve_class2": [r(v, 1) for v in arr2[:, 0][:, lab2 == 2].mean(1)],
+        "tissue_curves": {f"class{k}": [r(v, 1) for v in arr2[:, 0][:, lab2 == k].mean(1)] for k in range(len(tr["ktrans"]))},
+        "class_centres_px": class_centres_px(lab2),
+        "matrix": [int(ds2[0].Rows), int(ds2[0].Columns)],
+        "pixel_mm": r(float(ds2[0].PixelSpacing[0]), 2),
         "truth": {k: [r(v, 4) for v in tr[k]] for k in ("ktrans", "kep", "ve", "vp", "t1")},
     }
 
@@ -718,7 +732,7 @@ def write_luts_css(out: Path, luts: dict[str, list[str]], roi: list[str], mm: di
     for i, c in enumerate(roi, start=1):
         lines.append(f"  --nm-roi-{i}: {c};")
     for k, c in mm.items():
-        lines.append(f"  --nm-mismatch-{k}: {c};")
+        lines.append(f"  --nm-{k}: {c};" if k.startswith("dir-") else f"  --nm-mismatch-{k}: {c};")
     lines.append("}")
     (out / "luts.css").write_text("\n".join(lines) + "\n", encoding="utf-8")
 

@@ -17,4 +17,7 @@
   --nm-mismatch-core: #D55E00;
   --nm-mismatch-deficit: #56B4E9;
   --nm-mismatch-penumbra: #56B4E9;
+  --nm-dir-rl: #FF0000;
+  --nm-dir-ap: #00FF00;
+  --nm-dir-si: #0000FF;
 }
