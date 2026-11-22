@@ -35,7 +35,7 @@ HEAD = """<!DOCTYPE html>
     <nav class="snav" aria-label="Settings sections">
 {nav}
     </nav>
-    <div class="scontent">
+    <div class="scontent" data-nm-scrolls>
 {content}
     </div>
   </main>
@@ -103,7 +103,7 @@ def main() -> None:
         card("Injection presets", '''          <table class="tbl tbl--dense">
                 <colgroup><col style="width:30%"><col><col><col><col><col style="width:16%"></colgroup>
                 <thead><tr><th>Preset</th><th class="num">Relaxivity r₁<span class="unit">[s⁻¹·mM⁻¹]</span></th><th class="num">Dose<span class="unit">[mmol/kg]</span></th><th>Duration</th><th class="num">Hct<span class="unit">[%]</span></th><th>Scope</th></tr></thead>
-                <tbody><tr class="is-selected"><td class="strong">Example · Gd 0.1 mmol/kg · medium</td><td class="num">4.5</td><td class="num">0.1</td><td>Medium 5–10 s</td><td class="num">45</td><td><span class="chip chip--warning">Example</span></td></tr></tbody>
+                <tbody><tr class="is-selected"><td class="strong">Gd 0.1 mmol/kg · medium</td><td class="num">4.5</td><td class="num">0.1</td><td>Medium 5–10 s</td><td class="num">45</td><td><span class="chip chip--warning">Example</span></td></tr></tbody>
               </table>
               <div class="notice notice--warning" role="note"><svg class="ic"><use href="#i-warn"/></svg><span class="notice__text">The shipped preset is an example — create your site's presets from the contrast agent's labelling and delete the example.</span></div>''',
              '<button class="btn btn--secondary btn--dense">New preset…</button><button class="btn btn--ghost btn--dense">Edit</button><button class="btn btn--destructive btn--dense">Delete</button>'),

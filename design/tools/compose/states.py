@@ -49,7 +49,7 @@ s = s.replace("<title>NeuroMR-PRO · Study Directory</title>", "<title>NeuroMR-P
 s = sub(s, r'      <section class="psec">\n        <span class="eyebrow">Import</span>.*?</section>\n', '''      <section class="psec" data-od-id="import-progress">
         <span class="eyebrow">Import</span>
         <span class="dense">Folder <span class="mono">E:\\\\PHANTOM</span></span>
-        <span class="progress"><span class="progress__bar" style="--v: 21%"></span><span class="progress__pct">21 %</span><span class="t2">412 / 2 009 files</span><button class="link dense">Cancel</button></span>
+        <span class="progress"><span class="progress__bar" style="--v: 21%"></span><span class="progress__pct">21 %</span><span class="t2">412 / 2,009 files</span><button class="link dense">Cancel</button></span>
         <span class="field__hint">Studies appear as soon as their first series is read; packages open after pre-processing.</span>
       </section>
 ''')
@@ -65,7 +65,7 @@ first_three = first_three.replace(' class="is-selected" aria-selected="true"', "
 skel = "".join('            <tr><td><span class="thumb"></span></td><td class="num"><span class="skel" style="width: var(--nm-space-6)"></span></td><td><span class="skel" style="width: calc(var(--nm-space-12) * 3)"></span></td><td><span class="skel" style="width: var(--nm-space-8)"></span></td><td class="num"><span class="skel" style="width: var(--nm-space-6)"></span></td><td><span class="skel" style="width: calc(var(--nm-space-12) * 2)"></span></td><td><span class="t3">Waiting</span></td></tr>\n' for _ in range(4))
 s = s[: rows.start(1)] + "<tbody>\n" + first_three + skel + s[rows.start(3):]
 s = s.replace('<span class="dense t3">2026-01-01 · 17 series · 1 selected</span>', '<span class="dense t3">2026-01-01 · importing · 3 series read</span>')
-s = s.replace('<td class="num">17</td><td class="num">2 009</td>', '<td class="num">3</td><td class="num">412</td>')
+s = s.replace('<td class="num">17</td><td class="num">2,009</td>', '<td class="num">3</td><td class="num">412</td>')
 s = sub(s, r'      <div class="lx" role="listbox" aria-label="Packages">.*?\n      </div>\n    </div>\n    <div class="panel__foot">.*?</div>', '''      <div class="empty" style="padding: var(--nm-space-8) var(--nm-panel-padding)"><svg class="ic"><use href="#i-jobs"/></svg><span>Waiting for import and pre-processing to finish.</span></div>
     </div>''')
 s = s.replace('<span class="dense t3">DSC perf SNR50</span>', '<span class="dense t3">DSC perf SNR20</span>')
@@ -102,21 +102,25 @@ s = s.replace('''<span class="sb-item"><svg class="ic"><use href="#i-jobs"/></sv
 # ── 18 Mismatch, invalid input + job error ────────────────────────────────────
 s = strip_gen(d05)
 s = s.replace("Diffusion–Perfusion Mismatch (2×2)</title>", "Diffusion–Perfusion Mismatch (invalid input, error)</title>")
-s = sub(s, r'''              <label class="field">
+s = sub(s, r'''              <label class="field field--row">
                 <span class="field__label">ADC below</span>
-                <span class="input input--num input--dense"><span class="input__value">620</span>''', '''              <label class="field">
+                <span class="input input--num input--dense" style="width: calc\(var\(--nm-space-12\) \* 3\)"><span class="input__value">620</span>''', '''              <label class="field field--row">
                 <span class="field__label">ADC below</span>
-                <span class="input input--num input--dense is-error" aria-invalid="true"><span class="input__value">6200</span>''')
+                <span class="input input--num input--dense is-error" aria-invalid="true" style="width: calc(var(--nm-space-12) * 3)"><span class="input__value">6200</span>''')
 s = sub(s, r'''            <div class="psec__row">
               <button class="btn btn--secondary btn--dense" data-od-id="mm-resegment">''', '''            <span class="field__error" role="alert">ADC threshold must be 100–1500 ×10⁻⁶ mm²/s; 6200 looks like a missing decimal.</span>
             <div class="psec__row">
               <button class="btn btn--secondary btn--dense" disabled data-od-id="mm-resegment">''')
-s = sub(s, r'''            <div class="notice notice--warning" role="note" data-od-id="mm-012">''', '''            <div class="notice notice--critical" role="alert" data-od-id="job-error"><svg class="ic"><use href="#i-warn"/></svg><span class="notice__text">The last re-segmentation stopped: the engine restarted during the job — <button class="link dense">retry</button> or <button class="link dense">collect diagnostics</button>.</span></div>
-            <div class="notice notice--warning" role="note" data-od-id="mm-012">''')
+s = sub(s, r'''            <div class="field" data-od-id="mm-registration">''', '''            <div class="notice notice--critical" role="alert" data-od-id="job-error"><svg class="ic"><use href="#i-warn"/></svg><span class="notice__text">The last re-segmentation stopped: the engine restarted during the job — <button class="link dense">retry</button> or <button class="link dense">collect diagnostics</button>.</span></div>
+            <div class="field" data-od-id="mm-registration">''')
 s = s.replace('''        <div class="tbl-head">
           <h3>Regions</h3>''', '''        <div class="stale-bar" role="status" style="margin-bottom: var(--nm-space-2)"><svg class="ic ic--sm" style="color: var(--nm-color-warning)"><use href="#i-warn"/></svg><span>Stale — thresholds changed and re-segmentation did not finish. Export is blocked.</span></div>
         <div class="tbl-head">
           <h3>Regions</h3>''')
 s = s.replace('''<span class="sb-item"><span class="dot dot--success"></span><b>Segmentation up to date</b></span>''', '''<span class="sb-item"><span class="dot dot--critical"></span><b>Re-segment failed</b> · results stale</span>''')
+# Error state: the panel is taller, so the least urgent field collapses to a disclosure row (no text cut at the fold).
+s = sub(s, r'            <div class="field" data-od-id="mm-display">.*?\n            </div>\n(?=          </div>)',
+        '''            <button class="psec__row disclosure" aria-expanded="false" data-od-id="mm-display"><span class="field__label">Penumbra display</span><span class="spacer"></span><span class="dense t3">Fill · hatching · 65 %</span><svg class="ic ic--sm"><use href="#i-chev-right"/></svg></button>
+''')
 (S / "18-mismatch-error-invalid.html").write_text(s, encoding="utf-8", newline="\n")
 print("ok")

@@ -118,7 +118,7 @@
     </div>
     <div class="panel__head">
       <div class="panel__head-row"><h1 class="panel__title">DSC Neuro Perfusion</h1><button class="ibtn ibtn--sm" aria-label="Collapse panel (Ctrl+B)"><svg class="ic ic--sm"><use href="#i-collapse"/></svg></button></div>
-      <p class="dense t2">DSC perf SNR50 · DTI 32dir · b 0, 1000 s/mm²</p>
+      <p class="dense t2">DSC perf SNR50 · DTI 32dir · b 0, 1,000 s/mm²</p>
     </div>
 
     <div class="panel__body">
@@ -138,6 +138,10 @@
               <span class="field__label">Registration <span class="chip chip--warning">Not reviewed</span></span>
               <span class="dense">Perfusion dyn 1 → DWI b0 · rigid · local correlation</span>
               <button class="link dense" style="align-self: flex-start">Review co-registration… <span class="kbd">Ctrl+Shift+R</span></button>
+              <div class="notice notice--warning" role="note" data-od-id="mm-012">
+                <svg class="ic"><use href="#i-warn"/></svg>
+                <span class="notice__text">Diffusion and perfusion use different frames of reference — review co-registration before reading volumes.</span>
+              </div>
             </div>
             <div class="field" data-od-id="mm-mode">
               <span class="field__label">Segmentation</span>
@@ -154,13 +158,13 @@
               </dl>
             </div>
             <div class="field" data-od-id="mm-thresholds">
-              <label class="field">
+              <label class="field field--row">
                 <span class="field__label">ADC below</span>
-                <span class="input input--num input--dense"><span class="input__value">620</span><span class="input__suffix">×10⁻⁶ mm²/s</span></span>
+                <span class="input input--num input--dense" style="width: calc(var(--nm-space-12) * 3)"><span class="input__value">620</span><span class="input__suffix">×10⁻⁶ mm²/s</span></span>
               </label>
-              <label class="field">
+              <label class="field field--row">
                 <span class="field__label">Tmax above</span>
-                <span class="input input--num input--dense"><span class="input__value">6.0</span><span class="input__suffix">s</span></span>
+                <span class="input input--num input--dense" style="width: calc(var(--nm-space-12) * 3)"><span class="input__value">6.0</span><span class="input__suffix">s</span></span>
               </label>
             </div>
             <div class="psec__row">
@@ -169,14 +173,12 @@
             </div>
             <div class="field" data-od-id="mm-display">
               <span class="field__label">Penumbra display</span>
-              <div class="field field--row"><span class="dense">Fill</span><span class="switch is-on" role="switch" aria-checked="true"><span class="switch__track"></span></span></div>
-              <div class="field field--row"><span class="dense">Hatching</span><span class="switch is-on" role="switch" aria-checked="true"><span class="switch__track"></span></span></div>
+              <div class="grid2">
+                <div class="field field--row"><span class="dense">Fill</span><span class="switch is-on" role="switch" aria-checked="true" aria-label="Fill"><span class="switch__track"></span></span></div>
+                <div class="field field--row"><span class="dense">Hatching</span><span class="switch is-on" role="switch" aria-checked="true" aria-label="Hatching"><span class="switch__track"></span></span></div>
+              </div>
               <div class="slider" style="--v: 65%"><span class="slider__track"><span class="slider__fill"></span><span class="slider__thumb"></span></span><span class="input input--num input--dense"><span class="input__value">65</span><span class="input__suffix">%</span></span></div>
               <span class="field__hint">Opacity of the active viewport; set per viewport.</span>
-            </div>
-            <div class="notice notice--warning" role="note" data-od-id="mm-012">
-              <svg class="ic"><use href="#i-warn"/></svg>
-              <span class="notice__text">Diffusion and perfusion use different frames of reference — review co-registration before reading volumes.</span>
             </div>
           </div>
         </li>
@@ -245,8 +247,8 @@
         <div class="ov ov--bl">Core <span class="t2">ADC &lt; 620 ×10⁻⁶ mm²/s</span> · 5.25 cm²<br><span class="t2">Segmentation opacity 65 %</span></div>
         <div class="ov ov--br">Zoom 100 %<br><span class="t2">1.8 × 1.8 mm · 128 × 128</span></div>
         <div class="cbar" style="--lut: var(--nm-lut-gray)">
-          <span>3000</span><span class="cbar__ramp"></span><span>0</span>
-          <span class="cbar__meta">×10⁻⁶ mm²/s<br>W 0–3000</span>
+          <span>3,000</span><span class="cbar__ramp"></span><span>0</span>
+          <span class="cbar__meta">×10⁻⁶ mm²/s<br>W 0–3,000</span>
         </div>
         <span class="ov orient orient--n">A</span><span class="ov orient orient--s">P</span><span class="ov orient orient--w">R</span><span class="ov orient orient--e">L</span>
       </div>
@@ -300,7 +302,7 @@
         </div>
         <div class="ov ov--tl">DWI b0 · Slice 4/8<br><span class="t2">Registered to perfusion · scroll linked</span></div>
         <div class="ov ov--tr">PHANTOM^SYNTHETIC<br><span class="t2">NMR-PHANTOM-001 · 2026-01-01</span></div>
-        <div class="ov ov--bl">W 2183.6 · L 1097.9 <span class="t2">a.u.</span><br><span class="t2">Segmentation opacity 65 %</span></div>
+        <div class="ov ov--bl">W 2,183.6 · L 1,097.9 <span class="t2">a.u.</span><br><span class="t2">Segmentation opacity 65 %</span></div>
         <div class="ov ov--br">Zoom 100 %<br><span class="t2">1.8 × 1.8 mm · 128 × 128</span></div>
         <div class="legend" style="top: var(--nm-space-12); right: var(--nm-space-4)" aria-label="Segmentation">
           <span class="check"><span class="swatch" style="--c: var(--nm-mismatch-core)"></span>Core 9.4 ml</span>
@@ -347,7 +349,7 @@
           <span class="chip chip--warning">Registration not reviewed</span>
         </div>
         <table class="tbl" data-od-id="mm-table-volumes">
-          <colgroup><col style="width:46%"><col><col style="width:30%"></colgroup>
+          <colgroup><col style="width:68%"><col><col style="width:14%"></colgroup>
           <thead><tr><th>Measure</th><th class="num">Value</th><th>Unit</th></tr></thead>
           <tbody>
 <!-- gen:mm-volumes -->

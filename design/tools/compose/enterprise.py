@@ -96,7 +96,7 @@ start = '''<div class="app app--settings">
             <colgroup><col style="width:28%"><col style="width:16%"><col><col style="width:14%"></colgroup>
             <thead><tr><th>Patient</th><th>Study</th><th>Result (pre-processed)</th><th></th></tr></thead>
             <tbody>
-              <tr class="is-selected"><td class="strong mono">PHANTOM^SYNTHETIC</td><td>2026-01-01</td><td>Perfusion 76.8 ml · core 9.4 ml · mismatch 67.4 ml · ratio 8.17 (87.8 %) <span class="chip chip--warning">Not reviewed</span></td><td><button class="btn btn--primary btn--dense">Open <span class="kbd">Enter</span></button></td></tr>
+              <tr class="is-selected"><td class="strong mono">PHANTOM^SYNTHETIC</td><td>2026-01-01</td><td>Perfusion 76.8 ml · core 9.4 ml · mismatch 67.4 ml<br>Ratio 8.17 · relative 87.8 % <span class="chip chip--warning">Not reviewed</span></td><td><button class="btn btn--primary btn--dense">Open <span class="kbd">Enter</span></button></td></tr>
             </tbody>
           </table>
           <span class="field__hint">Pre-processed in the background; open the case to review registration and segmentation before using the values.</span>''') + "\n" + card("Follow-up · comparison ready", '''          <table class="tbl">
@@ -247,7 +247,7 @@ events = [
     ("2026-11-22 13:57:40", "dr.neuro", "Neurologist", "Signed in", "Windows SSO · WS-NEURO-03", "f08a…2c19"),
     ("2026-11-22 11:20:15", "site.admin", "Site administrator", "Setting changed", "Auto-lock 10 → 15 min", "66c1…d0ae"),
     ("2026-11-22 09:02:00", "system", "—", "Licence checked", "Spectroscopy trial ends 2026-12-13", "2b75…91f3"),
-    ("2026-11-22 08:45:31", "tech01", "Technologist", "Import finished", "2 009 files · 1 quarantined", "e94d…4b60"),
+    ("2026-11-22 08:45:31", "tech01", "Technologist", "Import finished", "2,009 files · 1 quarantined", "e94d…4b60"),
 ]
 ev_rows = "".join(f'<tr{" class=\"is-selected\" aria-selected=\"true\"" if i == 2 else ""}><td class="mono">{t}</td><td>{u}</td><td class="t2">{r}</td><td class="strong">{a}</td><td>{o}</td><td class="mono t2">{h}</td></tr>' for i, (t, u, r, a, o, h) in enumerate(events))
 audit = "\n".join([
@@ -256,7 +256,7 @@ audit = "\n".join([
             <button class="picker">Today<svg class="ic ic--sm"><use href="#i-chev-down"/></svg></button>
             <button class="picker">All actions<svg class="ic ic--sm"><use href="#i-chev-down"/></svg></button>
             <span class="spacer"></span>
-            <span class="chip chip--accent"><svg class="ic ic--sm"><use href="#i-check"/></svg>Hash chain verified · 1 284 entries</span>
+            <span class="chip chip--accent"><svg class="ic ic--sm"><use href="#i-check"/></svg>Hash chain verified · 1,284 entries</span>
           </div>
           <table class="tbl tbl--dense">
             <colgroup><col style="width:15%"><col style="width:9%"><col style="width:12%"><col style="width:14%"><col><col style="width:10%"></colgroup>

@@ -165,12 +165,12 @@
               <button class="ibtn" style="background: var(--nm-color-raised)" aria-label="Rotate counter-clockwise 0.5° (Shift+,)"><svg class="ic"><use href="#i-rot-ccw"/></svg></button>
               <button class="ibtn" style="background: var(--nm-color-raised)" aria-label="Rotate clockwise 0.5° (Shift+.)"><svg class="ic"><use href="#i-rot-cw"/></svg></button>
             </div>
-            <span class="field__hint">Steps 0.5 mm and 0.5°. Drag with Translate (T) or Rotate (O) in any view.</span>
+            <span class="field__hint">0.5 mm and 0.5° per step; drag with T or O in any view.</span>
           </div>
         </div>
         <table class="tbl tbl--dense" data-od-id="reg-transform">
           <colgroup><col style="width:44%"><col><col style="width:22%"></colgroup>
-          <thead><tr><th>Edit since automatic</th><th class="num">Value</th><th>Unit</th></tr></thead>
+          <thead><tr><th>Manual edits</th><th class="num">Value</th><th>Unit</th></tr></thead>
           <tbody>
             <tr><td>Translate x <span class="t3">R → L</span></td><td class="num">+2.5</td><td>mm</td></tr>
             <tr><td>Translate y <span class="t3">A → P</span></td><td class="num">−1.5</td><td>mm</td></tr>
@@ -193,14 +193,11 @@
           <svg class="ic"><use href="#i-warn"/></svg>
           <span class="notice__text">Check the brain edge and lesion borders in all three planes before saving.</span>
         </div>
-        <div class="notice notice--info" role="note" data-od-id="reg-005">
-          <svg class="ic"><use href="#i-info"/></svg>
-          <span class="notice__text">Saving recomputes the change map and lesion volumes for this pair.</span>
-        </div>
       </section>
     </div>
 
     <div class="panel__foot">
+      <span class="field__hint" data-od-id="reg-005">Saving recomputes the change map and lesion volumes for this pair.</span>
       <button class="btn btn--primary btn--block" data-od-id="cta-save">Save registration <span class="kbd">Ctrl+S</span></button>
       <button class="btn btn--secondary btn--block" data-od-id="cta-cancel">Cancel <span class="kbd">Esc</span></button>
     </div>

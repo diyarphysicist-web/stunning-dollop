@@ -175,3 +175,28 @@ The disc and stripe phantoms behind the design imagery are replaced by one skull
   - **Laptop (24, ~).** The viewport-pair switcher in the toolbar truncates its labels ("1·2 Source · M…"). Its full name is in the tooltip and F6 cycles the pairs, so it stays usable.
 - **17 Settings · Displays.** New "Interface scale" card: 100 / 125 / 150 % per display, next to the Windows scale. For each display it shows the resulting workspace, e.g. 1920 × 1080 at 125 % Windows × 125 % interface gives 1229 × 691 CSS px, so panels become overlays. Images keep native pixels. In the prototype, picking a scale zooms the Settings page as a live preview.
 - **Law check.** Law 8 (density) is re-checked as above; all other marks are unchanged.
+
+### 5. English number formatting (GEN-201)
+
+- Every displayed quantity of 1,000 or more uses comma grouping with a period decimal mark: 2,009 files; b 1,000 s/mm²; W 1,298.6; ADC window 0–3,000; TR 6,000 ms; 2,048 pts at 2,000 Hz; graph ticks 1,110… This covers tables, overlays, colour bars, ticks, messages, alt text, tooltips and reports. The DCE AREACURV column (07) used spaces before and now uses commas.
+- **Not grouped:** DICOM tags, ports, AE titles, accession and series numbers, dates and times, versions and display resolutions (2560 × 1440). Typed input values stay as typed (e.g. the invalid "6200" in 18; its error message reads 6,200).
+- **How.** One pass in `inject_plots.py` (`english_numbers`) applies the rule to every screen after the generated regions are filled, so hand-written and generated text cannot drift apart.
+
+### 6. Context menus stay inside the viewport (GEN-006)
+
+- **03.** The right-click happens near the right edge of viewport 2, so the menu opens to the left of the pointer (pointer dot shown). The "Select map" submenu has no room on the right, so it opens to the left of the menu, and its chevrons point left. The inspector stays fully visible, which law 1 requires for the inspector too. The submenu lists the maps with their keys and a check on the current one. Tmax is listed but disabled ("needs Manual AIF") instead of hidden.
+- **Prototype.** The menu opens on right-click in any viewport of 03, flips and clamps to the viewport, and opens the submenu on the side with room. Esc closes it without leaving the screen. `pnpm design:prototype-check` right-clicks near the right edge and near the bottom-left corner and asserts that menu and submenu stay inside the viewport (12 new checks).
+
+### 7. Clipped and overflowing text after the 13 px change
+
+- **New check: `pnpm design:text-check`** (`scripts/check-design-text.mjs`). It renders every screen at its capture sizes and reports three kinds of problem: text cut by an `overflow: hidden` ancestor, text truncated with an ellipsis, and text or notices cut part-way at a scroll edge. Long scrolling pages opt out with `data-nm-scrolls` (Settings only). The first run found 32 items; all are fixed, and the check now passes on all 46 screens.
+- **05 Mismatch.** The co-registration warning (MM-012) was cut at the panel's fold. It now sits inside the Registration field it refers to. Thresholds are one row each (label, input with unit), and Fill and Hatching share a row. The 2×3 volumes table gives the measure column 68 %, so "Relative mismatch (perfusion − core) / perfusion" fits.
+- **06 Co-registration.** The REG-005 note ("Saving recomputes…") moved to the panel foot above Save, which is always visible. The nudge hint is shorter, and the table header now reads "Manual edits".
+- **08 Permeability.** The preset select shows "Gd 0.1 mmol/kg · medium" (the Example chip already marks it), and duration shows "5–10 s". 17 uses the same preset name.
+- **10 Tractography.** The statistics table puts units on a second line. "Exclude" lost its keycap, and N is still in its tooltip and the toolbar.
+- **12 Spectroscopy.** The Real / Magnitude switch is wider.
+- **13 FLAIR\*.** A bug: the coronal and sagittal L1 circles and labels were placed below the crop, using a slice offset from the disc phantom. All crops are centred on L1, so all three planes now use the crop centre.
+- **13 Compare.** Segmentation is a collapsed disclosure row ("Segmentation · Seed point ›"), so the panel ends on a whole section. Expanding it shows the tools and the LBA-033 warning.
+- **18 Mismatch error.** The job-error notice is at the top of the step. The least urgent field, Penumbra display, is collapsed to a disclosure row so nothing is cut at the fold.
+- **19 Start view.** The mismatch summary uses two lines: volumes, then ratio, relative mismatch and the "Not reviewed" chip.
+- **24 Laptop.** The viewport-pair switcher is wide enough for "1·2 Source · Maps" and "3·4 Table · Graph", which resolves the ~ noted under item 4.

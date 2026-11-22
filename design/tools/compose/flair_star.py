@@ -107,9 +107,9 @@ PLANES = (("ax", "Axial", f"Slice {sl['ax']}/{n['ax']}", ("A", "P", "R", "L")),
           ("cor", "Coronal", f"Slice {sl['cor']}/{n['cor']}", ("S", "I", "R", "L")),
           ("sag", "Sagittal", f"Slice {sl['sag']}/{n['sag']}", ("S", "I", "A", "P")))
 COLS = (("swi", "SWI/EPI", "SWI EPI · registered", "a.u."), ("flair", "FLAIR", "3D FLAIR", "a.u."), ("prod", "FLAIR*", "FLAIR* · normalised product", ""))
-lz = n["ax"] - sl["ax"]  # lesion row in the superior-up reformats (0-based, z flipped)
-PX = 512 / 32  # 32-voxel crop drawn at 512
-CENTRE = {"ax": (16.5 * PX, 16.5 * PX), "cor": (16.5 * PX, (lz + 0.5) * PX), "sag": (16.5 * PX, (lz + 0.5) * PX)}
+PX = 512 / fs["crop_vox"]  # crop drawn at 512
+C = (fs["crop_vox"] // 2 + 0.5) * PX  # every crop is centred on L1 (render_phantom_imagery.flair_star)
+CENTRE = {"ax": (C, C), "cor": (C, C), "sag": (C, C)}
 R = 4.5 * PX
 tiles = []
 for pk, pname, pslice, (on, os_, ow, oe) in PLANES:

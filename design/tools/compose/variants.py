@@ -27,7 +27,7 @@ s = s.replace('<div class="toolbar" role="toolbar" aria-label="Viewer tools" dat
 s = sub(s, r'    <button class="ibtn" aria-label="Draw ROI: spline \(C\)">.*?</button>\n', "")
 s = sub(s, r'    <button class="ibtn" aria-label="Draw ROI: freehand \(F\)">.*?</button>\n', "")
 s = sub(s, r'\n      <span class="tip tip--below" role="tooltip">Mirror line <span class="kbd">L</span></span>', "")
-s = sub(s, r'    <button class="picker" aria-label="Layout 2×2 \(Ctrl\+L\)".*?</button>', '''    <div class="seg" role="radiogroup" aria-label="Viewport roles (F6)" style="width: calc(var(--nm-space-12) * 4.5)" data-od-id="role-pager">
+s = sub(s, r'    <button class="picker" aria-label="Layout 2×2 \(Ctrl\+L\)".*?</button>', '''    <div class="seg" role="radiogroup" aria-label="Viewport roles (F6)" style="width: calc(var(--nm-space-12) * 6)" data-od-id="role-pager">
       <button class="seg__item is-selected" role="radio" aria-checked="true">1·2 Source · Maps</button>
       <button class="seg__item" role="radio">3·4 Table · Graph</button>
     </div>

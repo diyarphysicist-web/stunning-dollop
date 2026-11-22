@@ -17,7 +17,8 @@
     "tokens": "node scripts/export-tokens.mjs",
     "tokens:check": "node scripts/export-tokens.mjs --check",
     "design:render": "node scripts/render-design-screens.mjs",
-    "design:prototype-check": "node scripts/check-design-prototype.mjs"
+    "design:prototype-check": "node scripts/check-design-prototype.mjs",
+    "design:text-check": "node scripts/check-design-text.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",

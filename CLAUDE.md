@@ -32,6 +32,7 @@ uv run --project engine pytest engine/tests
 uv run --project engine ruff check engine scripts
 pnpm phantoms                    # writes synthetic DICOM + truth.npz to data/phantoms/
 pnpm trace                       # regenerates docs/dhf/TRACEABILITY.md
+pnpm design:render [filter]      # PNGs of design/screens; then design:text-check and design:prototype-check
 ```
 CI: `.github/workflows/ci.yml` (node, engine, traceability with `CURRENT_PHASE`, compliance: licences, audits, SBOM).
 
@@ -53,6 +54,7 @@ CI: `.github/workflows/ci.yml` (node, engine, traceability with `CURRENT_PHASE`,
 - Batch 6: 16 Generate Series / Save All Tables, 17 Layout presets, Settings (analysis defaults; displays and calibration check), shortcut sheet, 18 states (Directory empty, importing + PACS error, DSC computing, Mismatch invalid input + failed job). Variant screens are rebuilt by `design/tools/compose/*.py` (see its README). Fixed: Tmax only with Manual AIF (02, 03, 05).
 - Batch 7: 19 sign-in, lock, Neurologist start view; 20 hanging protocols, display test pattern; 21 Licence, System; 22 audit log, Collect diagnostics; 23 PDF report previews (DSC, Mismatch). Print tokens (`--nm-color-print-*`) added to the design system, used only inside report pages. Composer `design/tools/compose/enterprise.py`.
 - Revision 2026-11-22 (Diyar's decisions): English only (GEN-200; RTL screen removed); launcher rules use DIR-003 types (Subtraction rules approved); SWI/EPI and multi-echo phantoms; 13 FLAIR* mode with NAIMS central-vein review, Excluded mark with reason, and CVS summary (new `13-flair-star`, LBA-026/027, composer `compose/flair_star.py`); 13 and 15 imagery from the new phantoms; Directory 01 lists #610 and #620.
+- Design review 2026-11-22/23 (Diyar), all six items done: (1) DSC relative units a.u. for methods without an AIF (DSC-017); (2) mismatch ratio perfusion/core beside relative mismatch % and mismatch volume (MM-008); (3) anatomical brain phantom (`--only brain`, `ALGORITHMS.md` §12) behind all design imagery; (4) interface scale 100/125/150 % (GEN-210) and 13 px minimum UI text (GEN-211), rail 64 px; (5) English number formatting (GEN-201, one pass in `inject_plots.py`); (6) context menus flip and stay inside the viewport (GEN-006, live in the prototype). Clipped text is caught by `pnpm design:text-check`.
 - Batch 8: 24 laptop DSC (collapsed and overlay panel) (`design/tools/compose/variants.py`); `design/COMPONENTS.md`. The Arabic RTL Directory was removed on 2026-11-22: the product is English only.
 - Workflow: screens are written in `design/screens/`, mirrored into the Open Design project (`…/open-design/.od/projects/neuromr-pro/screens/`), rendered at 1920×1080 and 2560×1440, self-critiqued against brief §4.6. `design/screens/index.html` (built by `compose/gallery.py`, skipped by the renderer) links every screen. Clickable prototype: `design/prototype/index.html` (pages built by `compose/prototype.py`; routes, dialogs, tooltips and keys in `design/prototype/proto.js`; `pnpm design:prototype-check` clicks the main paths). Rebuild it after any screen change.
 
@@ -68,6 +70,6 @@ CI: `.github/workflows/ci.yml` (node, engine, traceability with `CURRENT_PHASE`,
 - Spectroscopy phantom is written as `fid.npz` (no DICOM MR Spectroscopy writer yet; due Phase 8).
 - `apps/desktop` (Electron) is created in Phase 2a.
 - Open Design MCP is not reachable from cloud sessions; it also disconnected locally during batch 6 (files are still synced by copying into the project folder).
-- Local tooling: `uv` is not on PATH on Diyar's PC; the system Python 3.14 (`/c/Python314/python`) has numpy/scipy/pydicom/Pillow and runs `design/tools/*.py`. Run `inject_plots.py` after editing any screen with `gen:` regions, then `pnpm design:render <filter>`, then copy changed files into the Open Design project folder.
+- Local tooling: `uv` is not on PATH on Diyar's PC; the system Python 3.14 (`/c/Python314/python`) has numpy/scipy/pydicom/Pillow and runs `design/tools/*.py`. Run `inject_plots.py` after editing any screen (it fills `gen:` regions and applies GEN-201 number formatting), then the composers, `inject_plots.py` again, `pnpm design:render`, `pnpm design:text-check`, rebuild the gallery and prototype, `pnpm design:prototype-check`, then copy changed files into the Open Design project folder. `pnpm trace` needs uv; locally run `engine/.venv/Scripts/python.exe scripts/trace.py`.
 
-**Exact next step:** Wait for Diyar's review. Apply any requested changes through the same design path (screens → inject_plots → render → critique → commit). On "design approved": mark the design locked here and start Phase 2.
+**Exact next step:** Wait for Diyar's review of the 2026-11-22 changes. Apply any requested changes through the same design path (screens → inject_plots → render → critique → commit). On "design approved": mark the design locked here and start Phase 2.

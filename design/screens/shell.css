@@ -823,6 +823,7 @@ ul, ol { list-style: none; }
   position: absolute;
   z-index: var(--nm-z-popover);
   min-width: calc(var(--nm-space-12) * 5);
+  max-width: calc(var(--nm-space-12) * 7);
   padding: var(--nm-space-1) 0;
   background: var(--nm-color-raised);
   border-radius: var(--nm-radius-md);
@@ -1253,3 +1254,14 @@ ul, ol { list-style: none; }
 .check--wrap { white-space: normal; align-items: flex-start; font-size: var(--nm-font-size-dense); line-height: var(--nm-line-height-dense); }
 .check--wrap .check__box { flex: none; margin-top: var(--nm-space-0); }
 .cvs--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+/* Collapsed panel section: the whole header row is the toggle */
+.disclosure { width: 100%; padding: 0; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; min-height: var(--nm-size-row-dense); }
+.disclosure:hover .eyebrow { color: var(--nm-color-text-primary); }
+.disclosure:focus-visible { outline: var(--nm-size-focus-ring) solid var(--nm-color-focus); outline-offset: var(--nm-size-hairline); }
+
+/* Context menus (GEN-006): .menu--flip-x opens left of the pointer; a submenu sits flush against its menu */
+.menu__item[aria-disabled="true"] { color: var(--nm-color-text-tertiary); }
+.menu__item[aria-disabled="true"] .menu__key { color: var(--nm-color-text-tertiary); }
+.menu__item .ic--check { color: var(--nm-color-accent); }
+.menu-pointer { position: absolute; z-index: var(--nm-z-popover); width: var(--nm-space-2); height: var(--nm-space-2); margin: calc(var(--nm-space-1) * -1) 0 0 calc(var(--nm-space-1) * -1); border-radius: 50%; background: var(--nm-color-text-primary); box-shadow: 0 0 0 var(--nm-size-hairline) var(--nm-color-bg); pointer-events: none; }

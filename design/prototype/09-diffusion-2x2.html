@@ -120,12 +120,12 @@
     </div>
     <div class="panel__head">
       <div class="panel__head-row"><h1 class="panel__title">Diffusion</h1><button class="ibtn ibtn--sm" aria-label="Collapse panel (Ctrl+B)"><svg class="ic ic--sm"><use href="#i-collapse"/></svg></button></div>
-      <p class="dense t2">DTI 32dir · 32 directions · TR 6000 ms · TE 80 ms</p>
+      <p class="dense t2">DTI 32dir · 32 directions · TR 6,000 ms · TE 80 ms</p>
     </div>
     <div class="panel__body">
       <ol class="steps" data-od-id="task-steps">
         <li class="step step--done" data-od-id="step-bvalues">
-          <div class="step__row"><span class="badge" aria-label="Step 1, done"><svg class="ic"><use href="#i-check"/></svg></span><span class="step__title">Select b-values</span><span class="step__state t3">2 of 2</span><span class="step__sum">b 0 · 1000 s/mm²</span></div>
+          <div class="step__row"><span class="badge" aria-label="Step 1, done"><svg class="ic"><use href="#i-check"/></svg></span><span class="step__title">Select b-values</span><span class="step__state t3">2 of 2</span><span class="step__sum">b 0 · 1,000 s/mm²</span></div>
         </li>
         <li class="step step--current" aria-current="step" data-od-id="step-maps">
           <div class="step__row"><span class="badge">2</span><span class="step__title">Select maps</span><span class="step__state">Current</span></div>
@@ -134,7 +134,7 @@
               <span class="field__label">Computed on Generate</span>
               <label class="check is-checked"><span class="check__box"><svg class="ic"><use href="#i-check"/></svg></span>ADC-iso <span class="t3">[×10⁻⁶ mm²/s]</span></label>
               <label class="check is-checked"><span class="check__box"><svg class="ic"><use href="#i-check"/></svg></span>eADC-iso <span class="t3">[ratio]</span></label>
-              <label class="check"><span class="check__box"><svg class="ic"><use href="#i-check"/></svg></span>DWI-iso <span class="t3">b 1000</span></label>
+              <label class="check"><span class="check__box"><svg class="ic"><use href="#i-check"/></svg></span>DWI-iso <span class="t3">b 1,000</span></label>
               <label class="check"><span class="check__box"><svg class="ic"><use href="#i-check"/></svg></span>ADC / eADC per direction <span class="t3">32 each</span></label>
             </div>
             <div class="field">
@@ -193,15 +193,15 @@
       <div class="vp__head">
         <span class="vp__role">1 · Source</span>
         <div class="select"><span class="input__value">DTI 32dir</span><svg class="ic"><use href="#i-chev-down"/></svg></div>
-        <span class="stepper"><button class="ibtn ibtn--sm" aria-label="Previous b-value or direction (Left)"><svg class="ic ic--sm"><use href="#i-chev-left"/></svg></button>b <b>1000</b> · Dir <b>1</b> / 32<button class="ibtn ibtn--sm" aria-label="Next b-value or direction (Right)"><svg class="ic ic--sm"><use href="#i-chev-right"/></svg></button></span>
+        <span class="stepper"><button class="ibtn ibtn--sm" aria-label="Previous b-value or direction (Left)"><svg class="ic ic--sm"><use href="#i-chev-left"/></svg></button>b <b>1,000</b> · Dir <b>1</b> / 32<button class="ibtn ibtn--sm" aria-label="Next b-value or direction (Right)"><svg class="ic ic--sm"><use href="#i-chev-right"/></svg></button></span>
         <span class="spacer"></span>
         <button class="ibtn ibtn--sm" aria-label="Viewport menu (right-click)"><svg class="ic ic--sm"><use href="#i-more"/></svg></button>
       </div>
       <div class="vp__body vp__body--fit">
         <div class="vp__stage">
-          <img src="../assets/img/dti_bmax.png" width="512" height="512" alt="Diffusion-weighted source image, b 1000, direction 1 of 32, slice 4 of 8">
+          <img src="../assets/img/dti_bmax.png" width="512" height="512" alt="Diffusion-weighted source image, b 1,000, direction 1 of 32, slice 4 of 8">
         </div>
-        <div class="ov ov--tl">DTI 32dir · b 1000 s/mm² · Dir 1/32 · Slice 4/8<br><span class="t2">TR 6000 ms · TE 80 ms</span></div>
+        <div class="ov ov--tl">DTI 32dir · b 1,000 s/mm² · Dir 1/32 · Slice 4/8<br><span class="t2">TR 6,000 ms · TE 80 ms</span></div>
         <div class="ov ov--tr">PHANTOM^SYNTHETIC<br><span class="t2">NMR-PHANTOM-001 · 2026-01-01</span></div>
         <div class="ov ov--bl">Window auto <span class="t2">a.u.</span><br><span class="t2">↑↓ slices · ←→ b-values and directions</span></div>
         <div class="ov ov--br">Zoom 100 %<br><span class="t2">1.8 × 1.8 mm · 128 × 128</span></div>
@@ -226,17 +226,17 @@
           <span class="ov orient orient--w">R</span><span class="ov orient orient--e" style="right: var(--nm-space-8)">L</span>
         </div>
         <div class="vp__body vp__body--fit">
-          <div class="vp__stage"><img src="../assets/img/dti_ad.png" width="512" height="512" alt="Axial diffusivity map, gray 0 to 3000"></div>
+          <div class="vp__stage"><img src="../assets/img/dti_ad.png" width="512" height="512" alt="Axial diffusivity map, gray 0 to 3,000"></div>
           <div class="ov ov--tl">AD <span class="t2">[×10⁻⁶ mm²/s]</span></div>
-          <div class="ov ov--bl">Window 0–3000</div>
-          <div class="cbar" style="--lut: var(--nm-lut-gray); top: var(--nm-space-8); right: var(--nm-space-2)"><span>3000</span><span class="cbar__ramp" style="height: calc(var(--nm-space-12) * 2)"></span><span>0</span></div>
+          <div class="ov ov--bl">Window 0–3,000</div>
+          <div class="cbar" style="--lut: var(--nm-lut-gray); top: var(--nm-space-8); right: var(--nm-space-2)"><span>3,000</span><span class="cbar__ramp" style="height: calc(var(--nm-space-12) * 2)"></span><span>0</span></div>
           <span class="ov orient orient--w">R</span><span class="ov orient orient--e" style="right: var(--nm-space-12)">L</span>
         </div>
         <div class="vp__body vp__body--fit">
-          <div class="vp__stage"><img src="../assets/img/dti_rd.png" width="512" height="512" alt="Radial diffusivity map, gray 0 to 3000"></div>
+          <div class="vp__stage"><img src="../assets/img/dti_rd.png" width="512" height="512" alt="Radial diffusivity map, gray 0 to 3,000"></div>
           <div class="ov ov--tl">RD <span class="t2">[×10⁻⁶ mm²/s]</span></div>
-          <div class="ov ov--bl">Window 0–3000</div>
-          <div class="cbar" style="--lut: var(--nm-lut-gray); top: var(--nm-space-8); right: var(--nm-space-2)"><span>3000</span><span class="cbar__ramp" style="height: calc(var(--nm-space-12) * 2)"></span><span>0</span></div>
+          <div class="ov ov--bl">Window 0–3,000</div>
+          <div class="cbar" style="--lut: var(--nm-lut-gray); top: var(--nm-space-8); right: var(--nm-space-2)"><span>3,000</span><span class="cbar__ramp" style="height: calc(var(--nm-space-12) * 2)"></span><span>0</span></div>
           <span class="ov orient orient--w">R</span><span class="ov orient orient--e" style="right: var(--nm-space-12)">L</span>
         </div>
         <div class="vp__body vp__body--fit">

@@ -251,7 +251,7 @@
         </div>
         <div class="ov ov--tl">DSC perf SNR50 · Dyn 14/60 · Slice 4/8<br><span class="t2">t 19.5 s · TR 1.5 s · TE 30 ms</span></div>
         <div class="ov ov--tr">PHANTOM^SYNTHETIC<br><span class="t2">NMR-PHANTOM-001 · 2026-01-01</span></div>
-        <div class="ov ov--bl">W 1298.6 · L 652.5 <span class="t2">a.u.</span><br><span class="t2">Mirror line x 63.5 vox</span></div>
+        <div class="ov ov--bl">W 1,298.6 · L 652.5 <span class="t2">a.u.</span><br><span class="t2">Mirror line x 63.5 vox</span></div>
         <div class="ov ov--br">Zoom 100 %<br><span class="t2">1.8 × 1.8 mm · 128 × 128</span></div>
         <span class="ov orient orient--n">A</span>
         <span class="ov orient orient--s">P</span>
@@ -489,12 +489,14 @@
     <span class="sb-item"><span class="kbd">?</span> shortcuts</span>
   </footer>
 
-  <!-- ============ Context menu (right-click on VP2), anchored at the right image edge
-       so the centre of the map stays visible. Runtime coordinates, expressed via shell tokens. ============ -->
-  <div class="menu" role="menu" aria-label="Map viewport actions" data-od-id="context-menu-vp2"
-       style="left: calc(100% - var(--nm-size-inspector) - var(--nm-space-12) - var(--nm-space-6)); top: calc(var(--nm-size-topbar) + var(--nm-size-toolbar) + var(--nm-space-12) * 6 + var(--nm-space-4));">
-    <div class="menu__item is-hover" role="menuitem" aria-haspopup="true"><span>Select map</span><span class="menu__key">1–6</span><svg class="ic"><use href="#i-chev-right"/></svg></div>
-    <div class="menu__item" role="menuitem" aria-haspopup="true"><span>Overlay opacity</span><span class="menu__key">O</span><svg class="ic"><use href="#i-chev-right"/></svg></div>
+  <!-- ============ Context menu (right-click on VP2, GEN-006). The pointer is near the viewport's right edge, so the
+       menu opens to the LEFT of the pointer and the "Select map" submenu opens to the left of the menu: neither reaches
+       the inspector. Runtime coordinates, expressed via shell tokens. ============ -->
+  <span class="menu-pointer" aria-hidden="true" style="right: calc(var(--nm-size-inspector) + var(--nm-space-12) + var(--nm-space-2)); top: calc(var(--nm-size-topbar) + var(--nm-size-toolbar) + var(--nm-space-12) * 4);"></span>
+  <div class="menu menu--flip-x" role="menu" aria-label="Map viewport actions" data-od-id="context-menu-vp2"
+       style="width: calc(var(--nm-space-12) * 5); right: calc(var(--nm-size-inspector) + var(--nm-space-12) + var(--nm-space-2)); top: calc(var(--nm-size-topbar) + var(--nm-size-toolbar) + var(--nm-space-12) * 4);">
+    <div class="menu__item is-hover" role="menuitem" aria-haspopup="true" aria-expanded="true"><span>Select map</span><span class="menu__key">1–6</span><svg class="ic"><use href="#i-chev-left"/></svg></div>
+    <div class="menu__item" role="menuitem" aria-haspopup="true"><span>Overlay opacity</span><span class="menu__key">O</span><svg class="ic"><use href="#i-chev-left"/></svg></div>
     <div class="menu__sep" role="separator"></div>
     <div class="menu__item" role="menuitem"><span>Window from ROI</span><span class="menu__key">Shift+W</span><span></span></div>
     <div class="menu__item" role="menuitem"><span>Reset windowing</span><span class="menu__key">Shift+R</span><span></span></div>
@@ -505,6 +507,15 @@
     <div class="menu__sep" role="separator"></div>
     <div class="menu__item" role="menuitem"><span>Copy</span><span class="menu__key">Ctrl+C</span><span></span></div>
     <div class="menu__item" role="menuitem"><span>Generate series…</span><span class="menu__key">Ctrl+G</span><span></span></div>
+  </div>
+  <div class="menu" role="menu" aria-label="Select map" data-od-id="context-submenu-maps"
+       style="width: calc(var(--nm-space-12) * 5); right: calc(var(--nm-size-inspector) + var(--nm-space-12) + var(--nm-space-2) + var(--nm-space-12) * 5); top: calc(var(--nm-size-topbar) + var(--nm-size-toolbar) + var(--nm-space-12) * 4);">
+    <div class="menu__item" role="menuitemradio" aria-checked="true"><span>relCBV</span><span class="menu__key">1</span><svg class="ic ic--check"><use href="#i-check"/></svg></div>
+    <div class="menu__item" role="menuitemradio" aria-checked="false"><span>relCBF</span><span class="menu__key">2</span><span></span></div>
+    <div class="menu__item" role="menuitemradio" aria-checked="false"><span>MTT</span><span class="menu__key">3</span><span></span></div>
+    <div class="menu__item" role="menuitemradio" aria-checked="false"><span>TTP</span><span class="menu__key">4</span><span></span></div>
+    <div class="menu__item" role="menuitemradio" aria-checked="false"><span>T0</span><span class="menu__key">5</span><span></span></div>
+    <div class="menu__item" role="menuitemradio" aria-checked="false" aria-disabled="true" title="Tmax needs the Manual AIF deconvolution method"><span>Tmax · needs Manual AIF</span><span class="menu__key">6</span><span></span></div>
   </div>
 
 </div>
