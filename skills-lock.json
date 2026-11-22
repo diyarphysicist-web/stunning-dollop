@@ -1,0 +1,33 @@
+{
+  "version": 2,
+  "skills": {
+    "design-brief": {
+      "source": "nexu-io/open-design",
+      "commit": "e033aad1d15a9d4084316e5223f2c6597fd32619",
+      "sourceType": "github",
+      "skillPath": "skills/design-brief/SKILL.md",
+      "computedHash": "4cb207bff8d3fc1fc6b339e2b055a61a49eb9b3472b474fba47df29433cecd44"
+    },
+    "design-md": {
+      "source": "nexu-io/open-design",
+      "commit": "e033aad1d15a9d4084316e5223f2c6597fd32619",
+      "sourceType": "github",
+      "skillPath": "skills/design-md/SKILL.md",
+      "computedHash": "2d2d6f3ab325ea39da88a2efe0499ae75aa4b8c6b6780bf5c173ae107207c608"
+    },
+    "high-end-visual-design": {
+      "source": "nexu-io/open-design",
+      "commit": "e033aad1d15a9d4084316e5223f2c6597fd32619",
+      "sourceType": "github",
+      "skillPath": "skills/soft-skill/SKILL.md",
+      "computedHash": "5219c002d73d5ee1c90af896bcbc2e1c5ab43b110623d25f68121901e48c0d25"
+    },
+    "web-design-guidelines": {
+      "source": "nexu-io/open-design",
+      "commit": "e033aad1d15a9d4084316e5223f2c6597fd32619",
+      "sourceType": "github",
+      "skillPath": "skills/web-design-guidelines/SKILL.md",
+      "computedHash": "e86a29816d8a599ba394837e694be0f5e7b604ae3a166a1c7ff1d2f65b03f4bf"
+    }
+  }
+}
