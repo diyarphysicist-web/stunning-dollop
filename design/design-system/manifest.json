@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "od-design-system-project/v1",
+  "id": "neuromr-pro",
+  "name": "NeuroMR-PRO",
+  "category": "Clinical workstation",
+  "description": "Quiet instrument: near-black, dense, keyboard-first clinical workstation system for neuro-MRI post-processing.",
+  "source": { "type": "local", "origin": "NeuroMR-PRO repository design/design-system" },
+  "files": { "design": "DESIGN.md", "tokens": "tokens.css" },
+  "importMode": "verbatim",
+  "craft": { "applies": ["color", "accessibility-baseline"], "suggested": [], "exemptions": [] }
+}
