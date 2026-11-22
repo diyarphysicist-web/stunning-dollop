@@ -277,6 +277,7 @@ Used by Mismatch, Tractography (anatomical underlay and fMRI overlay), Brain Fun
 - **PERM-009** Notices: AIF definition, motion, temporal resolution and injection conditions affect values; fits are unreliable for very small ve with large Ktrans; unreliable AIF shapes must be avoided.
 - **PERM-010** ROI tools, mirror line (brain series), graph, table, underlay, anatomical viewer, generate series per §1.
 - **PERM-011** Accuracy: Ktrans and ve within 10 % mean bias at SNR 50 on the Tofts phantom (target r² ≥ 0.94 against ground truth).
+- **PERM-012** Task guidance: Reference series → Injection and AIF → Select maps → Draw ROI → Generate series.
 
 ---
 
@@ -293,6 +294,7 @@ Used by Mismatch, Tractography (anatomical underlay and fMRI overlay), Brain Fun
 - **DIF-009** Mask, register while saving (registration across directions; derived series prefixed "Reg"), generate series.
 - **DIF-010** Accuracy: ADC and FA within 2 % on noise-free tensors and 5 % at SNR 30.
 - **DIF-011** A notice states that for acute stroke, diffusion maps are used together with perfusion in the Mismatch stage.
+- **DIF-012** Task guidance: Select b-values → Select maps → Mask → Generate series (optional: Tractography step, TRK).
 
 ---
 
