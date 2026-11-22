@@ -2,6 +2,8 @@
 docs/reference/
 # Downloaded public datasets and generated phantoms
 data/
+# Design data derived from synthetic phantoms (no patient data) is part of the design contract
+!design/assets/data/
 # Never commit DICOM files
 *.dcm
 node_modules/

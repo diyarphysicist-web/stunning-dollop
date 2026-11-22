@@ -19,6 +19,11 @@ right-hemisphere lesion to the loaded phantom arrays (never to the files on disk
 DSC curves inside a 22 mm disc get ΔR2* × 0.5 and a 4-dynamic bolus delay; DTI
 signal inside an 11 mm disc at the same centre gets ADC × 0.45. The validated stroke
 phantom arrives with the Mismatch package (Phase 3).
+
+Design-only misalignment: the only 3D volumes in Phase 0 are the FLAIR baseline and
+follow-up (64 × 64 × 32, 1 mm). The co-registration screen fuses the follow-up (input)
+onto the baseline (reference) after applying a known residual rigid offset
+(COREG_RESIDUAL_*) so that the review state has something to correct.
 """
 
 from __future__ import annotations
@@ -42,6 +47,8 @@ CORE_RADIUS_MM = 11.0
 LESION_DELAY_DYN = 4
 LESION_DR2_SCALE = 0.5
 CORE_ADC_SCALE = 0.45
+COREG_RESIDUAL_SHIFT_MM = (0.0, -1.5, 2.5)  # (z, y, x)
+COREG_RESIDUAL_ROT_DEG = 2.0  # about the z axis
 
 
 def disc(shape: tuple[int, int], pixel_mm: float, radius_mm: float) -> np.ndarray:
@@ -131,6 +138,31 @@ def save_overlay_on_gray(path: Path, gray: np.ndarray, glo: float, ghi: float, o
 
 def r(x: float, n: int = 3) -> float:
     return float(np.round(float(x), n))
+
+
+PALETTE: dict[str, np.ndarray] = {}  # mismatch colours, filled in main() from the viewer LUT module
+
+
+def hexrgb(h: str) -> np.ndarray:
+    return np.array([int(h[i : i + 2], 16) for i in (1, 3, 5)], float)
+
+
+def seed_px(mask: np.ndarray) -> list[float]:
+    """Centroid of a voxel mask in 512-px image coordinates (x, y)."""
+    if not mask.any():
+        return [0.0, 0.0]
+    cy, cx = ndimage.center_of_mass(mask)
+    f = UPSAMPLE_TO / mask.shape[0]
+    return [r((cx + 0.5) * f, 1), r((cy + 0.5) * f, 1)]
+
+
+def segmentation_overlay(rgb: np.ndarray, mask: np.ndarray, colour: np.ndarray, fill: float) -> np.ndarray:
+    """Blend a voxel mask onto a 512-px RGB image as a light fill plus a 2-px outline."""
+    mu = up(mask.astype(float), 0) > 0.5
+    edge = mu & ~ndimage.binary_erosion(mu, iterations=2)
+    out = np.where(mu[..., None], (1 - fill) * rgb + fill * colour, rgb)
+    out = np.where(edge[..., None], colour, out)
+    return out.astype(np.uint8)
 
 
 # ── DSC ───────────────────────────────────────────────────────────────────────
@@ -298,6 +330,16 @@ def dsc(ph: Path, img: Path, data: dict, luts: dict[str, np.ndarray]) -> None:
     np.save(img.parent / "data" / "_deficit.npy", deficit)
     np.save(img.parent / "data" / "_deficit_px.npy", np.array([px]))
     save_overlay_on_gray(img / "dsc_tmax_on_source.png", arr[0, z], glo, ghi, tmax, deficit, luts["stroke"], 0, 12, 0.7)
+    # Mismatch perfusion viewer: Tmax map with the segmented deficit (light fill + outline)
+    tmax_rgb = np.repeat(window(up(tmax), 0, 12)[..., None] * 255, 3, axis=2)
+    Image.fromarray(segmentation_overlay(tmax_rgb, deficit, PALETTE["deficit"], 0.35), "RGB").save(img / "mismatch_deficit_on_tmax.png")
+    mir = deficit[:, ::-1] & ~deficit & m
+    data["dsc"]["mismatch"] = {
+        "deficit_seed_px": seed_px(deficit),
+        "deficit_voxels_slice": int(deficit.sum()),
+        "signal_deficit": [r(v, 1) for v in arr[:, z][:, deficit].mean(1)],
+        "signal_contra": [r(v, 1) for v in arr[:, z][:, mir].mean(1)],
+    }
 
 
 # ── DTI / diffusion ───────────────────────────────────────────────────────────
@@ -357,7 +399,6 @@ def dti(ph: Path, img: Path, data: dict, luts: dict[str, np.ndarray], mm: dict[s
     deficit = np.zeros_like(core)
     deficit[inside] = d_src[sy[inside], sx[inside]]
     deficit &= mask
-    hexrgb = lambda h: np.array([int(h[i : i + 2], 16) for i in (1, 3, 5)], float)  # noqa: E731
     g = window(up(b0), glo, ghi)[..., None] * 255
     cu = up(core.astype(float), 0) > 0.5
     du = up(deficit.astype(float), 0) > 0.5
@@ -368,6 +409,9 @@ def dti(ph: Path, img: Path, data: dict, luts: dict[str, np.ndarray], mm: dict[s
     out = np.where((pen & hatch)[..., None], 0.35 * out + 0.65 * hexrgb(mm["penumbra"]), out)
     out = np.where(cu[..., None], 0.35 * out + 0.65 * hexrgb(mm["core"]), out)
     Image.fromarray(out.astype(np.uint8), "RGB").save(img / "mismatch_penumbra_on_b0.png")
+    # Mismatch diffusion viewer: ADC map with the segmented core (light fill + outline)
+    adc_rgb = np.repeat(window(up(adc_e6), 0, 3000)[..., None] * 255, 3, axis=2)
+    Image.fromarray(segmentation_overlay(adc_rgb, core, PALETTE["core"], 0.35), "RGB").save(img / "mismatch_core_on_adc.png")
     vox_ml = float(ds[0].PixelSpacing[0]) ** 2 * float(ds[0].SliceThickness) / 1000.0
     perf_ml, diff_ml = float(deficit.sum()) * vox_ml * nz, float(core.sum()) * vox_ml * nz
     truth = np.load(ph / "dti_32dir_snr30.0" / "truth.npz")
@@ -382,12 +426,17 @@ def dti(ph: Path, img: Path, data: dict, luts: dict[str, np.ndarray], mm: dict[s
         "fa_classes_measured": [r(fa[truth["labels"][z] == k].mean(), 3) for k in range(len(truth["fa"]))],
         "adc_classes_e6": [r(adc_e6[truth["labels"][z] == k].mean(), 0) for k in range(len(truth["fa"]))],
         "adc_window_e6": [0, 3000],
+        "b0_window": [r(glo, 1), r(ghi, 1)],
         "mismatch": {
             "perfusion_ml": r(perf_ml, 1),
             "diffusion_ml": r(diff_ml, 1),
             "mismatch_ml": r(perf_ml - diff_ml, 1),
             "ratio_pct": r(100 * (perf_ml - diff_ml) / max(perf_ml, 1e-9), 1),
             "core_mean_adc_e6": r(adc_e6[core].mean() if core.any() else 0, 0),
+            "core_seed_px": seed_px(core),
+            "core_voxels_slice": int(core.sum()),
+            "deficit_voxels_slice": int(deficit.sum()),
+            "penumbra_mean_adc_e6": r(adc_e6[deficit & ~core].mean() if (deficit & ~core).any() else 0, 0),
         },
     }
 
@@ -559,6 +608,55 @@ def flair(ph: Path, img: Path, data: dict, luts: dict[str, np.ndarray]) -> None:
     }
 
 
+# ── Co-registration review (design-only residual offset, see module docstring) ─
+def coreg(ph: Path, img: Path, data: dict, luts: dict[str, np.ndarray]) -> None:
+    ref, ds = load_series(ph / "flair_baseline" / "dicom")
+    mov, _ = load_series(ph / "flair_followup" / "dicom")
+    ref, mov = ref[0], mov[0]  # (z, y, x), 1 mm isotropic
+    px = float(ds[0].PixelSpacing[0])
+    moved = ndimage.rotate(mov, COREG_RESIDUAL_ROT_DEG, axes=(1, 2), reshape=False, order=1)
+    moved = ndimage.shift(moved, [v / px for v in COREG_RESIDUAL_SHIFT_MM], order=1)
+    change = ndimage.uniform_filter(np.abs(mov - ref), 3)
+    cz, cy, cx = (int(v) for v in np.unravel_index(int(np.argmax(change)), change.shape))
+    fg = ref[ref > 0.2 * ref.max()]
+    lo, hi = float(np.percentile(ref, 1)), float(1.6 * np.median(fg))
+    hot = luts["hot"]
+
+    def fuse(a: np.ndarray, b: np.ndarray, size: tuple[int, int], mode: str) -> np.ndarray:
+        za = ndimage.zoom(a, (size[0] / a.shape[0], size[1] / a.shape[1]), order=1)
+        zb = ndimage.zoom(b, (size[0] / b.shape[0], size[1] / b.shape[1]), order=1)
+        g = np.repeat(window(za, lo, hi)[..., None] * 255, 3, axis=2)
+        if mode == "checker":
+            yy, xx = np.mgrid[0 : size[0], 0 : size[1]]
+            tile = UPSAMPLE_TO // 8
+            gb = np.repeat(window(zb, lo, hi)[..., None] * 255, 3, axis=2)
+            return np.where((((yy // tile) + (xx // tile)) % 2 == 0)[..., None], g, gb).astype(np.uint8)
+        c = hot[(window(zb, lo, hi) * 255).astype(int)].astype(float)
+        return (0.5 * g + 0.5 * c).astype(np.uint8)
+
+    nz, ny, nx = ref.shape
+    full = UPSAMPLE_TO
+    views = {
+        # axial (y down = posterior), coronal and sagittal with superior up and true 1 mm aspect
+        "ax": (ref[cz], moved[cz], (full, full)),
+        "cor": (ref[::-1, cy, :], moved[::-1, cy, :], (full * nz // ny, full)),
+        "sag": (ref[::-1, :, cx], moved[::-1, :, cx], (full * nz // ny, full)),
+    }
+    for name, (a, b, size) in views.items():
+        for mode in ("checker", "blend"):
+            Image.fromarray(fuse(a, b, size, mode), "RGB").save(img / f"coreg_{name}_{mode}.png")
+    f = full / nx
+    data["coreg"] = {
+        "matrix": [nz, ny, nx],
+        "pixel_mm": r(px, 2),
+        "cursor_vox_zyx": [cz, cy, cx],
+        "cursor_px": {"ax": [r((cx + 0.5) * f, 1), r((cy + 0.5) * f, 1)], "cor": [r((cx + 0.5) * f, 1), r((nz - cz - 0.5) * f, 1)], "sag": [r((cy + 0.5) * f, 1), r((nz - cz - 0.5) * f, 1)]},
+        "residual_shift_mm_zyx": list(COREG_RESIDUAL_SHIFT_MM),
+        "residual_rot_deg_z": COREG_RESIDUAL_ROT_DEG,
+        "window": [r(lo, 1), r(hi, 1)],
+    }
+
+
 # ── Spectroscopy ──────────────────────────────────────────────────────────────
 def mrs(ph: Path, data: dict) -> None:
     d = np.load(ph / "mrs_svs" / "fid.npz")
@@ -635,6 +733,7 @@ def main() -> None:
     dat.mkdir(parents=True, exist_ok=True)
     lut_pts, roi, mm = load_luts()
     luts = {k: build_lut(v) for k, v in lut_pts.items()}
+    PALETTE.update({k: hexrgb(v) for k, v in mm.items()})
     data: dict = {}
     dsc(a.phantoms, img, data, luts)
     dti(a.phantoms, img, data, luts, mm)
@@ -642,6 +741,7 @@ def main() -> None:
     dce(a.phantoms, img, data, luts)
     fmri(a.phantoms, img, data, luts)
     flair(a.phantoms, img, data, luts)
+    coreg(a.phantoms, img, data, luts)
     mrs(a.phantoms, data)
     (dat / "_deficit.npy").unlink(missing_ok=True)
     (dat / "_deficit_px.npy").unlink(missing_ok=True)
