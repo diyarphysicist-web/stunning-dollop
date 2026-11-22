@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>NeuroMR-PRO · Study Directory</title>
+<meta name="viewport" content="width=1920, height=1080">
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/luts.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+
+<!-- gen:sprite -->
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-directory" viewBox="0 0 20 20"><path d="M2.5 5h5.5l1.5 1.75h8v9.75h-15z"/><path d="M2.5 9h15"/></symbol>
+  <symbol id="i-viewer" viewBox="0 0 20 20"><rect x="2.5" y="2.5" width="15" height="15" rx="1.5"/><path d="M10 6v8M6 10h8"/></symbol>
+  <symbol id="i-analysis" viewBox="0 0 20 20"><path d="M2.5 16.5h15"/><path d="M3 13.5l3.5-5 3 3L13 4.5l4 7"/></symbol>
+  <symbol id="i-reports" viewBox="0 0 20 20"><path d="M5 2.5h7l3.5 3.5v11.5H5z"/><path d="M12 2.5V6h3.5M7.5 10h5M7.5 13h5"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 20 20"><path d="M3.5 5h2M9 5h7.5M3.5 10h8M15 10h1.5M3.5 15h4M11 15h5.5"/><circle cx="7.25" cy="5" r="1.75"/><circle cx="13.25" cy="10" r="1.75"/><circle cx="9.25" cy="15" r="1.75"/></symbol>
+  <symbol id="i-scroll" viewBox="0 0 20 20"><rect x="5" y="7" width="10" height="6" rx="1"/><path d="M10 2.5v2.5M8.25 4.25L10 2.5l1.75 1.75M10 17.5V15M8.25 15.75L10 17.5l1.75-1.75"/></symbol>
+  <symbol id="i-pan" viewBox="0 0 20 20"><path d="M10 2.5v15M2.5 10h15M8 4.5l2-2 2 2M8 15.5l2 2 2-2M4.5 8l-2 2 2 2M15.5 8l2 2-2 2"/></symbol>
+  <symbol id="i-zoom" viewBox="0 0 20 20"><circle cx="8.5" cy="8.5" r="5.25"/><path d="M12.4 12.4l4.6 4.6M6.25 8.5h4.5M8.5 6.25v4.5"/></symbol>
+  <symbol id="i-wl" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7"/><path d="M10 3a7 7 0 0 1 0 14z" fill="currentColor"/></symbol>
+  <symbol id="i-mask" viewBox="0 0 20 20"><path d="M4 7c2-4 9.5-4.5 12-1s1 9.5-4.5 9.5S2 11.5 4 7z" stroke-dasharray="2 2"/><circle cx="10" cy="10" r="1.5"/></symbol>
+  <symbol id="i-ellipse" viewBox="0 0 20 20"><ellipse cx="10" cy="10" rx="7.25" ry="5.25"/><path d="M10 8.5v3M8.5 10h3"/></symbol>
+  <symbol id="i-spline" viewBox="0 0 20 20"><path d="M3.5 14.5C5 7 8 7 10 10s5 3 6.5-4.5"/><circle cx="3.5" cy="14.5" r="1.25"/><circle cx="10" cy="10" r="1.25"/><circle cx="16.5" cy="5.5" r="1.25"/></symbol>
+  <symbol id="i-freehand" viewBox="0 0 20 20"><path d="M5 13.5C2.5 9.5 5 4.5 10 4.5s7.5 4 5 7.5-7 2.5-8 .5 1.5-4 4-2"/></symbol>
+  <symbol id="i-mirror" viewBox="0 0 20 20"><path d="M10 2.5v15" stroke-dasharray="2 2.25"/><path d="M7.5 6L3 10l4.5 4zM12.5 6L17 10l-4.5 4z"/></symbol>
+  <symbol id="i-reset" viewBox="0 0 20 20"><path d="M4 10a6 6 0 1 0 1.75-4.25"/><path d="M4 3v3.5h3.5"/></symbol>
+  <symbol id="i-layout" viewBox="0 0 20 20"><rect x="3" y="3" width="14" height="14" rx="1"/><path d="M10 3v14M3 10h14"/></symbol>
+  <symbol id="i-undo" viewBox="0 0 20 20"><path d="M7 4.5L3.5 8 7 11.5"/><path d="M3.5 8H12a4.25 4.25 0 0 1 0 8.5H8.5"/></symbol>
+  <symbol id="i-redo" viewBox="0 0 20 20"><path d="M13 4.5L16.5 8 13 11.5"/><path d="M16.5 8H8a4.25 4.25 0 0 0 0 8.5h3.5"/></symbol>
+  <symbol id="i-bookmark" viewBox="0 0 20 20"><path d="M5.5 3h9v14L10 13.5 5.5 17z"/></symbol>
+  <symbol id="i-series" viewBox="0 0 20 20"><rect x="3" y="6" width="10.5" height="11" rx="1"/><path d="M6.5 3h10.5v11"/><path d="M8.25 9v5M5.75 11.5h5"/></symbol>
+  <symbol id="i-table-save" viewBox="0 0 20 20"><path d="M17 11V3.5H3v10h7"/><path d="M3 7h14M8 3.5v10"/><path d="M14.5 12.5v5M12.5 15.5l2 2 2-2"/></symbol>
+  <symbol id="i-check" viewBox="0 0 20 20"><path d="M4.5 10.5l3.5 3.5 7.5-8"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 20 20"><rect x="4.5" y="9" width="11" height="8" rx="1"/><path d="M7 9V6.5a3 3 0 0 1 6 0V9"/></symbol>
+  <symbol id="i-chev-down" viewBox="0 0 20 20"><path d="M6 8l4 4 4-4"/></symbol>
+  <symbol id="i-chev-right" viewBox="0 0 20 20"><path d="M8 6l4 4-4 4"/></symbol>
+  <symbol id="i-chev-left" viewBox="0 0 20 20"><path d="M12 6l-4 4 4 4"/></symbol>
+  <symbol id="i-link" viewBox="0 0 20 20"><path d="M8.25 11.75l3.5-3.5"/><path d="M9 6.25l1.5-1.5a3 3 0 0 1 4.25 4.25l-1.5 1.5M11 13.75l-1.5 1.5a3 3 0 0 1-4.25-4.25l1.5-1.5"/></symbol>
+  <symbol id="i-close" viewBox="0 0 20 20"><path d="M5.5 5.5l9 9M14.5 5.5l-9 9"/></symbol>
+  <symbol id="i-more" viewBox="0 0 20 20"><circle cx="5" cy="10" r="0.75"/><circle cx="10" cy="10" r="0.75"/><circle cx="15" cy="10" r="0.75"/></symbol>
+  <symbol id="i-info" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7"/><path d="M10 9v4.5M10 6.5v.01"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 20 20"><path d="M10 3l7.5 13.5h-15z"/><path d="M10 8.25v3.75M10 14.25v.01"/></symbol>
+  <symbol id="i-collapse" viewBox="0 0 20 20"><rect x="3" y="3.5" width="14" height="13" rx="1"/><path d="M8 3.5v13M13.5 8l-2 2 2 2"/></symbol>
+  <symbol id="i-engine" viewBox="0 0 20 20"><rect x="5" y="5" width="10" height="10" rx="1"/><path d="M8 2.5V5M12 2.5V5M8 15v2.5M12 15v2.5M2.5 8H5M2.5 12H5M15 8h2.5M15 12h2.5"/></symbol>
+  <symbol id="i-display" viewBox="0 0 20 20"><rect x="2.5" y="3.5" width="15" height="10" rx="1"/><path d="M7 17h6M10 13.5V17"/></symbol>
+  <symbol id="i-keyboard" viewBox="0 0 20 20"><rect x="2.5" y="5" width="15" height="10" rx="1"/><path d="M5.5 8h1M9.5 8h1M13.5 8h1M6.5 12h7"/></symbol>
+  <symbol id="i-search" viewBox="0 0 20 20"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></symbol>
+  <symbol id="i-user" viewBox="0 0 20 20"><circle cx="10" cy="7" r="3"/><path d="M4 17c1-3.5 3.25-5 6-5s5 1.5 6 5"/></symbol>
+  <symbol id="i-jobs" viewBox="0 0 20 20"><path d="M3 5.5h14M3 10h14M3 14.5h8"/></symbol>
+  <symbol id="i-min" viewBox="0 0 20 20"><path d="M5.5 10h9"/></symbol>
+  <symbol id="i-max" viewBox="0 0 20 20"><rect x="5.5" y="5.5" width="9" height="9"/></symbol>
+  <symbol id="i-brand" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7.25"/><path d="M5.5 10h2l1.25-3 2.5 6 1.25-3h2"/></symbol>
+  <symbol id="i-arrow-up" viewBox="0 0 20 20"><path d="M10 16V4M5.5 8.5L10 4l4.5 4.5"/></symbol>
+  <symbol id="i-arrow-down" viewBox="0 0 20 20"><path d="M10 4v12M5.5 11.5L10 16l4.5-4.5"/></symbol>
+  <symbol id="i-arrow-left" viewBox="0 0 20 20"><path d="M16 10H4M8.5 5.5L4 10l4.5 4.5"/></symbol>
+  <symbol id="i-arrow-right" viewBox="0 0 20 20"><path d="M4 10h12M11.5 5.5L16 10l-4.5 4.5"/></symbol>
+  <symbol id="i-rot-ccw" viewBox="0 0 20 20"><path d="M5 7.5A6 6 0 1 1 4 11"/><path d="M4.5 3.5V7.5h4"/></symbol>
+  <symbol id="i-rot-cw" viewBox="0 0 20 20"><path d="M15 7.5A6 6 0 1 0 16 11"/><path d="M15.5 3.5V7.5h-4"/></symbol>
+  <symbol id="i-translate" viewBox="0 0 20 20"><rect x="6.5" y="6.5" width="7" height="7" rx="0.5"/><path d="M10 2.5v2.5M10 15v2.5M2.5 10H5M15 10h2.5"/></symbol>
+  <symbol id="i-rotate" viewBox="0 0 20 20"><rect x="6.5" y="6.5" width="7" height="7" rx="0.5" transform="rotate(15 10 10)"/><path d="M3.5 7a7 7 0 0 1 6.5-4.5M16.5 13a7 7 0 0 1-6.5 4.5"/></symbol>
+  <symbol id="i-seed" viewBox="0 0 20 20"><circle cx="10" cy="10" r="3"/><path d="M10 2.5V6M10 14v3.5M2.5 10H6M14 10h3.5"/></symbol>
+  <symbol id="i-exclude" viewBox="0 0 20 20"><ellipse cx="10" cy="10" rx="7" ry="5.5" stroke-dasharray="2 2"/><path d="M7.5 7.5l5 5M12.5 7.5l-5 5"/></symbol>
+  <symbol id="i-box" viewBox="0 0 20 20"><rect x="4" y="4" width="12" height="12"/><path d="M8 4v12M12 4v12M4 8h12M4 12h12" stroke-opacity="0.6"/></symbol>
+  <symbol id="i-run" viewBox="0 0 20 20"><path d="M6.5 4.5v11l9-5.5z"/></symbol>
+  <symbol id="i-crosshair" viewBox="0 0 20 20"><path d="M10 2.5v5M10 12.5v5M2.5 10h5M12.5 10h5"/></symbol>
+  <symbol id="i-hatch" viewBox="0 0 20 20"><rect x="3" y="3" width="14" height="14" rx="1"/><path d="M3 9l6-6M3 15L15 3M9 17l8-8"/></symbol>
+</svg>
+<!-- /gen:sprite -->
+
+<!-- Study Directory and launcher (DIR-001…006). Sources left, study list and series list centre,
+     analysis launcher right. Launcher reasons are the exact messages of packages/workspace/src/validity.ts
+     for the selection "DSC perf SNR50". -->
+<div class="app">
+  <!-- gen:topbar -->
+<header class="topbar" data-od-id="topbar">
+    <div class="brand"><svg class="ic brand__mark"><use href="#i-brand"/></svg>NeuroMR-PRO</div>
+    <div class="banner" data-od-id="patient-banner" aria-label="Patient">
+      <span class="banner__name">PHANTOM^SYNTHETIC</span>
+      <span class="bf"><span class="bf__k">ID</span><span class="bf__v mono">NMR-PHANTOM-001</span></span>
+      <span class="bf"><span class="bf__k">Sex</span><span class="bf__v">O</span></span>
+      <span class="bf"><span class="bf__k">Age</span><span class="bf__v">56 y</span><span class="bf__k">(DOB 1970-01-01)</span></span>
+      <span class="bf"><span class="bf__k">Study</span><span class="bf__v">2026-01-01</span></span>
+      <span class="bf"><span class="bf__k">Modality</span><span class="bf__v">MR · 3.0 T</span></span>
+      <span class="bf"><span class="bf__k">Acc</span><span class="bf__v mono">PHANTOM0001</span></span>
+    </div>
+    <div class="topbar__actions">
+      <button class="ibtn" aria-label="Search studies (Ctrl+K)"><svg class="ic"><use href="#i-search"/></svg></button>
+      <button class="ibtn" aria-label="Keyboard shortcuts (?)"><svg class="ic"><use href="#i-keyboard"/></svg></button>
+      <button class="ibtn" aria-label="Account and sign out"><svg class="ic"><use href="#i-user"/></svg></button>
+      <div class="winctl">
+        <button aria-label="Minimise"><svg class="ic ic--sm"><use href="#i-min"/></svg></button>
+        <button aria-label="Maximise"><svg class="ic ic--sm"><use href="#i-max"/></svg></button>
+        <button class="winctl__close" aria-label="Close"><svg class="ic ic--sm"><use href="#i-close"/></svg></button>
+      </div>
+    </div>
+  </header>
+<!-- /gen:topbar -->
+  <!-- gen:rail-directory -->
+<nav class="rail" aria-label="Activities" data-od-id="activity-rail">
+    <button class="rail__item is-active" aria-current="page" aria-label="Directory (Ctrl+1)"><svg class="ic"><use href="#i-directory"/></svg>Directory</button>
+    <button class="rail__item" aria-label="Viewer (Ctrl+2)"><svg class="ic"><use href="#i-viewer"/></svg>Viewer</button>
+    <button class="rail__item" aria-label="Analysis (Ctrl+3)"><svg class="ic"><use href="#i-analysis"/></svg>Analysis</button>
+    <button class="rail__item" aria-label="Reports (Ctrl+4)"><svg class="ic"><use href="#i-reports"/></svg>Reports</button>
+    <button class="rail__item rail__end" aria-label="Settings (Ctrl+,)"><svg class="ic"><use href="#i-settings"/></svg>Settings</button>
+  </nav>
+<!-- /gen:rail-directory -->
+
+  <!-- ============ Sources ============ -->
+  <aside class="panel" aria-label="Sources" data-od-id="sources">
+    <div class="panel__head" style="padding-top: var(--nm-panel-padding)">
+      <div class="panel__head-row"><h1 class="panel__title">Sources</h1><button class="ibtn ibtn--sm" aria-label="Collapse panel (Ctrl+B)"><svg class="ic ic--sm"><use href="#i-collapse"/></svg></button></div>
+    </div>
+    <div class="panel__body">
+      <section class="psec">
+        <span class="eyebrow">This workstation</span>
+        <div class="src">
+          <div class="src__item is-selected"><svg class="ic"><use href="#i-directory"/></svg><b>Local store</b><span class="t2">2 studies</span><span class="src__sub">Encrypted cache · 1 patient</span></div>
+          <div class="src__item"><svg class="ic"><use href="#i-engine"/></svg><span>DICOM receiver</span><span class="dot dot--success"></span><span class="src__sub">AE NEUROMR · port 11112 · listening</span></div>
+        </div>
+      </section>
+      <section class="psec">
+        <span class="eyebrow">Import</span>
+        <div class="psec__row">
+          <button class="btn btn--secondary btn--dense">Folder… <span class="kbd">Ctrl+O</span></button>
+          <button class="btn btn--secondary btn--dense">DICOMDIR…</button>
+        </div>
+        <span class="field__hint">Imported files are classified and pre-processed in the background.</span>
+      </section>
+      <section class="psec">
+        <div class="psec__row"><span class="eyebrow">PACS nodes</span><span class="spacer"></span><button class="link dense">Configure</button></div>
+        <div class="src">
+          <div class="src__item"><svg class="ic"><use href="#i-display"/></svg><span>Site PACS</span><span class="dot dot--success"></span><span class="src__sub">AE SITE_PACS · C-ECHO 14 ms</span></div>
+          <div class="src__item"><svg class="ic"><use href="#i-display"/></svg><span>Research archive</span><span class="dot dot--idle"></span><span class="src__sub">AE RES_ARCH · not checked</span></div>
+        </div>
+      </section>
+      <section class="psec" style="border-bottom: 0">
+        <div class="notice notice--warning" role="note" data-od-id="dir-006">
+          <svg class="ic"><use href="#i-warn"/></svg>
+          <span class="notice__text">1 file from the last import was quarantined because it has no pixel data — <button class="link dense">review quarantine</button>.</span>
+        </div>
+      </section>
+    </div>
+  </aside>
+
+  <!-- ============ Search and filters ============ -->
+  <div class="toolbar" role="toolbar" aria-label="Search and filters" data-od-id="dir-toolbar">
+    <div class="search" role="search"><svg class="ic"><use href="#i-search"/></svg><span>Patient name, ID or accession</span><span class="spacer"></span><span class="kbd">Ctrl+K</span></div>
+    <span class="tb-sep"></span>
+    <button class="picker">Date: any<svg class="ic ic--sm"><use href="#i-chev-down"/></svg></button>
+    <button class="picker">Modality: MR<svg class="ic ic--sm"><use href="#i-chev-down"/></svg></button>
+    <button class="picker">Series type: all<svg class="ic ic--sm"><use href="#i-chev-down"/></svg></button>
+    <span class="spacer"></span>
+    <button class="btn btn--ghost btn--dense">Query PACS… <span class="kbd">Ctrl+Q</span></button>
+    <button class="btn btn--secondary btn--dense">Add to running session</button>
+  </div>
+
+  <main class="dir" aria-label="Studies and series" data-od-id="dir-main">
+    <section class="dir__block" aria-label="Studies">
+      <div class="dir__head"><h2>Studies</h2><span class="dense t3">2 of 2 · local store</span></div>
+      <div class="dir__scroll">
+        <table class="tbl" data-od-id="study-list">
+          <colgroup><col style="width:16%"><col style="width:13%"><col style="width:9%"><col style="width:5%"><col style="width:9%"><col><col style="width:6%"><col style="width:7%"><col style="width:7%"><col style="width:10%"></colgroup>
+          <thead><tr><th>Patient</th><th>Patient ID</th><th>Birth date</th><th>Sex</th><th>Study date</th><th>Description</th><th class="num">Series</th><th class="num">Images</th><th>Modality</th><th>Accession</th></tr></thead>
+          <tbody>
+            <tr class="is-selected" aria-selected="true"><td class="strong mono">PHANTOM^SYNTHETIC</td><td class="mono">NMR-PHANTOM-001</td><td>1970-01-01</td><td>O</td><td>2026-01-01</td><td>NeuroMR-PRO synthetic phantom</td><td class="num">15</td><td class="num">1 849</td><td>MR · 3.0 T</td><td class="mono">PHANTOM0001</td></tr>
+            <tr><td class="strong mono">PHANTOM^SYNTHETIC</td><td class="mono">NMR-PHANTOM-001</td><td>1970-01-01</td><td>O</td><td>2026-07-01</td><td>NeuroMR-PRO synthetic phantom</td><td class="num">1</td><td class="num">32</td><td>MR · 3.0 T</td><td class="mono">PHANTOM0002</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="dir__block" aria-label="Series" style="border-bottom: 0">
+      <div class="dir__head"><h2>Series</h2><span class="dense t3">2026-01-01 · 15 series · 1 selected</span><span class="spacer"></span><span class="dense t3">Ctrl+click or Shift+click to select several</span></div>
+      <div class="dir__scroll">
+        <table class="tbl tbl--series" data-od-id="series-list">
+          <colgroup><col style="width:5%"><col style="width:5%"><col style="width:22%"><col style="width:20%"><col style="width:8%"><col style="width:16%"><col></colgroup>
+          <thead><tr><th></th><th class="num">#</th><th>Series description</th><th>Type</th><th class="num">Images</th><th>Dimensions</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td><span class="thumb"><img src="../assets/img/dsc_source_dyn01.png" alt=""></span></td><td class="num">120</td><td class="strong">DSC perf SNR20</td><td><span class="type">DSC</span></td><td class="num">240</td><td>60 dyn × 4 sl · 64²</td><td><span class="dot dot--success" style="display: inline-block"></span> Ready</td></tr>
+            <tr class="is-selected" aria-selected="true"><td><span class="thumb"><img src="../assets/img/dsc_source_dyn01.png" alt=""></span></td><td class="num">150</td><td class="strong">DSC perf SNR50</td><td><span class="type">DSC</span></td><td class="num">240</td><td>60 dyn × 4 sl · 64²</td><td><span class="dot dot--success" style="display: inline-block"></span> Ready</td></tr>
+            <tr><td><span class="thumb"><img src="../assets/img/dsc_source_dyn01.png" alt=""></span></td><td class="num">160</td><td class="strong">DSC perf leakage</td><td><span class="type">DSC</span></td><td class="num">160</td><td>40 dyn × 4 sl · 64²</td><td><span class="dot dot--success" style="display: inline-block"></span> Ready</td></tr>
+            <tr><td><span class="thumb"><img src="../assets/img/dce_source.png" alt=""></span></td><td class="num">200</td><td class="strong">T1 DCE semiquant</td><td><span class="type">DCE</span><span class="type">T1</span></td><td class="num">24</td><td>12 dyn × 2 sl · 48²</td><td><span class="dot dot--success" style="display: inline-block"></span> Ready</td></tr>
+            <tr><td><span class="thumb"><img src="../assets/img/perm_source.png" alt=""></span></td><td class="num">210</td><td class="strong">T1 DCE permeability</td><td><span class="type">DCE</span><span class="type">T1</span></td><td class="num">120</td><td>60 dyn × 2 sl · 48²</td><td><span class="dot dot--success" style="display: inline-block"></span> Ready</td></tr>
+            <tr><td><span class="thumb"><img src="../assets/img/perm_vfa5.png" alt=""></span></td><td class="num">211</td><td class="strong">T1 FFE VFA 5deg</td><td><span class="type">VFA ref</span><span class="type">T1</span></td><td class="num">2</td><td>2 sl · 48² · FA 5°</td><td><span class="dot dot--success" style="display: inline-block"></span> Ready</td></tr>
+            <tr><td><span class="thumb"><img src="../assets/img/perm_vfa15.png" alt=""></span></td><td class="num">212</td><td class="strong">T1 FFE VFA 15deg</td><td><span class="type">VFA ref</span><span class="type">T1</span></td><td class="num">2</td><td>2 sl · 48² · FA 15°</td><td><span class="dot dot--success" style="display: inline-block"></span> Ready</td></tr>
+            <tr><td><span class="thumb"><img src="../assets/img/dti_b0.png" alt=""></span></td><td class="num">306</td><td class="strong">DTI 6dir</td><td><span class="type">DTI</span><span class="type">DWI</span></td><td class="num">14</td><td>7 vol × 2 sl · 6 dir</td><td><span class="dot dot--success" style="display: inline-block"></span> Ready</td></tr>
+            <tr><td><span class="thumb"><img src="../assets/img/dti_b0.png" alt=""></span></td><td class="num">332</td><td class="strong">DTI 32dir</td><td><span class="type">DTI</span><span class="type">DWI</span></td><td class="num">66</td><td>33 vol × 2 sl · 32 dir</td><td><span class="dot dot--success" style="display: inline-block"></span> Ready</td></tr>
+            <tr><td><span class="thumb"><img src="../assets/img/dti_b0.png" alt=""></span></td><td class="num">364</td><td class="strong">DTI 64dir</td><td><span class="type">DTI</span><span class="type">DWI</span></td><td class="num">130</td><td>65 vol × 2 sl · 64 dir</td><td><span class="dot dot--success" style="display: inline-block"></span> Ready</td></tr>
+            <tr><td><span class="thumb"><img src="../assets/img/dti_b0.png" alt=""></span></td><td class="num">399</td><td class="strong">DTI multishell</td><td><span class="type">DTI</span><span class="type">DWI</span></td><td class="num">194</td><td>97 vol × 2 sl</td><td><span class="progress" data-od-id="dir-005-progress"><span class="progress__bar" style="--v: 64%"></span><span class="progress__pct">64 %</span><span class="t2">Pre-processing</span><button class="link dense">Cancel</button></span></td></tr>
+            <tr><td><span class="thumb"><img src="../assets/img/ivim_b0.png" alt=""></span></td><td class="num">400</td><td class="strong">DWI IVIM DKI</td><td><span class="type">DWI</span></td><td class="num">24</td><td>12 b × 2 sl · iso</td><td><span class="dot dot--success" style="display: inline-block"></span> Ready</td></tr>
+            <tr><td><span class="thumb"><img src="../assets/img/fmri_epi_z3.png" alt=""></span></td><td class="num">500</td><td class="strong">fMRI BOLD block</td><td><span class="type">fMRI</span></td><td class="num">600</td><td>100 dyn × 6 sl · 48²</td><td><span class="dot dot--success" style="display: inline-block"></span> Ready</td></tr>
+            <tr><td><span class="thumb"><img src="../assets/img/flair_baseline.png" alt=""></span></td><td class="num">600</td><td class="strong">3D FLAIR</td><td><span class="type">FLAIR</span></td><td class="num">32</td><td>32 sl · 64² · 1.0 mm</td><td><span class="dot dot--success" style="display: inline-block"></span> Ready</td></tr>
+            <tr><td><span class="thumb"><svg viewBox="0 0 100 100" aria-hidden="true">
+<!-- gen:mrs-thumb -->
+<polyline class="g-curve" style="stroke: var(--nm-color-text-primary); stroke-width: 3" points="0.1,90.3 0.3,90.0 0.5,90.7 0.7,90.8 0.9,91.0 1.2,90.2 1.4,90.6 1.6,90.0 1.8,89.4 2.0,89.5 2.2,89.7 2.4,89.1 2.6,90.0 2.8,90.4 3.0,90.0 3.2,90.0 3.4,90.7 3.6,89.6 3.8,89.6 4.1,89.7 4.2,88.3 4.5,89.3 4.6,89.2 4.9,89.0 5.1,88.9 5.3,88.6 5.5,87.8 5.7,87.1 5.9,85.2 6.1,84.6 6.3,82.7 6.5,80.7 6.7,77.9 6.9,73.9 7.1,68.5 7.4,61.2 7.5,59.4 7.8,61.7 8.0,66.3 8.2,72.8 8.4,77.5 8.6,79.7 8.8,82.9 9.0,84.6 9.2,86.0 9.4,86.2 9.6,86.9 9.8,87.3 10.0,87.6 10.2,87.6 10.4,88.2 10.6,88.0 10.9,88.4 11.1,88.5 11.3,88.7 11.5,89.0 11.7,89.1 11.9,89.3 12.1,89.2 12.3,89.0 12.5,89.6 12.7,89.5 12.9,89.0 13.1,88.8 13.3,89.5 13.5,88.5 13.8,88.3 13.9,88.1 14.2,87.3 14.4,86.6 14.6,86.6 14.8,86.8 15.0,87.2 15.2,87.6 15.4,85.8 15.6,85.4 15.8,82.9 16.0,80.5 16.2,78.5 16.4,75.5 16.6,68.6 16.8,61.7 17.1,55.1 17.3,51.8 17.5,52.6 17.7,59.6 17.9,67.5 18.1,73.4 18.3,77.7 18.5,80.1 18.7,82.2 18.9,84.7 19.1,85.6 19.3,86.7 19.5,87.1 19.7,87.7 19.9,87.8 20.2,88.0 20.4,87.9 20.6,87.9 20.8,89.5 21.0,88.8 21.2,89.9 21.4,88.1 21.6,88.0 21.8,87.7 22.0,88.2 22.2,88.8 22.4,88.2 22.6,88.0 22.8,88.7 23.1,88.9 23.2,88.3 23.5,88.6 23.6,87.6 23.9,87.9 24.1,87.9 24.3,88.1 24.5,87.2 24.7,87.6 24.9,87.1 25.1,86.9 25.3,85.1 25.5,84.3 25.7,82.2 25.9,78.6 26.1,75.1 26.4,71.7 26.5,67.8 26.8,65.7 27.0,67.9 27.2,72.0 27.4,76.7 27.6,79.5 27.8,82.1 28.0,82.7 28.2,83.1 28.4,84.3 28.6,84.0 28.8,84.5 29.0,83.9 29.2,83.3 29.4,83.2 29.6,82.2 29.9,79.9 30.1,79.0 30.3,77.0 30.5,73.1 30.7,66.9 30.9,59.4 31.1,49.8 31.3,38.1 31.5,29.2 31.7,29.0 31.9,36.2 32.1,48.0 32.3,58.6 32.5,66.6 32.8,72.9 32.9,76.0 33.2,78.7 33.4,80.2 33.6,82.5 33.8,84.1 34.0,84.2 34.2,85.5 34.4,86.3 34.6,86.7 34.8,88.0 35.0,87.3 35.2,87.8 35.4,88.3 35.6,88.1 35.8,89.2 36.1,88.8 36.3,88.7 36.5,89.7 36.7,88.9 36.9,89.0 37.1,89.1 37.3,89.6 37.5,89.5 37.7,89.3 37.9,88.5 38.1,89.2 38.3,90.2 38.5,90.4 38.7,90.0 38.9,89.6 39.2,89.8 39.4,89.4 39.6,89.6 39.8,89.3 40.0,89.5 40.2,89.7 40.4,89.9 40.6,90.1 40.8,89.8 41.0,90.1 41.2,89.5 41.4,89.0 41.6,89.5 41.8,90.4 42.1,91.1 42.2,91.3 42.5,91.7 42.6,91.0 42.9,90.6 43.1,90.1 43.3,90.0 43.5,90.2 43.7,91.0 43.9,90.1 44.1,90.4 44.3,90.0 44.5,90.0 44.7,90.3 44.9,90.7 45.1,89.8 45.4,89.1 45.5,90.1 45.8,90.6 46.0,90.0 46.2,90.6 46.4,89.5 46.6,89.7 46.8,90.0 47.0,89.9 47.2,89.6 47.4,89.5 47.6,89.8 47.8,89.4 48.0,89.9 48.2,89.3 48.4,89.2 48.6,89.7 48.9,90.6 49.1,90.3 49.3,89.7 49.5,89.7 49.7,89.8 49.9,90.1 50.1,90.8 50.3,90.8 50.5,90.1 50.7,90.4 50.9,90.4 51.1,90.1 51.3,90.0 51.5,90.4 51.8,89.8 51.9,90.2 52.2,90.0 52.4,90.4 52.6,90.1 52.8,90.4 53.0,89.4 53.2,89.5 53.4,88.6 53.6,89.8 53.8,89.3 54.0,89.3 54.2,88.9 54.4,90.3 54.6,88.3 54.8,87.9 55.1,88.8 55.3,88.2 55.5,87.7 55.7,87.5 55.9,87.7 56.1,87.8 56.3,86.7 56.5,85.6 56.7,85.1 56.9,83.5 57.1,82.9 57.3,80.8 57.5,79.2 57.7,76.9 57.9,71.8 58.2,65.9 58.4,58.0 58.6,46.4 58.8,32.0 59.0,18.6 59.2,12.0 59.4,17.6 59.6,31.3 59.8,46.4 60.0,57.9 60.2,66.0 60.4,71.7 60.6,75.0 60.8,78.9 61.1,80.8 61.2,81.8 61.5,83.6 61.6,84.6 61.9,85.9 62.1,85.7 62.3,87.0 62.5,86.9 62.7,87.9 62.9,88.0 63.1,89.0 63.3,89.5 63.5,89.1 63.7,89.5 63.9,89.5 64.1,89.6 64.4,89.5 64.5,89.7 64.8,89.1 65.0,89.3 65.2,89.9 65.4,89.5 65.6,89.5 65.8,89.4 66.0,90.0 66.2,90.7 66.4,89.5 66.6,89.9 66.8,90.0 67.0,90.7 67.2,90.3 67.4,90.1 67.6,90.3 67.9,89.5 68.1,89.3 68.3,90.2 68.5,89.7 68.7,91.0 68.9,90.9 69.1,90.9 69.3,90.6 69.5,90.9 69.7,90.2 69.9,89.8 70.1,90.2 70.3,90.3 70.5,90.1 70.8,90.0 70.9,89.6 71.2,89.8 71.4,90.1 71.6,90.0 71.8,89.4 72.0,90.0 72.2,90.4 72.4,91.0 72.6,91.0 72.8,91.4 73.0,89.7 73.2,90.7 73.4,91.3 73.6,89.3 73.8,89.9 74.1,90.0 74.3,90.3 74.5,90.8 74.7,90.5 74.9,90.0 75.1,90.5 75.3,90.7 75.5,90.6 75.7,89.8 75.9,90.1 76.1,89.9 76.3,91.0 76.5,90.0 76.7,90.4 76.9,89.9 77.2,89.9 77.4,91.0 77.6,90.4 77.8,91.3 78.0,91.2 78.2,90.1 78.4,90.3 78.6,91.4 78.8,90.7 79.0,91.3 79.2,90.6 79.4,90.3 79.6,90.9 79.8,91.1 80.1,90.6 80.2,90.6 80.5,90.9 80.6,89.8 80.9,91.6 81.1,90.4 81.3,90.3 81.5,89.4 81.7,90.3 81.9,90.6 82.1,90.0 82.3,90.4 82.5,90.6 82.7,91.0 82.9,90.9 83.1,91.1 83.4,90.4 83.5,90.6 83.8,90.4 84.0,90.5 84.2,90.2 84.4,90.8 84.6,90.7 84.8,89.8 85.0,89.4 85.2,91.2 85.4,90.3 85.6,90.4 85.8,91.6 86.0,90.9 86.2,90.9 86.4,90.3 86.6,90.5 86.9,91.0 87.1,90.3 87.3,90.5 87.5,90.6 87.7,90.5 87.9,89.8 88.1,89.9 88.3,91.1 88.5,90.5 88.7,90.1 88.9,91.0 89.1,90.5 89.3,90.1 89.5,89.9 89.8,90.5 89.9,90.4 90.2,90.1 90.4,89.9 90.6,89.7 90.8,90.8 91.0,89.4 91.2,90.1 91.4,89.8 91.6,89.5 91.8,89.9 92.0,90.3 92.2,90.5 92.4,90.1 92.6,89.8 92.8,90.4 93.1,90.4 93.3,90.1 93.5,90.0 93.7,90.6 93.9,90.5 94.1,90.5 94.3,91.4 94.5,90.9 94.7,90.2 94.9,90.4 95.1,91.1 95.3,90.5 95.5,91.0 95.7,90.1 95.9,90.3 96.2,91.2 96.4,91.0 96.6,90.2 96.8,90.3 97.0,89.7 97.2,90.3 97.4,90.6 97.6,90.0 97.8,90.7 98.0,90.9 98.2,90.5 98.4,91.4 98.6,91.2 98.8,90.7 99.1,91.2 99.2,90.8 99.5,91.0 99.6,90.8 99.9,90.6"/>
+<!-- /gen:mrs-thumb -->
+            </svg></span></td><td class="num">700</td><td class="strong">MRS SVS PRESS</td><td><span class="type">MRS-SVS</span></td><td class="num">1</td><td>2048 pts · 2000 Hz</td><td><span class="dot dot--success" style="display: inline-block"></span> Ready</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ Analysis launcher ============ -->
+  <aside class="inspector" aria-label="Analysis launcher" data-od-id="launcher">
+    <div class="inspector__head"><h2 class="panel__title">Open with</h2><span class="spacer"></span><span class="dense t3">DSC perf SNR50</span></div>
+    <div class="panel__body">
+      <div class="lx" role="listbox" aria-label="Packages">
+        <div class="lx__item is-valid is-selected" role="option" aria-selected="true"><svg class="ic"><use href="#i-check"/></svg><span class="lx__name">DSC Neuro Perfusion</span><span class="kbd">Enter</span><span class="lx__sub">Mismatch available: DTI 32dir has 2 b-values</span></div>
+        <div class="lx__item is-valid" role="option"><svg class="ic"><use href="#i-check"/></svg><span class="lx__name">DCE / T1 Perfusion</span><span></span></div>
+        <div class="lx__item is-valid" role="option"><svg class="ic"><use href="#i-check"/></svg><span class="lx__name">Brain Function</span><span></span></div>
+        <div class="lx__item is-valid" role="option"><svg class="ic"><use href="#i-check"/></svg><span class="lx__name">Longitudinal Brain Analysis</span><span></span></div>
+        <div class="lx__item is-valid" role="option"><svg class="ic"><use href="#i-check"/></svg><span class="lx__name">Subtraction</span><span></span></div>
+        <div class="lx__item is-invalid" role="option" aria-disabled="true"><svg class="ic"><use href="#i-close"/></svg><span class="lx__name">Permeability</span><span></span><span class="lx__why">Needs a non-dynamic T1 reference series for the baseline T1 map.</span></div>
+        <div class="lx__item is-invalid" role="option" aria-disabled="true"><svg class="ic"><use href="#i-close"/></svg><span class="lx__name">Diffusion</span><span></span><span class="lx__why">Needs at least 2 b-values.</span></div>
+        <div class="lx__item is-invalid" role="option" aria-disabled="true"><svg class="ic"><use href="#i-close"/></svg><span class="lx__name">Tractography</span><span></span><span class="lx__why">Needs at least 2 b-values.</span></div>
+        <div class="lx__item is-invalid" role="option" aria-disabled="true"><svg class="ic"><use href="#i-close"/></svg><span class="lx__name">Advanced Diffusion</span><span></span><span class="lx__why">Needs at least 2 b-values.</span></div>
+        <div class="lx__item is-invalid" role="option" aria-disabled="true"><svg class="ic"><use href="#i-close"/></svg><span class="lx__name">Spectroscopy</span><span></span><span class="lx__why">Needs a spectroscopy series.</span></div>
+        <div class="lx__item is-invalid" role="option" aria-disabled="true"><svg class="ic"><use href="#i-close"/></svg><span class="lx__name">Echo Accumulation</span><span></span><span class="lx__why">Needs a series with at least 2 echoes.</span></div>
+      </div>
+    </div>
+    <div class="panel__foot">
+      <button class="btn btn--primary btn--block">Open DSC Neuro Perfusion <span class="kbd">Enter</span></button>
+    </div>
+  </aside>
+
+  <!-- gen:statusbar-dir -->
+<footer class="statusbar" data-od-id="statusbar">
+    <span class="sb-item"><svg class="ic"><use href="#i-jobs"/></svg>Jobs <b>0 running</b></span>
+    <span class="sb-sep"></span>
+    <span class="sb-item"><span class="dot dot--warning"></span><b>Pre-processing 1 series</b> · DTI multishell 64 %</span>
+    <span class="sb-sep"></span>
+    <span class="sb-item"><svg class="ic"><use href="#i-engine"/></svg>Engine <span class="dot dot--success"></span><b>connected</b> · local</span>
+    <span class="sb-sep"></span>
+    <span class="sb-item">Licence <b>active</b></span>
+    <span class="spacer"></span>
+    <span class="sb-item"><svg class="ic"><use href="#i-display"/></svg><b>Diagnostic display</b></span>
+    <span class="sb-sep"></span>
+    <span class="sb-item"><span class="kbd">?</span> shortcuts</span>
+  </footer>
+<!-- /gen:statusbar-dir -->
+</div>
+</body>
+</html>

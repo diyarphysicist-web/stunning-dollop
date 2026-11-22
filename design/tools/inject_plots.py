@@ -18,6 +18,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 DATA = json.loads((ROOT / "design/assets/data/phantom-data.json").read_text(encoding="utf-8"))
 SCREENS = ROOT / "design/screens"
+NL = chr(10)
 
 # Shared graph frame (matches screen 03): viewBox 640 × 452, plot area x 56…620, y 36…404
 W, H, X0, X1, Y0, Y1 = 640, 452, 56.0, 620.0, 36.0, 404.0
@@ -113,12 +114,175 @@ def mm_signal() -> str:
     return "\n".join(out)
 
 
+def topbar(studies: str = '<span class="bf"><span class="bf__k">Study</span><span class="bf__v">2026-01-01</span></span>') -> str:
+    return f'''<header class="topbar" data-od-id="topbar">
+    <div class="brand"><svg class="ic brand__mark"><use href="#i-brand"/></svg>NeuroMR-PRO</div>
+    <div class="banner" data-od-id="patient-banner" aria-label="Patient">
+      <span class="banner__name">PHANTOM^SYNTHETIC</span>
+      <span class="bf"><span class="bf__k">ID</span><span class="bf__v mono">NMR-PHANTOM-001</span></span>
+      <span class="bf"><span class="bf__k">Sex</span><span class="bf__v">O</span></span>
+      <span class="bf"><span class="bf__k">Age</span><span class="bf__v">56 y</span><span class="bf__k">(DOB 1970-01-01)</span></span>
+      {studies}
+      <span class="bf"><span class="bf__k">Modality</span><span class="bf__v">MR · 3.0 T</span></span>
+      <span class="bf"><span class="bf__k">Acc</span><span class="bf__v mono">PHANTOM0001</span></span>
+    </div>
+    <div class="topbar__actions">
+      <button class="ibtn" aria-label="Search studies (Ctrl+K)"><svg class="ic"><use href="#i-search"/></svg></button>
+      <button class="ibtn" aria-label="Keyboard shortcuts (?)"><svg class="ic"><use href="#i-keyboard"/></svg></button>
+      <button class="ibtn" aria-label="Account and sign out"><svg class="ic"><use href="#i-user"/></svg></button>
+      <div class="winctl">
+        <button aria-label="Minimise"><svg class="ic ic--sm"><use href="#i-min"/></svg></button>
+        <button aria-label="Maximise"><svg class="ic ic--sm"><use href="#i-max"/></svg></button>
+        <button class="winctl__close" aria-label="Close"><svg class="ic ic--sm"><use href="#i-close"/></svg></button>
+      </div>
+    </div>
+  </header>'''
+
+
+def rail(active: str) -> str:
+    items = [("Directory", "directory", "Ctrl+1"), ("Viewer", "viewer", "Ctrl+2"), ("Analysis", "analysis", "Ctrl+3"), ("Reports", "reports", "Ctrl+4"), ("Settings", "settings", "Ctrl+,")]
+    out = ['<nav class="rail" aria-label="Activities" data-od-id="activity-rail">']
+    for name, icon, key in items:
+        cls = "rail__item" + (" is-active" if name.lower() == active else "") + (" rail__end" if name == "Settings" else "")
+        cur = ' aria-current="page"' if name.lower() == active else ""
+        out.append(f'    <button class="{cls}"{cur} aria-label="{name} ({key})"><svg class="ic"><use href="#i-{icon}"/></svg>{name}</button>')
+    out.append("  </nav>")
+    return NL.join(out)
+
+
+def statusbar(state: str = '<span class="dot dot--success"></span><b>Maps up to date</b>') -> str:
+    return f'''<footer class="statusbar" data-od-id="statusbar">
+    <span class="sb-item"><svg class="ic"><use href="#i-jobs"/></svg>Jobs <b>0 running</b></span>
+    <span class="sb-sep"></span>
+    <span class="sb-item">{state}</span>
+    <span class="sb-sep"></span>
+    <span class="sb-item"><svg class="ic"><use href="#i-engine"/></svg>Engine <span class="dot dot--success"></span><b>connected</b> · local</span>
+    <span class="sb-sep"></span>
+    <span class="sb-item">Licence <b>active</b></span>
+    <span class="spacer"></span>
+    <span class="sb-item"><svg class="ic"><use href="#i-display"/></svg><b>Diagnostic display</b></span>
+    <span class="sb-sep"></span>
+    <span class="sb-item"><span class="kbd">?</span> shortcuts</span>
+  </footer>'''
+
+
+STATUS = {
+    "dir": '<span class="dot dot--warning"></span><b>Pre-processing 1 series</b> · DTI multishell 64 %',
+    "preview": '<span class="dot dot--success"></span><b>Live preview</b> · ADC, eADC and DWI-iso compute on Generate',
+}
+
+
 def sprite() -> str:
     src = (SCREENS / "icons.svg").read_text(encoding="utf-8")
     return src[src.index("<svg") :].strip()
 
 
-GENERATORS = {"sprite": sprite, "aif-grid": aif_grid, "aif-average": aif_average, "mm-signal": mm_signal}
+# ── DCE / T1 Perfusion (semi-quantitative preview, DCE-005/006) ───────────────
+DCE_ROIS = {"ROI1": "class2", "ROI2": "class1", "ROI3": "class3"}
+
+
+def _line(ts: list[float], ys: list[float]) -> tuple[float, float, float]:
+    n = len(ts)
+    mt, my = sum(ts) / n, sum(ys) / n
+    sxx = sum((t - mt) ** 2 for t in ts)
+    b = sum((t - mt) * (y - my) for t, y in zip(ts, ys, strict=True)) / sxx
+    a = my - b * mt
+    sse = sum((y - (a + b * t)) ** 2 for t, y in zip(ts, ys, strict=True))
+    return a, b, sse
+
+
+def dce_params(c: list[float], t: list[float], cur: int) -> dict[str, float]:
+    s0 = (c[0] + c[1]) / 2
+    i0 = next(i for i, v in enumerate(c) if v >= 1.2 * s0)
+    ip = max(range(len(c)), key=lambda i: c[i])
+    a = max(i0 - 1, 0)
+    n = len(c)
+    best = None
+    for k in range(a + 2, n - 1):  # bilinear fit: wash-in a..k, wash-out k..n-1, best knee by SSE (> 8 dynamics)
+        l1, l2 = _line(t[a : k + 1], c[a : k + 1]), _line(t[k:], c[k:])
+        if best is None or l1[2] + l2[2] < best[0]:
+            best = (l1[2] + l2[2], k, l1, l2)
+    _, k, l1, l2 = best
+    area = sum((max(c[i] - s0, 0) + max(c[i + 1] - s0, 0)) / 2 * (t[i + 1] - t[i]) for i in range(n - 1))
+    return {
+        "S0": s0, "T0": t[i0], "TTP": t[ip], "MAXENH": c[ip] - s0, "MAXRELENH": 100 * (c[ip] - s0) / s0,
+        "RELENH": 100 * (c[cur - 1] / c[0] - 1), "WASHIN": l1[1], "WASHOUT": l2[1],
+        "BREVENH": (t[k] + t[-1]) / 2 - (t[a] + t[k]) / 2, "AREACURV": area,
+        "_fit": (t[a], t[k], t[-1], l1, l2),
+    }
+
+
+def _dce_all() -> tuple[list[float], dict[str, dict[str, float]], int]:
+    d = DATA["dce"]
+    cur = d["source_dynamic"]
+    return d["times_s"], {r: dce_params(d["curves"][c], d["times_s"], cur) for r, c in DCE_ROIS.items()}, cur
+
+
+def dce_graph() -> str:
+    t, ps, cur = _dce_all()
+    d = DATA["dce"]
+    out, sx, sy = axes([0, 20, 40, 60, 80, 100, 120], [100, 200, 300, 400, 500, 600, 700, 800], (0, 115), (100, 800), "Time [s]", "Signal [a.u.]")
+    for x, lab in ((t[0], "Ref · Dyn 1"), (t[cur - 1], f"Dyn {cur} · {t[cur - 1]:.0f} s")):
+        out.append(f'<line class="g-marker" x1="{f1(sx(x))}" y1="{f1(Y0 - 6)}" x2="{f1(sx(x))}" y2="{f1(Y1)}"/>')
+        out.append(f'<text class="g-marker-label" x="{f1(sx(x) + 4)}" y="{f1(Y0 - 8)}">{lab}</text>')
+    for i, (roi, cls) in enumerate(DCE_ROIS.items(), start=1):
+        out.append(poly(f"g-curve g-curve--{i}", t, d["curves"][cls], sx, sy))
+    ta, tk, te, l1, l2 = ps["ROI1"]["_fit"]
+    out.append(f'<polyline class="g-fit" points="{f1(sx(ta))},{f1(sy(l1[0] + l1[1] * ta))} {f1(sx(tk))},{f1(sy(l1[0] + l1[1] * tk))}"/>')
+    out.append(f'<polyline class="g-fit" points="{f1(sx(tk))},{f1(sy(l2[0] + l2[1] * tk))} {f1(sx(te))},{f1(sy(l2[0] + l2[1] * te))}"/>')
+    return NL.join(out)
+
+
+def dce_table() -> str:
+    _, ps, cur = _dce_all()
+    rows = [
+        ("RELENH", f"Dyn {cur}", "%", 1), ("MAXRELENH", "", "%", 1), ("MAXENH", "", "a.u.", 1), ("S0", "", "a.u.", 1),
+        ("T0", "", "s", 1), ("TTP", "", "s", 1), ("WASHIN", "fit", "a.u./s", 2), ("WASHOUT", "fit", "a.u./s", 2),
+        ("BREVENH", "fit", "s", 1), ("AREACURV", "", "a.u.·s", 0),
+    ]
+    out = []
+    for key, note, unit, nd in rows:
+        cells = "".join(f'<td class="num">{tick_label(round(ps[r][key], nd)) if nd else f"{ps[r][key]:,.0f}".replace(",", " ")}</td>' for r in DCE_ROIS)
+        n = f' <span class="t3">{note}</span>' if note else ""
+        out.append(f'<tr><td class="strong">{key}{n}</td>{cells}<td class="t2">{unit}</td></tr>')
+    return NL.join(out)
+
+
+# ── Permeability (phantom tissue classes; maps from ground truth, see renderer) ─
+PERM_ROIS = {"ROI1": "class2", "ROI2": "class1", "ROI3": "class3"}
+
+
+def perm_graph() -> str:
+    d = DATA["perm"]
+    t = d["times_s"]
+    out, sx, sy = axes([0, 40, 80, 120, 160, 200, 240], [0, 50, 100, 150, 200], (0, 240), (0, 200), "Time [s]", "Signal [a.u.]")
+    for i, cls in enumerate(PERM_ROIS.values(), start=1):
+        out.append(poly(f"g-curve g-curve--{i}", t, d["tissue_curves"][cls], sx, sy))
+    return NL.join(out)
+
+
+def perm_table() -> str:
+    tr = DATA["perm"]["truth"]
+    out = []
+    for i, (roi, cls) in enumerate(PERM_ROIS.items(), start=1):
+        k = int(cls[-1])
+        out.append(
+            f'<tr><td class="strong"><span class="swatch" style="--c: var(--nm-roi-{i})"></span>{roi}</td>'
+            f'<td class="num">{tr["ktrans"][k]:.3f}</td><td class="num">{tr["kep"][k]:.3f}</td>'
+            f'<td class="num">{tr["ve"][k]:.2f}</td><td class="num">{tr["vp"][k]:.3f}</td><td class="num">{tr["t1"][k]:.0f}</td></tr>'
+        )
+    return NL.join(out)
+
+
+def mrs_thumb() -> str:
+    m = DATA["mrs"]
+    ppm, y = m["ppm"], m["real"]
+    lo, hi = min(y), max(y)
+    pts = " ".join(f"{f1((4.2 - p) / 3.7 * 100)},{f1(92 - (v - lo) / (hi - lo) * 80)}" for p, v in zip(ppm, y, strict=True) if 0.5 <= p <= 4.2)
+    return f'<polyline class="g-curve" style="stroke: var(--nm-color-text-primary); stroke-width: 3" points="{pts}"/>'
+
+
+GENERATORS = {"topbar": topbar, "statusbar": statusbar, "dce-graph": dce_graph, "dce-table": dce_table, "perm-graph": perm_graph, "perm-table": perm_table, "mrs-thumb": mrs_thumb, "sprite": sprite, "aif-grid": aif_grid, "aif-average": aif_average, "mm-signal": mm_signal}
 
 
 def main() -> None:
@@ -129,7 +293,14 @@ def main() -> None:
 
         def sub(m: re.Match[str]) -> str:
             hits.append(m.group(2))
-            return f"{m.group(1)}\n{GENERATORS[m.group(2)]()}\n{m.group(4)}"
+            name = m.group(2)
+            if name.startswith("rail-"):
+                body = rail(name[5:])
+            elif name.startswith("statusbar-"):
+                body = statusbar(STATUS[name[10:]])
+            else:
+                body = GENERATORS[name]()
+            return f"{m.group(1)}\n{body}\n{m.group(4)}"
 
         out = pat.sub(sub, src)
         if hits:
