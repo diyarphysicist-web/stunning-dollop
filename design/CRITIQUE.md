@@ -93,3 +93,27 @@ Notes
 
 Consistency fix found in this batch
 - Tmax / Delay exists only for the Manual AIF method (DSC-013). Removed the Tmax tab from the Model-free screens (02, 03). The Mismatch screens (05) now state Manual AIF as the step-3 method, because Mismatch seeds on Tmax.
+
+## Batch 7
+
+| Screen | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 19 Sign-in | — | — | — | — | — | ✓ | — | — | — | ✓ |
+| 19 Lock | — | — | — | — | — | ✓ | — | — | ✓ | ✓ |
+| 19 Start · Neurologist | — | — | — | ✓ | — | ✓ | — | — | ✓ | ✓ |
+| 20 Multi-monitor (hanging protocols) | — | — | — | ✓ | — | ✓ | — | — | ✓ | ✓ |
+| 20 Display test pattern | ✓ | — | — | ✓ | — | ✓ | — | — | — | ✓ |
+| 21 Licence | — | — | — | ✓ | — | ✓ | — | — | ✓ | ✓ |
+| 21 System | — | — | — | ✓ | — | ✓ | — | — | ✓ | ✓ |
+| 22 Audit log | — | — | — | ✓ | — | ✓ | ✓ | — | ✓ | ✓ |
+| 22 Collect diagnostics | ~ | — | — | ✓ | ✓ | ✓ | — | — | ✓ | ✓ |
+| 23 Report · DSC | — | — | — | ✓ | — | ✓ | — | — | ✓ | ✓ |
+| 23 Report · Mismatch | — | — | — | ✓ | — | ✓ | — | — | ✓ | ✓ |
+
+Notes
+- **19.** Sign-in offers the three site-configurable methods (Windows single sign-on, organisation account through the system browser, local account) and shows no patient data. The lock screen hides patient information and says when and why the session locked. The role start view (Neurologist) shows Mismatch and Follow-up work that background pre-processing has already prepared, still marked "Not reviewed" where registration needs checking.
+- **20.** Window roles and hanging protocols per display configuration follow brief §12.3. The test pattern is an original, pixel-exact 8-bit image (grey steps, a ramp, 2 %/5 % and 95 %/98 % patches, 1–3 px line pairs and a grid) rendered by `render_phantom_imagery.py`, so no chrome tokens act as image data.
+- **21.** The licence page lists all seven modules. It shows a 30-day expiry warning (Spectroscopy trial) and states that expiry never blocks existing results (brief §12.7). Activation works offline with a request file and a signed licence file. The System page reports tier, engine, storage encryption and the 8-bit output note. Hardware values are an illustrative clinical-desktop machine.
+- **22.** Audit entries are this session's actions. The hash chain shows as verified, and export to ATNA syslog is provided. Collect diagnostics states what is included, says that no images or identifiers are included, and shows progress with Cancel.
+- **23.** Report pages use the new print tokens only inside `.paper`. The page fits the preview ("Fit page"). Each report carries site, patient and study identifiers, key images with LUT bars, tables, a graph (DSC), a method summary, version and timestamp (brief §12.6). The Mismatch report states the decision-support limit and "Registration not reviewed" (MM-011, SAFE-070). The institution reads "Demonstration site", because no site is configured.
+- **Design-system fix:** accent blue had leaked into graph data (fMRI paradigm shading, ADV fit line); both now use neutral tokens, as DESIGN.md requires.

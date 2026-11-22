@@ -175,6 +175,7 @@ def statusbar(state: str = '<span class="dot dot--success"></span><b>Maps up to 
 
 STATUS = {
     "dir": '<span class="dot dot--warning"></span><b>Pre-processing 1 series</b> · DTI multishell 64 %',
+    "report": '<span class="dot dot--success"></span><b>Report ready</b> · 1 page · A4',
     "idle": '<span class="dot dot--idle"></span><b>No study open</b>',
     "import": '<span class="dot dot--warning"></span><b>Importing</b> · 412 / 1 849 files · 22 %',
     "settings": '<span class="dot dot--success"></span><b>Settings saved</b> · changes apply to new sessions',
