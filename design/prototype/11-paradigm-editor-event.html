@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<!-- Prototype page built from design/screens/11-paradigm-editor-event.html by design/tools/compose/prototype.py. Edit the screen, then rebuild. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>NeuroMR-PRO · Paradigm Editor (event)</title>
+<meta name="viewport" content="width=1920, height=1080">
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/luts.css">
+<link rel="stylesheet" href="../screens/shell.css">
+<link rel="stylesheet" href="proto.css">
+</head>
+<body>
+
+<!-- gen:sprite -->
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-directory" viewBox="0 0 20 20"><path d="M2.5 5h5.5l1.5 1.75h8v9.75h-15z"/><path d="M2.5 9h15"/></symbol>
+  <symbol id="i-viewer" viewBox="0 0 20 20"><rect x="2.5" y="2.5" width="15" height="15" rx="1.5"/><path d="M10 6v8M6 10h8"/></symbol>
+  <symbol id="i-analysis" viewBox="0 0 20 20"><path d="M2.5 16.5h15"/><path d="M3 13.5l3.5-5 3 3L13 4.5l4 7"/></symbol>
+  <symbol id="i-reports" viewBox="0 0 20 20"><path d="M5 2.5h7l3.5 3.5v11.5H5z"/><path d="M12 2.5V6h3.5M7.5 10h5M7.5 13h5"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 20 20"><path d="M3.5 5h2M9 5h7.5M3.5 10h8M15 10h1.5M3.5 15h4M11 15h5.5"/><circle cx="7.25" cy="5" r="1.75"/><circle cx="13.25" cy="10" r="1.75"/><circle cx="9.25" cy="15" r="1.75"/></symbol>
+  <symbol id="i-scroll" viewBox="0 0 20 20"><rect x="5" y="7" width="10" height="6" rx="1"/><path d="M10 2.5v2.5M8.25 4.25L10 2.5l1.75 1.75M10 17.5V15M8.25 15.75L10 17.5l1.75-1.75"/></symbol>
+  <symbol id="i-pan" viewBox="0 0 20 20"><path d="M10 2.5v15M2.5 10h15M8 4.5l2-2 2 2M8 15.5l2 2 2-2M4.5 8l-2 2 2 2M15.5 8l2 2-2 2"/></symbol>
+  <symbol id="i-zoom" viewBox="0 0 20 20"><circle cx="8.5" cy="8.5" r="5.25"/><path d="M12.4 12.4l4.6 4.6M6.25 8.5h4.5M8.5 6.25v4.5"/></symbol>
+  <symbol id="i-wl" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7"/><path d="M10 3a7 7 0 0 1 0 14z" fill="currentColor"/></symbol>
+  <symbol id="i-mask" viewBox="0 0 20 20"><path d="M4 7c2-4 9.5-4.5 12-1s1 9.5-4.5 9.5S2 11.5 4 7z" stroke-dasharray="2 2"/><circle cx="10" cy="10" r="1.5"/></symbol>
+  <symbol id="i-ellipse" viewBox="0 0 20 20"><ellipse cx="10" cy="10" rx="7.25" ry="5.25"/><path d="M10 8.5v3M8.5 10h3"/></symbol>
+  <symbol id="i-spline" viewBox="0 0 20 20"><path d="M3.5 14.5C5 7 8 7 10 10s5 3 6.5-4.5"/><circle cx="3.5" cy="14.5" r="1.25"/><circle cx="10" cy="10" r="1.25"/><circle cx="16.5" cy="5.5" r="1.25"/></symbol>
+  <symbol id="i-freehand" viewBox="0 0 20 20"><path d="M5 13.5C2.5 9.5 5 4.5 10 4.5s7.5 4 5 7.5-7 2.5-8 .5 1.5-4 4-2"/></symbol>
+  <symbol id="i-mirror" viewBox="0 0 20 20"><path d="M10 2.5v15" stroke-dasharray="2 2.25"/><path d="M7.5 6L3 10l4.5 4zM12.5 6L17 10l-4.5 4z"/></symbol>
+  <symbol id="i-reset" viewBox="0 0 20 20"><path d="M4 10a6 6 0 1 0 1.75-4.25"/><path d="M4 3v3.5h3.5"/></symbol>
+  <symbol id="i-layout" viewBox="0 0 20 20"><rect x="3" y="3" width="14" height="14" rx="1"/><path d="M10 3v14M3 10h14"/></symbol>
+  <symbol id="i-undo" viewBox="0 0 20 20"><path d="M7 4.5L3.5 8 7 11.5"/><path d="M3.5 8H12a4.25 4.25 0 0 1 0 8.5H8.5"/></symbol>
+  <symbol id="i-redo" viewBox="0 0 20 20"><path d="M13 4.5L16.5 8 13 11.5"/><path d="M16.5 8H8a4.25 4.25 0 0 0 0 8.5h3.5"/></symbol>
+  <symbol id="i-bookmark" viewBox="0 0 20 20"><path d="M5.5 3h9v14L10 13.5 5.5 17z"/></symbol>
+  <symbol id="i-series" viewBox="0 0 20 20"><rect x="3" y="6" width="10.5" height="11" rx="1"/><path d="M6.5 3h10.5v11"/><path d="M8.25 9v5M5.75 11.5h5"/></symbol>
+  <symbol id="i-table-save" viewBox="0 0 20 20"><path d="M17 11V3.5H3v10h7"/><path d="M3 7h14M8 3.5v10"/><path d="M14.5 12.5v5M12.5 15.5l2 2 2-2"/></symbol>
+  <symbol id="i-check" viewBox="0 0 20 20"><path d="M4.5 10.5l3.5 3.5 7.5-8"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 20 20"><rect x="4.5" y="9" width="11" height="8" rx="1"/><path d="M7 9V6.5a3 3 0 0 1 6 0V9"/></symbol>
+  <symbol id="i-chev-down" viewBox="0 0 20 20"><path d="M6 8l4 4 4-4"/></symbol>
+  <symbol id="i-chev-right" viewBox="0 0 20 20"><path d="M8 6l4 4-4 4"/></symbol>
+  <symbol id="i-chev-left" viewBox="0 0 20 20"><path d="M12 6l-4 4 4 4"/></symbol>
+  <symbol id="i-link" viewBox="0 0 20 20"><path d="M8.25 11.75l3.5-3.5"/><path d="M9 6.25l1.5-1.5a3 3 0 0 1 4.25 4.25l-1.5 1.5M11 13.75l-1.5 1.5a3 3 0 0 1-4.25-4.25l1.5-1.5"/></symbol>
+  <symbol id="i-close" viewBox="0 0 20 20"><path d="M5.5 5.5l9 9M14.5 5.5l-9 9"/></symbol>
+  <symbol id="i-more" viewBox="0 0 20 20"><circle cx="5" cy="10" r="0.75"/><circle cx="10" cy="10" r="0.75"/><circle cx="15" cy="10" r="0.75"/></symbol>
+  <symbol id="i-info" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7"/><path d="M10 9v4.5M10 6.5v.01"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 20 20"><path d="M10 3l7.5 13.5h-15z"/><path d="M10 8.25v3.75M10 14.25v.01"/></symbol>
+  <symbol id="i-collapse" viewBox="0 0 20 20"><rect x="3" y="3.5" width="14" height="13" rx="1"/><path d="M8 3.5v13M13.5 8l-2 2 2 2"/></symbol>
+  <symbol id="i-engine" viewBox="0 0 20 20"><rect x="5" y="5" width="10" height="10" rx="1"/><path d="M8 2.5V5M12 2.5V5M8 15v2.5M12 15v2.5M2.5 8H5M2.5 12H5M15 8h2.5M15 12h2.5"/></symbol>
+  <symbol id="i-display" viewBox="0 0 20 20"><rect x="2.5" y="3.5" width="15" height="10" rx="1"/><path d="M7 17h6M10 13.5V17"/></symbol>
+  <symbol id="i-keyboard" viewBox="0 0 20 20"><rect x="2.5" y="5" width="15" height="10" rx="1"/><path d="M5.5 8h1M9.5 8h1M13.5 8h1M6.5 12h7"/></symbol>
+  <symbol id="i-search" viewBox="0 0 20 20"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></symbol>
+  <symbol id="i-user" viewBox="0 0 20 20"><circle cx="10" cy="7" r="3"/><path d="M4 17c1-3.5 3.25-5 6-5s5 1.5 6 5"/></symbol>
+  <symbol id="i-jobs" viewBox="0 0 20 20"><path d="M3 5.5h14M3 10h14M3 14.5h8"/></symbol>
+  <symbol id="i-min" viewBox="0 0 20 20"><path d="M5.5 10h9"/></symbol>
+  <symbol id="i-max" viewBox="0 0 20 20"><rect x="5.5" y="5.5" width="9" height="9"/></symbol>
+  <symbol id="i-brand" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7.25"/><path d="M5.5 10h2l1.25-3 2.5 6 1.25-3h2"/></symbol>
+  <symbol id="i-arrow-up" viewBox="0 0 20 20"><path d="M10 16V4M5.5 8.5L10 4l4.5 4.5"/></symbol>
+  <symbol id="i-arrow-down" viewBox="0 0 20 20"><path d="M10 4v12M5.5 11.5L10 16l4.5-4.5"/></symbol>
+  <symbol id="i-arrow-left" viewBox="0 0 20 20"><path d="M16 10H4M8.5 5.5L4 10l4.5 4.5"/></symbol>
+  <symbol id="i-arrow-right" viewBox="0 0 20 20"><path d="M4 10h12M11.5 5.5L16 10l-4.5 4.5"/></symbol>
+  <symbol id="i-rot-ccw" viewBox="0 0 20 20"><path d="M5 7.5A6 6 0 1 1 4 11"/><path d="M4.5 3.5V7.5h4"/></symbol>
+  <symbol id="i-rot-cw" viewBox="0 0 20 20"><path d="M15 7.5A6 6 0 1 0 16 11"/><path d="M15.5 3.5V7.5h-4"/></symbol>
+  <symbol id="i-translate" viewBox="0 0 20 20"><rect x="6.5" y="6.5" width="7" height="7" rx="0.5"/><path d="M10 2.5v2.5M10 15v2.5M2.5 10H5M15 10h2.5"/></symbol>
+  <symbol id="i-rotate" viewBox="0 0 20 20"><rect x="6.5" y="6.5" width="7" height="7" rx="0.5" transform="rotate(15 10 10)"/><path d="M3.5 7a7 7 0 0 1 6.5-4.5M16.5 13a7 7 0 0 1-6.5 4.5"/></symbol>
+  <symbol id="i-seed" viewBox="0 0 20 20"><circle cx="10" cy="10" r="3"/><path d="M10 2.5V6M10 14v3.5M2.5 10H6M14 10h3.5"/></symbol>
+  <symbol id="i-exclude" viewBox="0 0 20 20"><ellipse cx="10" cy="10" rx="7" ry="5.5" stroke-dasharray="2 2"/><path d="M7.5 7.5l5 5M12.5 7.5l-5 5"/></symbol>
+  <symbol id="i-box" viewBox="0 0 20 20"><rect x="4" y="4" width="12" height="12"/><path d="M8 4v12M12 4v12M4 8h12M4 12h12" stroke-opacity="0.6"/></symbol>
+  <symbol id="i-run" viewBox="0 0 20 20"><path d="M6.5 4.5v11l9-5.5z"/></symbol>
+  <symbol id="i-crosshair" viewBox="0 0 20 20"><path d="M10 2.5v5M10 12.5v5M2.5 10h5M12.5 10h5"/></symbol>
+  <symbol id="i-hatch" viewBox="0 0 20 20"><rect x="3" y="3" width="14" height="14" rx="1"/><path d="M3 9l6-6M3 15L15 3M9 17l8-8"/></symbol>
+</svg>
+<!-- /gen:sprite -->
+
+<!-- Brain Function (FMRI-001…015): tiled T-score SPMs on the mean BOLD (FMRI-010), single-slice view of the
+     selected tile, and the activation cluster's time-intensity curve with the paradigm (FMRI-011).
+     T maps and the cluster curve come from the fMRI block phantom (GLM in render_phantom_imagery.py). -->
+<div class="app app--no-inspector">
+  <!-- gen:topbar -->
+<header class="topbar" data-od-id="topbar">
+    <div class="brand"><svg class="ic brand__mark"><use href="#i-brand"/></svg>NeuroMR-PRO</div>
+    <div class="banner" data-od-id="patient-banner" aria-label="Patient">
+      <span class="banner__name">PHANTOM^SYNTHETIC</span>
+      <span class="bf"><span class="bf__k">ID</span><span class="bf__v mono">NMR-PHANTOM-001</span></span>
+      <span class="bf"><span class="bf__k">Sex</span><span class="bf__v">O</span></span>
+      <span class="bf"><span class="bf__k">Age</span><span class="bf__v">56 y</span><span class="bf__k">(DOB 1970-01-01)</span></span>
+      <span class="bf"><span class="bf__k">Study</span><span class="bf__v">2026-01-01</span></span>
+      <span class="bf"><span class="bf__k">Modality</span><span class="bf__v">MR · 3.0 T</span></span>
+      <span class="bf"><span class="bf__k">Acc</span><span class="bf__v mono">PHANTOM0001</span></span>
+    </div>
+    <div class="topbar__actions">
+      <button class="ibtn" aria-label="Search studies (Ctrl+K)"><svg class="ic"><use href="#i-search"/></svg></button>
+      <button class="ibtn" aria-label="Keyboard shortcuts (?)"><svg class="ic"><use href="#i-keyboard"/></svg></button>
+      <button class="ibtn" aria-label="Account and sign out"><svg class="ic"><use href="#i-user"/></svg></button>
+      <div class="winctl">
+        <button aria-label="Minimise"><svg class="ic ic--sm"><use href="#i-min"/></svg></button>
+        <button aria-label="Maximise"><svg class="ic ic--sm"><use href="#i-max"/></svg></button>
+        <button class="winctl__close" aria-label="Close"><svg class="ic ic--sm"><use href="#i-close"/></svg></button>
+      </div>
+    </div>
+  </header>
+<!-- /gen:topbar -->
+  <!-- gen:rail-analysis -->
+<nav class="rail" aria-label="Activities" data-od-id="activity-rail">
+    <button class="rail__item" aria-label="Directory (Ctrl+1)"><svg class="ic"><use href="#i-directory"/></svg>Directory</button>
+    <button class="rail__item" aria-label="Viewer (Ctrl+2)"><svg class="ic"><use href="#i-viewer"/></svg>Viewer</button>
+    <button class="rail__item is-active" aria-current="page" aria-label="Analysis (Ctrl+3)"><svg class="ic"><use href="#i-analysis"/></svg>Analysis</button>
+    <button class="rail__item" aria-label="Reports (Ctrl+4)"><svg class="ic"><use href="#i-reports"/></svg>Reports</button>
+    <button class="rail__item rail__end" aria-label="Settings (Ctrl+,)"><svg class="ic"><use href="#i-settings"/></svg>Settings</button>
+  </nav>
+<!-- /gen:rail-analysis -->
+
+  <aside class="panel" aria-label="Task guidance" data-od-id="task-panel">
+    <div class="panel__switch">
+      <div class="seg" role="tablist" aria-label="Left panel">
+        <button class="seg__item" role="tab">Series</button>
+        <button class="seg__item is-selected" role="tab" aria-selected="true">Package</button>
+        <button class="seg__item" role="tab">Key Images</button>
+        <button class="seg__item" role="tab">Bookmarks</button>
+      </div>
+    </div>
+    <div class="panel__head">
+      <div class="panel__head-row"><h1 class="panel__title">Brain Function</h1><button class="ibtn ibtn--sm" aria-label="Collapse panel (Ctrl+B)"><svg class="ic ic--sm"><use href="#i-collapse"/></svg></button></div>
+      <p class="dense t2">fMRI BOLD block · 100 dyn · TR 2.0 s · Block paradigm</p>
+    </div>
+    <div class="panel__body">
+      <ol class="steps" data-od-id="task-steps">
+        <li class="step step--done"><div class="step__row"><span class="badge" aria-label="Step 1, done"><svg class="ic"><use href="#i-check"/></svg></span><span class="step__title">Smoothing width</span><span class="step__state t3">6.0 mm</span></div></li>
+        <li class="step step--done"><div class="step__row"><span class="badge" aria-label="Step 2, done"><svg class="ic"><use href="#i-check"/></svg></span><span class="step__title">Anatomical underlay</span><span class="step__state t3">Mean BOLD</span></div></li>
+        <li class="step step--done"><div class="step__row"><span class="badge" aria-label="Step 3, done"><svg class="ic"><use href="#i-check"/></svg></span><span class="step__title">Select paradigm and SPM tasks</span><span class="step__state t3"></span><span class="step__sum">Block 20 s task / 20 s rest · Task &gt; Rest</span></div></li>
+        <li class="step step--current" aria-current="step">
+          <div class="step__row"><span class="badge">4</span><span class="step__title">Compute SPMs</span><span class="step__state">Current</span></div>
+          <div class="step__body">
+            <div class="field">
+              <label class="check is-checked"><span class="check__box"><svg class="ic"><use href="#i-check"/></svg></span>Brain mask</label>
+              <label class="check is-checked"><span class="check__box"><svg class="ic"><use href="#i-check"/></svg></span>Suppress motion-related artifacts</label>
+            </div>
+            <div class="field">
+              <span class="field__label">T-score threshold <span>3.1 – 12.0</span></span>
+              <div class="slider" style="grid-template-columns: minmax(0, 1fr)"><span class="slider__track"><span class="slider__fill" style="left: 16.6%; width: 47.6%"></span><span class="slider__thumb" style="left: 16.6%"></span><span class="slider__thumb" style="left: 64.2%"></span></span></div>
+              <span class="field__hint">Colour bar handles set the same range; T max 18.7.</span>
+            </div>
+            <div class="field">
+              <span class="field__label">Blending <span>60 %</span></span>
+              <div class="slider" style="--v: 60%; grid-template-columns: minmax(0, 1fr)"><span class="slider__track"><span class="slider__fill"></span><span class="slider__thumb"></span></span></div>
+            </div>
+            <div class="grid2">
+              <label class="field"><span class="field__label">Cluster size ≥</span><span class="input input--num input--dense"><span class="input__value">10</span><span class="input__suffix">vox</span></span></label>
+              <div class="field"><span class="field__label">Sign</span><div class="seg"><button class="seg__item is-selected">+T</button><button class="seg__item">±T</button></div></div>
+            </div>
+            <dl>
+              <div class="kv"><dt>Active voxels at T ≥ 3.1</dt><dd>356<span class="u">vox</span></dd></div>
+              <div class="kv"><dt>Peak T</dt><dd>18.7</dd></div>
+            </dl>
+            <div class="notice notice--warning" role="note" data-od-id="fmri-013">
+              <svg class="ic"><use href="#i-warn"/></svg>
+              <span class="notice__text">A wrong paradigm-to-data mapping cannot be detected — check that the cluster curve follows the task blocks.</span>
+            </div>
+          </div>
+        </li>
+        <li class="step step--todo"><div class="step__row"><span class="badge">5</span><span class="step__title">Save SPMs</span><span class="step__state t3"></span><span class="step__sum">Derived series, also usable in Tractography</span></div></li>
+      </ol>
+    </div>
+    <div class="panel__foot">
+      <button class="btn btn--secondary btn--block">Paradigm manager… <span class="kbd">Ctrl+M</span></button>
+      <button class="btn btn--primary btn--block">Continue to Save SPMs <span class="kbd">Ctrl+Enter</span></button>
+    </div>
+  </aside>
+
+  <div class="toolbar" role="toolbar" aria-label="Viewer tools" data-od-id="toolbar">
+    <button class="ibtn" aria-label="Scroll (S)"><svg class="ic"><use href="#i-scroll"/></svg></button>
+    <button class="ibtn" aria-label="Pan (P)"><svg class="ic"><use href="#i-pan"/></svg></button>
+    <button class="ibtn" aria-label="Zoom (Z)"><svg class="ic"><use href="#i-zoom"/></svg></button>
+    <button class="ibtn" aria-label="Window/Level (W)"><svg class="ic"><use href="#i-wl"/></svg></button>
+    <span class="tb-sep"></span>
+    <button class="ibtn" aria-label="Draw reference ROI (E)"><svg class="ic"><use href="#i-ellipse"/></svg></button>
+    <button class="ibtn is-active" aria-pressed="true" aria-label="Select cluster (K)"><svg class="ic"><use href="#i-crosshair"/></svg></button>
+    <span class="tb-sep"></span>
+    <span class="tb-label">Analysis</span>
+    <div class="seg" role="radiogroup" aria-label="Analysis type" style="width: calc(var(--nm-space-12) * 6)">
+      <button class="seg__item" role="radio">Block</button>
+      <button class="seg__item is-selected" role="radio" aria-checked="true">Event</button>
+      <button class="seg__item" role="radio">Resting state</button>
+    </div>
+    <span class="tb-sep"></span>
+    <button class="ibtn" aria-label="Undo (Ctrl+Z)"><svg class="ic"><use href="#i-undo"/></svg></button>
+    <button class="ibtn" aria-label="Redo (Ctrl+Y)"><svg class="ic"><use href="#i-redo"/></svg></button>
+    <span class="spacer"></span>
+    <button class="btn btn--ghost btn--dense">Review co-registration… <span class="kbd">Ctrl+Shift+R</span></button>
+    <button class="btn btn--secondary btn--dense"><svg class="ic"><use href="#i-series"/></svg>Save SPMs <span class="kbd">Ctrl+G</span></button>
+  </div>
+
+  <main class="vgrid" style="grid-template-columns: minmax(0, 3fr) minmax(0, 2fr)" aria-label="Viewports" data-od-id="viewport-grid">
+    <section class="vp is-active" style="grid-row: 1 / -1" aria-label="T-score maps, tiled slices" data-od-id="vp-tiles">
+      <div class="vp__head">
+        <span class="vp__role">1 · SPM</span>
+        <span class="dense">T-score · Task &gt; Rest</span>
+        <span class="dense t2">6 slices · double-click a tile for one slice</span>
+        <span class="spacer"></span>
+        <button class="ibtn ibtn--sm" aria-label="Viewport menu (right-click)"><svg class="ic ic--sm"><use href="#i-more"/></svg></button>
+      </div>
+      <div class="tiles">
+        <div class="vp__body vp__body--fit"><div class="vp__stage"><img src="../assets/img/fmri_t_z1.png" width="512" height="512" alt="T map slice 1"></div><div class="ov ov--tl">z 1/6</div></div>
+        <div class="vp__body vp__body--fit"><div class="vp__stage"><img src="../assets/img/fmri_t_z2.png" width="512" height="512" alt="T map slice 2"></div><div class="ov ov--tl">z 2/6</div></div>
+        <div class="vp__body vp__body--fit tile-sel"><div class="vp__stage"><img src="../assets/img/fmri_t_z3.png" width="512" height="512" alt="T map slice 3, selected"></div><div class="ov ov--tl">z 3/6</div></div>
+        <div class="vp__body vp__body--fit"><div class="vp__stage"><img src="../assets/img/fmri_t_z4.png" width="512" height="512" alt="T map slice 4"></div><div class="ov ov--tl">z 4/6</div></div>
+        <div class="vp__body vp__body--fit"><div class="vp__stage"><img src="../assets/img/fmri_t_z5.png" width="512" height="512" alt="T map slice 5"></div><div class="ov ov--tl">z 5/6</div></div>
+        <div class="vp__body vp__body--fit"><div class="vp__stage"><img src="../assets/img/fmri_t_z6.png" width="512" height="512" alt="T map slice 6"></div><div class="ov ov--tl">z 6/6</div>
+          <div class="cbar" style="--lut: var(--nm-lut-hot); top: var(--nm-space-6); right: var(--nm-space-2)"><span>12.0</span><span class="cbar__ramp" style="height: calc(var(--nm-space-12) * 2)"></span><span>3.1</span><span class="cbar__meta">T-score</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="vp" aria-label="Selected slice" data-od-id="vp-slice">
+      <div class="vp__head">
+        <span class="vp__role">2 · Slice</span>
+        <div class="tabs tabs--dense" role="tablist"><button class="tab is-active" role="tab" aria-selected="true">SPM</button><button class="tab" role="tab">Motion</button></div>
+        <span class="spacer"></span>
+        <button class="ibtn ibtn--sm" aria-label="Viewport menu (right-click)"><svg class="ic ic--sm"><use href="#i-more"/></svg></button>
+      </div>
+      <div class="vp__body vp__body--fit">
+        <div class="vp__stage"><img src="../assets/img/fmri_t_z3.png" width="512" height="512" alt="T map slice 3 of 6 on the mean BOLD"></div>
+        <div class="ov ov--tl">T-score · Task &gt; Rest · z 3/6<br><span class="t2">Hot · blending 60 %</span></div>
+        <div class="ov ov--tr">PHANTOM^SYNTHETIC<br><span class="t2">NMR-PHANTOM-001 · 2026-01-01</span></div>
+        <div class="ov ov--bl">T 3.1–12.0 · cluster ≥ 10 vox<br><span class="t2">Underlay mean BOLD · window auto</span></div>
+        <div class="ov ov--br">Zoom 100 %<br><span class="t2">3.0 × 3.0 mm · 48 × 48</span></div>
+        <div class="cbar" style="--lut: var(--nm-lut-hot)"><span>12.0</span><span class="cbar__ramp"></span><span>3.1</span><span class="cbar__meta">T-score<br>W 3.1–12.0</span></div>
+        <span class="ov orient orient--n">A</span><span class="ov orient orient--s">P</span><span class="ov orient orient--w">R</span><span class="ov orient orient--e">L</span>
+      </div>
+    </section>
+
+    <section class="vp" aria-label="Cluster time-intensity curve with paradigm" data-od-id="vp-cluster">
+      <div class="vp__head">
+        <span class="vp__role">3 · Cluster</span>
+        <span class="dense t2">Whole 3D cluster · 356 vox</span>
+        <span class="spacer"></span>
+        <button class="ibtn ibtn--sm" aria-label="Graph menu (right-click)"><svg class="ic ic--sm"><use href="#i-more"/></svg></button>
+      </div>
+      <div class="vp__body">
+        <svg class="graph" viewBox="0 0 640 452" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Mean signal of the activation cluster rising during each of the five task blocks">
+<!-- gen:fmri-curve -->
+<g class="g-grid">
+<rect class="g-paradigm" x="112.4" y="36.0" width="56.4" height="368.0"/>
+<rect class="g-paradigm" x="225.2" y="36.0" width="56.4" height="368.0"/>
+<rect class="g-paradigm" x="338.0" y="36.0" width="56.4" height="368.0"/>
+<rect class="g-paradigm" x="450.8" y="36.0" width="56.4" height="368.0"/>
+<rect class="g-paradigm" x="563.6" y="36.0" width="56.4" height="368.0"/>
+<line x1="56.0" y1="404.0" x2="620.0" y2="404.0"/>
+<line x1="56.0" y1="330.4" x2="620.0" y2="330.4"/>
+<line x1="56.0" y1="256.8" x2="620.0" y2="256.8"/>
+<line x1="56.0" y1="183.2" x2="620.0" y2="183.2"/>
+<line x1="56.0" y1="109.6" x2="620.0" y2="109.6"/>
+<line x1="56.0" y1="36.0" x2="620.0" y2="36.0"/>
+<line x1="56.0" y1="36.0" x2="56.0" y2="404.0"/>
+<line x1="168.8" y1="36.0" x2="168.8" y2="404.0"/>
+<line x1="281.6" y1="36.0" x2="281.6" y2="404.0"/>
+<line x1="394.4" y1="36.0" x2="394.4" y2="404.0"/>
+<line x1="507.2" y1="36.0" x2="507.2" y2="404.0"/>
+<line x1="620.0" y1="36.0" x2="620.0" y2="404.0"/>
+</g>
+<line class="g-axis" x1="56.0" y1="36.0" x2="56.0" y2="404.0"/>
+<line class="g-axis" x1="56.0" y1="404.0" x2="620.0" y2="404.0"/>
+<g class="g-tick" text-anchor="end"><text x="50.0" y="408.0">990</text><text x="50.0" y="334.4">1000</text><text x="50.0" y="260.8">1010</text><text x="50.0" y="187.2">1020</text><text x="50.0" y="113.6">1030</text><text x="50.0" y="40.0">1040</text></g>
+<g class="g-tick" text-anchor="middle"><text x="56.0" y="420.0">0</text><text x="168.8" y="420.0">40</text><text x="281.6" y="420.0">80</text><text x="394.4" y="420.0">120</text><text x="507.2" y="420.0">160</text><text x="620.0" y="420.0">200</text></g>
+<text class="g-title" x="338.0" y="442.0" text-anchor="middle">Time [s]</text>
+<text class="g-title" x="16" y="220.0" text-anchor="middle" transform="rotate(-90 16 220.0)">Signal [a.u.]</text>
+<polyline class="g-curve g-curve--signal" points="56.0,328.2 61.6,330.4 67.3,334.1 72.9,333.3 78.6,327.5 84.2,331.1 89.8,335.6 95.5,326.7 101.1,332.6 106.8,331.1 112.4,331.9 118.0,317.9 123.7,244.3 129.3,161.9 135.0,117.7 140.6,114.0 146.2,108.1 151.9,112.5 157.5,122.8 163.2,132.4 168.8,131.7 174.4,150.8 180.1,222.9 185.7,299.5 191.4,342.2 197.0,362.0 202.6,357.6 208.3,351.0 213.9,340.7 219.6,346.6 225.2,326.7 230.8,312.7 236.5,242.1 242.1,167.7 247.8,127.3 253.4,108.1 259.0,108.1 264.7,114.0 270.3,127.3 276.0,134.6 281.6,129.5 287.2,153.8 292.9,228.1 298.5,302.4 304.2,346.6 309.8,359.1 315.4,360.6 321.1,353.2 326.7,345.9 332.4,341.4 338.0,333.3 343.6,317.2 349.3,245.0 354.9,166.3 360.6,119.9 366.2,106.7 371.8,109.6 377.5,114.8 383.1,122.1 388.8,128.7 394.4,137.6 400.0,145.7 405.7,220.7 411.3,303.2 417.0,350.3 422.6,359.8 428.2,362.8 433.9,349.5 439.5,351.0 445.2,334.8 450.8,326.7 456.4,313.5 462.1,245.8 467.7,165.5 473.4,120.6 479.0,107.4 484.6,104.4 490.3,108.1 495.9,125.8 501.6,119.9 507.2,131.7 512.8,154.5 518.5,231.0 524.1,306.1 529.8,343.6 535.4,363.5 541.0,357.6 546.7,344.4 552.3,348.1 558.0,328.9 563.6,326.0 569.2,317.2 574.9,236.9 580.5,167.0 586.2,125.1 591.8,105.2 597.4,111.1 603.1,122.1 608.7,113.3 614.4,122.1"/>
+<!-- /gen:fmri-curve -->
+        </svg>
+        <div class="legend" style="top: var(--nm-space-6); right: var(--nm-space-4)" aria-label="Legend">
+          <span class="check"><span class="legend__line" style="--c: var(--nm-color-text-primary)"></span>Cluster mean</span>
+          <span class="check"><span class="swatch" style="--c: var(--nm-color-raised); box-shadow: inset 0 0 0 var(--nm-size-hairline) var(--nm-color-border-strong)"></span>Task blocks</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Paradigm Editor wizard (FMRI-007), opened from Paradigm manager → Edit. A dialog is acceptable here:
+       the user asked for it and it needs no image interaction (UX law 1). -->
+  <div class="scrim" data-od-id="paradigm-editor">
+    <div class="dialog dialog--lg" role="dialog" aria-modal="true" aria-labelledby="pe-title">
+      <div class="dialog__head">
+        <h2 class="dialog__title" id="pe-title">Paradigm editor</h2>
+        <div class="wiz" aria-label="Wizard steps">
+          <span class="wiz__s is-done"><span class="badge"><svg class="ic"><use href="#i-check"/></svg></span>Type and name</span>
+          <span class="wiz__s is-current"><span class="badge">2</span>Configuration</span>
+        </div>
+        <button class="ibtn" aria-label="Close (Esc)"><svg class="ic"><use href="#i-close"/></svg></button>
+      </div>
+      <div class="dialog__body">
+        <div class="grid3">
+          <label class="field"><span class="field__label">Name</span><span class="input"><span class="input__value">Events from task file</span></span></label>
+          <div class="field"><span class="field__label">Type</span><span class="input is-disabled"><span class="input__value">Event · set at creation</span><svg class="ic ic--sm"><use href="#i-lock"/></svg></span></div>
+          <div class="field"><span class="field__label">File format</span><div class="seg" role="radiogroup"><button class="seg__item is-selected" role="radio" aria-checked="true">BIDS TSV</button><button class="seg__item" role="radio">3-column</button></div></div>
+        </div>
+        <div class="dropzone"><svg class="ic"><use href="#i-check"/></svg><span><b>task-block_events.tsv</b> imported · 5 events · 1 trial type</span><span class="spacer"></span><button class="btn btn--secondary btn--dense">Replace file… <span class="kbd">Ctrl+O</span></button></div>
+        <table class="tbl tbl--dense">
+          <colgroup><col><col><col style="width:50%"></colgroup>
+          <thead><tr><th class="num">onset<span class="unit">[s]</span></th><th class="num">duration<span class="unit">[s]</span></th><th>trial_type</th></tr></thead>
+          <tbody><tr><td class="num">20.0</td><td class="num">20.0</td><td>task</td></tr><tr><td class="num">60.0</td><td class="num">20.0</td><td>task</td></tr><tr><td class="num">100.0</td><td class="num">20.0</td><td>task</td></tr><tr><td class="num">140.0</td><td class="num">20.0</td><td>task</td></tr><tr><td class="num">180.0</td><td class="num">20.0</td><td>task</td></tr></tbody>
+        </table>
+        <p class="field__hint">An analysis can override this file with its own event file without changing the paradigm.</p>
+      </div>
+      <div class="dialog__foot">
+        <button class="btn btn--ghost"><svg class="ic"><use href="#i-chev-left"/></svg>Back <span class="kbd">Alt+B</span></button>
+        <span class="spacer"></span>
+        <button class="btn btn--secondary">Cancel <span class="kbd">Esc</span></button>
+        <button class="btn btn--primary">Save paradigm <span class="kbd">Ctrl+S</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- gen:statusbar-fmri -->
+<footer class="statusbar" data-od-id="statusbar">
+    <span class="sb-item"><svg class="ic"><use href="#i-jobs"/></svg>Jobs <b>0 running</b></span>
+    <span class="sb-sep"></span>
+    <span class="sb-item"><span class="dot dot--success"></span><b>SPMs up to date</b> · Block · 1 task</span>
+    <span class="sb-sep"></span>
+    <span class="sb-item"><svg class="ic"><use href="#i-engine"/></svg>Engine <span class="dot dot--success"></span><b>connected</b> · local</span>
+    <span class="sb-sep"></span>
+    <span class="sb-item">Licence <b>active</b></span>
+    <span class="spacer"></span>
+    <span class="sb-item"><svg class="ic"><use href="#i-display"/></svg><b>Diagnostic display</b></span>
+    <span class="sb-sep"></span>
+    <span class="sb-item"><span class="kbd">?</span> shortcuts</span>
+  </footer>
+<!-- /gen:statusbar-fmri -->
+</div>
+<template id="nm-dlg-shortcut-sheet"><div class="scrim" data-od-id="shortcut-sheet">
+    <div class="dialog dialog--xl" role="dialog" aria-modal="true" aria-labelledby="ks-title">
+      <div class="dialog__head"><h2 class="dialog__title" id="ks-title">Keyboard shortcuts</h2><div class="search" style="width: calc(var(--nm-space-12) * 5)"><svg class="ic"><use href="#i-search"/></svg><span>Filter shortcuts</span></div><button class="ibtn" aria-label="Close (Esc or ?)"><svg class="ic"><use href="#i-close"/></svg></button></div>
+      <div class="dialog__body">
+        <div class="sheet">
+          <div><h3>Global</h3><div class="krow"><span>Directory</span><span class="kbd">Ctrl+1</span></div><div class="krow"><span>Viewer</span><span class="kbd">Ctrl+2</span></div><div class="krow"><span>Analysis</span><span class="kbd">Ctrl+3</span></div><div class="krow"><span>Reports</span><span class="kbd">Ctrl+4</span></div><div class="krow"><span>Settings</span><span class="kbd">Ctrl+,</span></div><div class="krow"><span>Search studies</span><span class="kbd">Ctrl+K</span></div><div class="krow"><span>Shortcut sheet</span><span class="kbd">?</span></div><div class="krow"><span>Lock workstation</span><span class="kbd">Win+L</span></div></div>
+          <div><h3>Viewer tools</h3><div class="krow"><span>Scroll</span><span class="kbd">S</span></div><div class="krow"><span>Pan</span><span class="kbd">P</span></div><div class="krow"><span>Zoom</span><span class="kbd">Z</span></div><div class="krow"><span>Window / level</span><span class="kbd">W</span></div><div class="krow"><span>Mask</span><span class="kbd">M</span></div><div class="krow"><span>Reset view</span><span class="kbd">R</span></div><div class="krow"><span>Mirror line</span><span class="kbd">L</span></div><div class="krow"><span>Mirror L↔R</span><span class="kbd">Shift+H</span></div><div class="krow"><span>Flip U↔D</span><span class="kbd">Shift+V</span></div><div class="krow"><span>Rotate 90°</span><span class="kbd">Ctrl+R</span></div></div>
+          <div><h3>ROIs and results</h3><div class="krow"><span>Ellipse ROI</span><span class="kbd">E</span></div><div class="krow"><span>Spline ROI</span><span class="kbd">C</span></div><div class="krow"><span>Freehand ROI</span><span class="kbd">F</span></div><div class="krow"><span>Delete ROI</span><span class="kbd">Del</span></div><div class="krow"><span>Duplicate ROI</span><span class="kbd">Ctrl+D</span></div><div class="krow"><span>Undo</span><span class="kbd">Ctrl+Z</span></div><div class="krow"><span>Redo</span><span class="kbd">Ctrl+Y</span></div><div class="krow"><span>Window from ROI</span><span class="kbd">Shift+W</span></div></div>
+          <div><h3>Task guidance</h3><div class="krow"><span>Next step</span><span class="kbd">Ctrl+Enter</span></div><div class="krow"><span>Collapse panel</span><span class="kbd">Ctrl+B</span></div><div class="krow"><span>Inspector</span><span class="kbd">I</span></div><div class="krow"><span>Bookmarks</span><span class="kbd">B</span></div><div class="krow"><span>Layout picker</span><span class="kbd">Ctrl+L</span></div></div>
+          <div><h3>Output</h3><div class="krow"><span>Generate series</span><span class="kbd">Ctrl+G</span></div><div class="krow"><span>Save tables</span><span class="kbd">Ctrl+S</span></div><div class="krow"><span>Report</span><span class="kbd">Ctrl+P</span></div><div class="krow"><span>Copy table</span><span class="kbd">Ctrl+C</span></div></div>
+          <div><h3>Viewports</h3><div class="krow"><span>Previous / next slice</span><span class="kbd">↑ ↓</span></div><div class="krow"><span>Previous / next dynamic</span><span class="kbd">← →</span></div><div class="krow"><span>Maximise viewport</span><span class="kbd">Enter</span></div><div class="krow"><span>Next viewport</span><span class="kbd">Tab</span></div><div class="krow"><span>Context menu</span><span class="kbd">Shift+F10</span></div></div>
+        </div>
+      </div>
+      <div class="dialog__foot"><span class="dense t3">Every toolbar and context-menu action lists its shortcut in its tooltip.</span><span class="spacer"></span><button class="btn btn--secondary">Print sheet</button><button class="btn btn--primary">Close <span class="kbd">Esc</span></button></div>
+    </div>
+  </div></template>
+<script src="screens.js"></script>
+<script src="proto.js"></script>
+</body>
+</html>

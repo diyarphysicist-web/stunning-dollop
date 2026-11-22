@@ -11,4 +11,6 @@ python design/tools/compose/states.py     # 18-directory-empty, 18-directory-loa
 python design/tools/inject_plots.py       # refill generated regions
 pnpm design:render 1                      # re-render PNGs
 python design/tools/compose/gallery.py    # rebuild design/screens/index.html (all screens, number order)
+python design/tools/compose/prototype.py  # rebuild the clickable prototype in design/prototype/ (routes: design/prototype/proto.js)
+pnpm design:prototype-check               # Playwright: every page loads, main paths click through
 ```

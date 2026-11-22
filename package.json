@@ -16,7 +16,8 @@
     "engine:test": "uv run --project engine pytest engine/tests",
     "tokens": "node scripts/export-tokens.mjs",
     "tokens:check": "node scripts/export-tokens.mjs --check",
-    "design:render": "node scripts/render-design-screens.mjs"
+    "design:render": "node scripts/render-design-screens.mjs",
+    "design:prototype-check": "node scripts/check-design-prototype.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",

@@ -1,0 +1,23 @@
+/* Prototype layer for design/prototype/ (built by design/tools/compose/prototype.py).
+   Interaction states only, tokens only: no new visuals. */
+.nm-link { cursor: pointer; }
+.btn:active:not(:disabled), .picker:active, .seg__item:active, .tab:active, .rail__item:active,
+.snav__i:active, .menu__item:active, .lx__item.is-valid:active, .nm-link.step__row:active { background: var(--nm-color-raised); }
+.btn--primary:active:not(:disabled) { background: var(--nm-color-accent); }
+.snav__i:hover:not(.is-selected), .lx__item.is-valid:hover, .nm-link.step__row:hover { background: var(--nm-color-hover); }
+.nm-link:focus-visible { outline: var(--nm-size-focus-ring) solid var(--nm-color-focus); outline-offset: calc(var(--nm-size-focus-ring) * -1); }
+[data-nm-tip] { position: relative; }
+.tip.tip--right { top: 50%; left: calc(100% + var(--nm-space-1)); transform: translateY(-50%); }
+.tip.nm-tip--end { left: auto; right: 0; transform: none; }
+
+/* Prototype badge (middle of the status bar, which is empty there on every screen) and screen menu */
+.nm-badge { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc((var(--nm-size-statusbar) - var(--nm-size-icon)) / 2); z-index: var(--nm-z-toast); background: var(--nm-color-raised); font-family: inherit; cursor: pointer; }
+.nm-badge:hover, .nm-badge[aria-expanded="true"] { color: var(--nm-color-text-primary); border-color: var(--nm-color-accent); }
+.nm-menu { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--nm-size-statusbar) + var(--nm-space-1)); z-index: var(--nm-z-toast); max-height: calc(100vh - var(--nm-size-statusbar) - var(--nm-space-12)); overflow-y: auto; }
+.nm-menu .menu__item { text-decoration: none; }
+.nm-menu .menu__item[aria-current="page"] { color: var(--nm-color-accent); }
+.nm-menu .menu__title { color: var(--nm-color-text-tertiary); }
+.nm-badge.nm-corner, .nm-menu.nm-corner { left: auto; right: var(--nm-space-2); transform: none; }
+.nm-badge.nm-corner { bottom: var(--nm-space-2); }
+.nm-menu.nm-corner { bottom: calc(var(--nm-space-2) + var(--nm-size-icon) + var(--nm-space-1)); }
+[role="dialog"]:focus { outline: none; }

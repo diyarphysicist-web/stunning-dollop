@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<!-- Prototype page built from design/screens/07-dce-perfusion.html by design/tools/compose/prototype.py. Edit the screen, then rebuild. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>NeuroMR-PRO · DCE / T1 Perfusion</title>
+<meta name="viewport" content="width=1920, height=1080">
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/luts.css">
+<link rel="stylesheet" href="../screens/shell.css">
+<link rel="stylesheet" href="proto.css">
+</head>
+<body>
+
+<!-- gen:sprite -->
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-directory" viewBox="0 0 20 20"><path d="M2.5 5h5.5l1.5 1.75h8v9.75h-15z"/><path d="M2.5 9h15"/></symbol>
+  <symbol id="i-viewer" viewBox="0 0 20 20"><rect x="2.5" y="2.5" width="15" height="15" rx="1.5"/><path d="M10 6v8M6 10h8"/></symbol>
+  <symbol id="i-analysis" viewBox="0 0 20 20"><path d="M2.5 16.5h15"/><path d="M3 13.5l3.5-5 3 3L13 4.5l4 7"/></symbol>
+  <symbol id="i-reports" viewBox="0 0 20 20"><path d="M5 2.5h7l3.5 3.5v11.5H5z"/><path d="M12 2.5V6h3.5M7.5 10h5M7.5 13h5"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 20 20"><path d="M3.5 5h2M9 5h7.5M3.5 10h8M15 10h1.5M3.5 15h4M11 15h5.5"/><circle cx="7.25" cy="5" r="1.75"/><circle cx="13.25" cy="10" r="1.75"/><circle cx="9.25" cy="15" r="1.75"/></symbol>
+  <symbol id="i-scroll" viewBox="0 0 20 20"><rect x="5" y="7" width="10" height="6" rx="1"/><path d="M10 2.5v2.5M8.25 4.25L10 2.5l1.75 1.75M10 17.5V15M8.25 15.75L10 17.5l1.75-1.75"/></symbol>
+  <symbol id="i-pan" viewBox="0 0 20 20"><path d="M10 2.5v15M2.5 10h15M8 4.5l2-2 2 2M8 15.5l2 2 2-2M4.5 8l-2 2 2 2M15.5 8l2 2-2 2"/></symbol>
+  <symbol id="i-zoom" viewBox="0 0 20 20"><circle cx="8.5" cy="8.5" r="5.25"/><path d="M12.4 12.4l4.6 4.6M6.25 8.5h4.5M8.5 6.25v4.5"/></symbol>
+  <symbol id="i-wl" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7"/><path d="M10 3a7 7 0 0 1 0 14z" fill="currentColor"/></symbol>
+  <symbol id="i-mask" viewBox="0 0 20 20"><path d="M4 7c2-4 9.5-4.5 12-1s1 9.5-4.5 9.5S2 11.5 4 7z" stroke-dasharray="2 2"/><circle cx="10" cy="10" r="1.5"/></symbol>
+  <symbol id="i-ellipse" viewBox="0 0 20 20"><ellipse cx="10" cy="10" rx="7.25" ry="5.25"/><path d="M10 8.5v3M8.5 10h3"/></symbol>
+  <symbol id="i-spline" viewBox="0 0 20 20"><path d="M3.5 14.5C5 7 8 7 10 10s5 3 6.5-4.5"/><circle cx="3.5" cy="14.5" r="1.25"/><circle cx="10" cy="10" r="1.25"/><circle cx="16.5" cy="5.5" r="1.25"/></symbol>
+  <symbol id="i-freehand" viewBox="0 0 20 20"><path d="M5 13.5C2.5 9.5 5 4.5 10 4.5s7.5 4 5 7.5-7 2.5-8 .5 1.5-4 4-2"/></symbol>
+  <symbol id="i-mirror" viewBox="0 0 20 20"><path d="M10 2.5v15" stroke-dasharray="2 2.25"/><path d="M7.5 6L3 10l4.5 4zM12.5 6L17 10l-4.5 4z"/></symbol>
+  <symbol id="i-reset" viewBox="0 0 20 20"><path d="M4 10a6 6 0 1 0 1.75-4.25"/><path d="M4 3v3.5h3.5"/></symbol>
+  <symbol id="i-layout" viewBox="0 0 20 20"><rect x="3" y="3" width="14" height="14" rx="1"/><path d="M10 3v14M3 10h14"/></symbol>
+  <symbol id="i-undo" viewBox="0 0 20 20"><path d="M7 4.5L3.5 8 7 11.5"/><path d="M3.5 8H12a4.25 4.25 0 0 1 0 8.5H8.5"/></symbol>
+  <symbol id="i-redo" viewBox="0 0 20 20"><path d="M13 4.5L16.5 8 13 11.5"/><path d="M16.5 8H8a4.25 4.25 0 0 0 0 8.5h3.5"/></symbol>
+  <symbol id="i-bookmark" viewBox="0 0 20 20"><path d="M5.5 3h9v14L10 13.5 5.5 17z"/></symbol>
+  <symbol id="i-series" viewBox="0 0 20 20"><rect x="3" y="6" width="10.5" height="11" rx="1"/><path d="M6.5 3h10.5v11"/><path d="M8.25 9v5M5.75 11.5h5"/></symbol>
+  <symbol id="i-table-save" viewBox="0 0 20 20"><path d="M17 11V3.5H3v10h7"/><path d="M3 7h14M8 3.5v10"/><path d="M14.5 12.5v5M12.5 15.5l2 2 2-2"/></symbol>
+  <symbol id="i-check" viewBox="0 0 20 20"><path d="M4.5 10.5l3.5 3.5 7.5-8"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 20 20"><rect x="4.5" y="9" width="11" height="8" rx="1"/><path d="M7 9V6.5a3 3 0 0 1 6 0V9"/></symbol>
+  <symbol id="i-chev-down" viewBox="0 0 20 20"><path d="M6 8l4 4 4-4"/></symbol>
+  <symbol id="i-chev-right" viewBox="0 0 20 20"><path d="M8 6l4 4-4 4"/></symbol>
+  <symbol id="i-chev-left" viewBox="0 0 20 20"><path d="M12 6l-4 4 4 4"/></symbol>
+  <symbol id="i-link" viewBox="0 0 20 20"><path d="M8.25 11.75l3.5-3.5"/><path d="M9 6.25l1.5-1.5a3 3 0 0 1 4.25 4.25l-1.5 1.5M11 13.75l-1.5 1.5a3 3 0 0 1-4.25-4.25l1.5-1.5"/></symbol>
+  <symbol id="i-close" viewBox="0 0 20 20"><path d="M5.5 5.5l9 9M14.5 5.5l-9 9"/></symbol>
+  <symbol id="i-more" viewBox="0 0 20 20"><circle cx="5" cy="10" r="0.75"/><circle cx="10" cy="10" r="0.75"/><circle cx="15" cy="10" r="0.75"/></symbol>
+  <symbol id="i-info" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7"/><path d="M10 9v4.5M10 6.5v.01"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 20 20"><path d="M10 3l7.5 13.5h-15z"/><path d="M10 8.25v3.75M10 14.25v.01"/></symbol>
+  <symbol id="i-collapse" viewBox="0 0 20 20"><rect x="3" y="3.5" width="14" height="13" rx="1"/><path d="M8 3.5v13M13.5 8l-2 2 2 2"/></symbol>
+  <symbol id="i-engine" viewBox="0 0 20 20"><rect x="5" y="5" width="10" height="10" rx="1"/><path d="M8 2.5V5M12 2.5V5M8 15v2.5M12 15v2.5M2.5 8H5M2.5 12H5M15 8h2.5M15 12h2.5"/></symbol>
+  <symbol id="i-display" viewBox="0 0 20 20"><rect x="2.5" y="3.5" width="15" height="10" rx="1"/><path d="M7 17h6M10 13.5V17"/></symbol>
+  <symbol id="i-keyboard" viewBox="0 0 20 20"><rect x="2.5" y="5" width="15" height="10" rx="1"/><path d="M5.5 8h1M9.5 8h1M13.5 8h1M6.5 12h7"/></symbol>
+  <symbol id="i-search" viewBox="0 0 20 20"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></symbol>
+  <symbol id="i-user" viewBox="0 0 20 20"><circle cx="10" cy="7" r="3"/><path d="M4 17c1-3.5 3.25-5 6-5s5 1.5 6 5"/></symbol>
+  <symbol id="i-jobs" viewBox="0 0 20 20"><path d="M3 5.5h14M3 10h14M3 14.5h8"/></symbol>
+  <symbol id="i-min" viewBox="0 0 20 20"><path d="M5.5 10h9"/></symbol>
+  <symbol id="i-max" viewBox="0 0 20 20"><rect x="5.5" y="5.5" width="9" height="9"/></symbol>
+  <symbol id="i-brand" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7.25"/><path d="M5.5 10h2l1.25-3 2.5 6 1.25-3h2"/></symbol>
+  <symbol id="i-arrow-up" viewBox="0 0 20 20"><path d="M10 16V4M5.5 8.5L10 4l4.5 4.5"/></symbol>
+  <symbol id="i-arrow-down" viewBox="0 0 20 20"><path d="M10 4v12M5.5 11.5L10 16l4.5-4.5"/></symbol>
+  <symbol id="i-arrow-left" viewBox="0 0 20 20"><path d="M16 10H4M8.5 5.5L4 10l4.5 4.5"/></symbol>
+  <symbol id="i-arrow-right" viewBox="0 0 20 20"><path d="M4 10h12M11.5 5.5L16 10l-4.5 4.5"/></symbol>
+  <symbol id="i-rot-ccw" viewBox="0 0 20 20"><path d="M5 7.5A6 6 0 1 1 4 11"/><path d="M4.5 3.5V7.5h4"/></symbol>
+  <symbol id="i-rot-cw" viewBox="0 0 20 20"><path d="M15 7.5A6 6 0 1 0 16 11"/><path d="M15.5 3.5V7.5h-4"/></symbol>
+  <symbol id="i-translate" viewBox="0 0 20 20"><rect x="6.5" y="6.5" width="7" height="7" rx="0.5"/><path d="M10 2.5v2.5M10 15v2.5M2.5 10H5M15 10h2.5"/></symbol>
+  <symbol id="i-rotate" viewBox="0 0 20 20"><rect x="6.5" y="6.5" width="7" height="7" rx="0.5" transform="rotate(15 10 10)"/><path d="M3.5 7a7 7 0 0 1 6.5-4.5M16.5 13a7 7 0 0 1-6.5 4.5"/></symbol>
+  <symbol id="i-seed" viewBox="0 0 20 20"><circle cx="10" cy="10" r="3"/><path d="M10 2.5V6M10 14v3.5M2.5 10H6M14 10h3.5"/></symbol>
+  <symbol id="i-exclude" viewBox="0 0 20 20"><ellipse cx="10" cy="10" rx="7" ry="5.5" stroke-dasharray="2 2"/><path d="M7.5 7.5l5 5M12.5 7.5l-5 5"/></symbol>
+  <symbol id="i-box" viewBox="0 0 20 20"><rect x="4" y="4" width="12" height="12"/><path d="M8 4v12M12 4v12M4 8h12M4 12h12" stroke-opacity="0.6"/></symbol>
+  <symbol id="i-run" viewBox="0 0 20 20"><path d="M6.5 4.5v11l9-5.5z"/></symbol>
+  <symbol id="i-crosshair" viewBox="0 0 20 20"><path d="M10 2.5v5M10 12.5v5M2.5 10h5M12.5 10h5"/></symbol>
+  <symbol id="i-hatch" viewBox="0 0 20 20"><rect x="3" y="3" width="14" height="14" rx="1"/><path d="M3 9l6-6M3 15L15 3M9 17l8-8"/></symbol>
+</svg>
+<!-- /gen:sprite -->
+
+<!-- DCE / T1 Perfusion (DCE-001…007): 2×2 skeleton — source · live maps · subtracted ↔ table · graph ↔ anatomical.
+     Three ROIs on the phantom's washout, plateau and persistent tissue bands; bilinear fit shown for ROI1. -->
+<div class="app app--no-inspector">
+  <!-- gen:topbar -->
+<header class="topbar" data-od-id="topbar">
+    <div class="brand"><svg class="ic brand__mark"><use href="#i-brand"/></svg>NeuroMR-PRO</div>
+    <div class="banner" data-od-id="patient-banner" aria-label="Patient">
+      <span class="banner__name">PHANTOM^SYNTHETIC</span>
+      <span class="bf"><span class="bf__k">ID</span><span class="bf__v mono">NMR-PHANTOM-001</span></span>
+      <span class="bf"><span class="bf__k">Sex</span><span class="bf__v">O</span></span>
+      <span class="bf"><span class="bf__k">Age</span><span class="bf__v">56 y</span><span class="bf__k">(DOB 1970-01-01)</span></span>
+      <span class="bf"><span class="bf__k">Study</span><span class="bf__v">2026-01-01</span></span>
+      <span class="bf"><span class="bf__k">Modality</span><span class="bf__v">MR · 3.0 T</span></span>
+      <span class="bf"><span class="bf__k">Acc</span><span class="bf__v mono">PHANTOM0001</span></span>
+    </div>
+    <div class="topbar__actions">
+      <button class="ibtn" aria-label="Search studies (Ctrl+K)"><svg class="ic"><use href="#i-search"/></svg></button>
+      <button class="ibtn" aria-label="Keyboard shortcuts (?)"><svg class="ic"><use href="#i-keyboard"/></svg></button>
+      <button class="ibtn" aria-label="Account and sign out"><svg class="ic"><use href="#i-user"/></svg></button>
+      <div class="winctl">
+        <button aria-label="Minimise"><svg class="ic ic--sm"><use href="#i-min"/></svg></button>
+        <button aria-label="Maximise"><svg class="ic ic--sm"><use href="#i-max"/></svg></button>
+        <button class="winctl__close" aria-label="Close"><svg class="ic ic--sm"><use href="#i-close"/></svg></button>
+      </div>
+    </div>
+  </header>
+<!-- /gen:topbar -->
+  <!-- gen:rail-analysis -->
+<nav class="rail" aria-label="Activities" data-od-id="activity-rail">
+    <button class="rail__item" aria-label="Directory (Ctrl+1)"><svg class="ic"><use href="#i-directory"/></svg>Directory</button>
+    <button class="rail__item" aria-label="Viewer (Ctrl+2)"><svg class="ic"><use href="#i-viewer"/></svg>Viewer</button>
+    <button class="rail__item is-active" aria-current="page" aria-label="Analysis (Ctrl+3)"><svg class="ic"><use href="#i-analysis"/></svg>Analysis</button>
+    <button class="rail__item" aria-label="Reports (Ctrl+4)"><svg class="ic"><use href="#i-reports"/></svg>Reports</button>
+    <button class="rail__item rail__end" aria-label="Settings (Ctrl+,)"><svg class="ic"><use href="#i-settings"/></svg>Settings</button>
+  </nav>
+<!-- /gen:rail-analysis -->
+
+  <aside class="panel" aria-label="Task guidance" data-od-id="task-panel">
+    <div class="panel__switch">
+      <div class="seg" role="tablist" aria-label="Left panel">
+        <button class="seg__item" role="tab">Series</button>
+        <button class="seg__item is-selected" role="tab" aria-selected="true">Package</button>
+        <button class="seg__item" role="tab">Key Images</button>
+        <button class="seg__item" role="tab">Bookmarks</button>
+      </div>
+    </div>
+    <div class="panel__head">
+      <div class="panel__head-row"><h1 class="panel__title">DCE / T1 Perfusion</h1><button class="ibtn ibtn--sm" aria-label="Collapse panel (Ctrl+B)"><svg class="ic ic--sm"><use href="#i-collapse"/></svg></button></div>
+      <p class="dense t2">T1 DCE semiquant · 12 dyn · 10.0 s · TR 5.0 ms · FA 15°</p>
+    </div>
+    <div class="panel__body">
+      <ol class="steps" data-od-id="task-steps">
+        <li class="step step--done"><div class="step__row"><span class="badge" aria-label="Step 1, done"><svg class="ic"><use href="#i-check"/></svg></span><span class="step__title">Spatial smoothing</span><span class="step__state t3">None</span></div></li>
+        <li class="step step--done"><div class="step__row"><span class="badge" aria-label="Step 2, done"><svg class="ic"><use href="#i-check"/></svg></span><span class="step__title">Mask</span><span class="step__state t3">20 % of max</span></div></li>
+        <li class="step step--done"><div class="step__row"><span class="badge" aria-label="Step 3, done"><svg class="ic"><use href="#i-check"/></svg></span><span class="step__title">Select maps</span><span class="step__state t3">10 maps</span></div></li>
+        <li class="step step--done"><div class="step__row"><span class="badge" aria-label="Step 4, done"><svg class="ic"><use href="#i-check"/></svg></span><span class="step__title">Anatomical series</span><span class="step__state t3">3D FLAIR</span></div></li>
+        <li class="step step--current" aria-current="step">
+          <div class="step__row"><span class="badge">5</span><span class="step__title">Draw ROI</span><span class="step__state">Current</span></div>
+          <div class="step__body">
+            <div class="field">
+              <span class="field__label">Shape</span>
+              <div class="seg" role="radiogroup" aria-label="ROI shape">
+                <button class="seg__item is-selected" role="radio" aria-checked="true">Ellipse</button>
+                <button class="seg__item" role="radio">Spline</button>
+                <button class="seg__item" role="radio">Freehand</button>
+              </div>
+            </div>
+            <div class="field">
+              <span class="field__label">Measurement</span>
+              <div class="seg" role="radiogroup" aria-label="Measurement type">
+                <button class="seg__item is-selected" role="radio" aria-checked="true">Region parameters</button>
+                <button class="seg__item" role="radio">Mean voxel</button>
+              </div>
+              <span class="field__hint">Region parameters fit the ROI-mean curve.</span>
+            </div>
+            <dl>
+              <div class="kv"><dt><span class="swatch" style="--c: var(--nm-roi-1)"></span>ROI1</dt><dd>40<span class="u">vox</span> · 160<span class="u">mm²</span></dd></div>
+              <div class="kv"><dt><span class="swatch" style="--c: var(--nm-roi-2)"></span>ROI2</dt><dd>40<span class="u">vox</span> · 160<span class="u">mm²</span></dd></div>
+              <div class="kv"><dt><span class="swatch" style="--c: var(--nm-roi-3)"></span>ROI3</dt><dd>40<span class="u">vox</span> · 160<span class="u">mm²</span></dd></div>
+            </dl>
+            <div class="notice notice--info" role="note">
+              <svg class="ic"><use href="#i-info"/></svg>
+              <span class="notice__text">WASHIN, WASHOUT and BREVENH come from a bilinear fit because this series has more than 8 dynamics.</span>
+            </div>
+          </div>
+        </li>
+        <li class="step step--todo"><div class="step__row"><span class="badge">6</span><span class="step__title">Underlay</span><span class="step__state t3"></span><span class="step__sum">Optional · source or another series</span></div></li>
+        <li class="step step--todo"><div class="step__row"><span class="badge">7</span><span class="step__title">Generate series</span><span class="step__state t3"></span><span class="step__sum">Save maps as DICOM series</span></div></li>
+      </ol>
+    </div>
+    <div class="panel__foot">
+      <button class="btn btn--primary btn--block">Continue to Underlay <span class="kbd">Ctrl+Enter</span></button>
+    </div>
+  </aside>
+
+  <div class="toolbar" role="toolbar" aria-label="Viewer tools" data-od-id="toolbar">
+    <button class="ibtn" aria-label="Scroll (S)"><svg class="ic"><use href="#i-scroll"/></svg></button>
+    <button class="ibtn" aria-label="Pan (P)"><svg class="ic"><use href="#i-pan"/></svg></button>
+    <button class="ibtn" aria-label="Zoom (Z)"><svg class="ic"><use href="#i-zoom"/></svg></button>
+    <button class="ibtn" aria-label="Window/Level (W)"><svg class="ic"><use href="#i-wl"/></svg></button>
+    <button class="ibtn" aria-label="Mask (M)"><svg class="ic"><use href="#i-mask"/></svg></button>
+    <span class="tb-sep"></span>
+    <button class="ibtn is-active" aria-pressed="true" aria-label="Draw ROI: ellipse (E)"><svg class="ic"><use href="#i-ellipse"/></svg></button>
+    <button class="ibtn" aria-label="Draw ROI: spline (C)"><svg class="ic"><use href="#i-spline"/></svg></button>
+    <button class="ibtn" aria-label="Draw ROI: freehand (F)"><svg class="ic"><use href="#i-freehand"/></svg></button>
+    <span class="tb-sep"></span>
+    <button class="ibtn" aria-label="Mirror line (L)"><svg class="ic"><use href="#i-mirror"/></svg></button>
+    <button class="ibtn" aria-label="Reset view (R)"><svg class="ic"><use href="#i-reset"/></svg></button>
+    <span class="tb-sep"></span>
+    <button class="picker" aria-label="Layout 2×2 (Ctrl+L)"><svg class="ic"><use href="#i-layout"/></svg>2×2<svg class="ic ic--sm"><use href="#i-chev-down"/></svg></button>
+    <span class="tb-sep"></span>
+    <button class="ibtn" aria-label="Undo (Ctrl+Z)"><svg class="ic"><use href="#i-undo"/></svg></button>
+    <button class="ibtn" aria-label="Redo (Ctrl+Y)"><svg class="ic"><use href="#i-redo"/></svg></button>
+    <button class="ibtn" aria-label="Bookmarks (B)"><svg class="ic"><use href="#i-bookmark"/></svg></button>
+    <span class="spacer"></span>
+    <button class="btn btn--secondary btn--dense"><svg class="ic"><use href="#i-series"/></svg>Generate series <span class="kbd">Ctrl+G</span></button>
+    <button class="btn btn--secondary btn--dense"><svg class="ic"><use href="#i-table-save"/></svg>Save tables <span class="kbd">Ctrl+S</span></button>
+    <button class="btn btn--ghost btn--dense"><svg class="ic"><use href="#i-reports"/></svg>Report <span class="kbd">Ctrl+P</span></button>
+  </div>
+
+  <main class="vgrid" aria-label="Viewports" data-od-id="viewport-grid">
+    <section class="vp is-active" aria-label="Viewport 1, source series">
+      <div class="vp__head">
+        <span class="vp__role">1 · Source</span>
+        <div class="select"><span class="input__value">T1 DCE semiquant</span><svg class="ic"><use href="#i-chev-down"/></svg></div>
+        <span class="stepper"><button class="ibtn ibtn--sm" aria-label="Previous dynamic (Left)"><svg class="ic ic--sm"><use href="#i-chev-left"/></svg></button>Dyn <b>8</b> / 12<button class="ibtn ibtn--sm" aria-label="Next dynamic (Right)"><svg class="ic ic--sm"><use href="#i-chev-right"/></svg></button></span>
+        <span class="spacer"></span>
+        <button class="ibtn ibtn--sm" aria-label="Viewport menu (right-click)"><svg class="ic ic--sm"><use href="#i-more"/></svg></button>
+      </div>
+      <div class="vp__body vp__body--fit">
+        <div class="vp__stage">
+          <img src="../assets/img/dce_source.png" width="512" height="512" alt="T1 DCE source image, dynamic 8 of 12, slice 1 of 2, with three ellipse ROIs">
+          <svg viewBox="0 0 512 512" aria-hidden="true">
+            <ellipse class="roi roi--1" cx="318" cy="256" rx="30" ry="48"/>
+            <ellipse class="roi roi--2" cx="194" cy="256" rx="30" ry="48"/>
+            <ellipse class="roi roi--3" cx="426" cy="256" rx="30" ry="48"/>
+            <rect class="roi-handle" x="315" y="205" width="6" height="6"/><rect class="roi-handle" x="315" y="301" width="6" height="6"/>
+            <rect class="roi-handle" x="285" y="253" width="6" height="6"/><rect class="roi-handle" x="345" y="253" width="6" height="6"/>
+          </svg>
+          <span class="ov roi-label roi-label--1" style="left: 58.6%; top: 39.5%">ROI1</span>
+          <span class="ov roi-label roi-label--2" style="left: 34.4%; top: 39.5%">ROI2</span>
+          <span class="ov roi-label roi-label--3" style="left: 77.6%; top: 39.5%">ROI3</span>
+        </div>
+        <div class="ov ov--tl">T1 DCE semiquant · Dyn 8/12 · Slice 1/2<br><span class="t2">t 70.0 s · TR 5.0 ms · TE 2.0 ms</span></div>
+        <div class="ov ov--tr">PHANTOM^SYNTHETIC<br><span class="t2">NMR-PHANTOM-001 · 2026-01-01</span></div>
+        <div class="ov ov--bl">Window auto <span class="t2">a.u.</span><br><span class="t2">Subtraction reference Dyn 1</span></div>
+        <div class="ov ov--br">Zoom 100 %<br><span class="t2">2.0 × 2.0 mm · 48 × 48</span></div>
+        <span class="ov orient orient--n">A</span><span class="ov orient orient--s">P</span><span class="ov orient orient--w">R</span><span class="ov orient orient--e">L</span>
+      </div>
+    </section>
+
+    <section class="vp" aria-label="Viewport 2, live maps">
+      <div class="vp__head">
+        <span class="vp__role">2 · Live maps</span>
+        <div class="tabs tabs--dense" role="tablist" aria-label="Map">
+          <button class="tab" role="tab">RELENH</button>
+          <button class="tab is-active" role="tab" aria-selected="true">MAXRELENH</button>
+          <button class="tab" role="tab">TTP</button>
+          <button class="tab" role="tab">WASHIN</button>
+          <button class="tab" role="tab">WASHOUT</button>
+          <button class="tab" role="tab">BREVENH</button>
+          <button class="tab" role="tab">+4</button>
+        </div>
+        <span class="spacer"></span>
+        <button class="ibtn ibtn--sm" aria-label="Viewport menu (right-click)"><svg class="ic ic--sm"><use href="#i-more"/></svg></button>
+      </div>
+      <div class="vp__body vp__body--fit">
+        <div class="vp__stage">
+          <img src="../assets/img/dce_maxrelenh.png" width="512" height="512" alt="MAXRELENH map, Blue-to-Red LUT 0 to 229 percent">
+          <svg viewBox="0 0 512 512" aria-hidden="true">
+            <ellipse class="roi roi--1" cx="318" cy="256" rx="30" ry="48"/>
+            <ellipse class="roi roi--2" cx="194" cy="256" rx="30" ry="48"/>
+            <ellipse class="roi roi--3" cx="426" cy="256" rx="30" ry="48"/>
+          </svg>
+        </div>
+        <div class="ov ov--tl">MAXRELENH [%]<br><span class="t2">Blue-to-Red · Slice 1/2</span></div>
+        <div class="ov ov--tr">PHANTOM^SYNTHETIC<br><span class="t2">NMR-PHANTOM-001 · 2026-01-01</span></div>
+        <div class="ov ov--bl">Window 0–229 <span class="t2">%</span><br><span class="t2">Opacity 100 %</span></div>
+        <div class="ov ov--br">Zoom 100 %<br><span class="t2">2.0 × 2.0 mm · 48 × 48</span></div>
+        <div class="cbar" style="--lut: var(--nm-lut-blueToRed)"><span>229</span><span class="cbar__ramp"></span><span>0</span><span class="cbar__meta">%<br>W 0–229</span></div>
+        <span class="ov orient orient--n">A</span><span class="ov orient orient--s">P</span><span class="ov orient orient--w">R</span><span class="ov orient orient--e">L</span>
+      </div>
+    </section>
+
+    <section class="vp" aria-label="Viewport 3, region table">
+      <div class="vp__head">
+        <span class="vp__role">3</span>
+        <div class="tabs tabs--dense" role="tablist">
+          <button class="tab" role="tab">Subtracted</button>
+          <button class="tab is-active" role="tab" aria-selected="true">Table</button>
+        </div>
+        <span class="spacer"></span>
+        <span class="dense t3">Region parameters · Slice 1/2</span>
+        <button class="ibtn ibtn--sm" aria-label="Table menu (right-click)"><svg class="ic ic--sm"><use href="#i-more"/></svg></button>
+      </div>
+      <div class="vp__body vp__body--panel">
+        <table class="tbl tbl--dense" data-od-id="dce-table">
+          <colgroup><col style="width:30%"><col><col><col><col style="width:14%"></colgroup>
+          <thead><tr>
+            <th>Parameter</th>
+            <th class="num"><span class="swatch" style="--c: var(--nm-roi-1)"></span>ROI1</th>
+            <th class="num"><span class="swatch" style="--c: var(--nm-roi-2)"></span>ROI2</th>
+            <th class="num"><span class="swatch" style="--c: var(--nm-roi-3)"></span>ROI3</th>
+            <th>Unit</th>
+          </tr></thead>
+          <tbody>
+<!-- gen:dce-table -->
+<tr><td class="strong">RELENH <span class="t3">Dyn 8</span></td><td class="num">134.1</td><td class="num">98.5</td><td class="num">61.1</td><td class="t2">%</td></tr>
+<tr><td class="strong">MAXRELENH</td><td class="num">144.3</td><td class="num">101.1</td><td class="num">84.1</td><td class="t2">%</td></tr>
+<tr><td class="strong">MAXENH</td><td class="num">434.1</td><td class="num">201.8</td><td class="num">211.3</td><td class="t2">a.u.</td></tr>
+<tr><td class="strong">S0</td><td class="num">300.9</td><td class="num">199.6</td><td class="num">251.2</td><td class="t2">a.u.</td></tr>
+<tr><td class="strong">T0</td><td class="num">30</td><td class="num">30</td><td class="num">40</td><td class="t2">s</td></tr>
+<tr><td class="strong">TTP</td><td class="num">60</td><td class="num">80</td><td class="num">110</td><td class="t2">s</td></tr>
+<tr><td class="strong">WASHIN <span class="t3">fit</span></td><td class="num">11.63</td><td class="num">3.98</td><td class="num">2.9</td><td class="t2">a.u./s</td></tr>
+<tr><td class="strong">WASHOUT <span class="t3">fit</span></td><td class="num">−3.03</td><td class="num">0.3</td><td class="num">0.82</td><td class="t2">a.u./s</td></tr>
+<tr><td class="strong">BREVENH <span class="t3">fit</span></td><td class="num">45</td><td class="num">45</td><td class="num">40</td><td class="t2">s</td></tr>
+<tr><td class="strong">AREACURV</td><td class="num">26 894</td><td class="num">14 061</td><td class="num">11 978</td><td class="t2">a.u.·s</td></tr>
+<!-- /gen:dce-table -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="vp" aria-label="Viewport 4, time-intensity curves">
+      <div class="vp__head">
+        <span class="vp__role">4</span>
+        <div class="tabs tabs--dense" role="tablist">
+          <button class="tab is-active" role="tab" aria-selected="true">Graph</button>
+          <button class="tab" role="tab">Anatomical</button>
+        </div>
+        <span class="spacer"></span>
+        <span class="dense t3">Signal · Slice 1/2</span>
+        <button class="ibtn ibtn--sm" aria-label="Graph menu (right-click)"><svg class="ic ic--sm"><use href="#i-more"/></svg></button>
+      </div>
+      <div class="vp__body">
+        <svg class="graph" viewBox="0 0 640 452" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Time-intensity curves for ROI1 (washout), ROI2 (plateau) and ROI3 (persistent) with the bilinear fit for ROI1">
+<!-- gen:dce-graph -->
+<g class="g-grid">
+<line x1="56.0" y1="404.0" x2="620.0" y2="404.0"/>
+<line x1="56.0" y1="351.4" x2="620.0" y2="351.4"/>
+<line x1="56.0" y1="298.9" x2="620.0" y2="298.9"/>
+<line x1="56.0" y1="246.3" x2="620.0" y2="246.3"/>
+<line x1="56.0" y1="193.7" x2="620.0" y2="193.7"/>
+<line x1="56.0" y1="141.1" x2="620.0" y2="141.1"/>
+<line x1="56.0" y1="88.6" x2="620.0" y2="88.6"/>
+<line x1="56.0" y1="36.0" x2="620.0" y2="36.0"/>
+<line x1="56.0" y1="36.0" x2="56.0" y2="404.0"/>
+<line x1="154.1" y1="36.0" x2="154.1" y2="404.0"/>
+<line x1="252.2" y1="36.0" x2="252.2" y2="404.0"/>
+<line x1="350.3" y1="36.0" x2="350.3" y2="404.0"/>
+<line x1="448.3" y1="36.0" x2="448.3" y2="404.0"/>
+<line x1="546.4" y1="36.0" x2="546.4" y2="404.0"/>
+<line x1="644.5" y1="36.0" x2="644.5" y2="404.0"/>
+</g>
+<line class="g-axis" x1="56.0" y1="36.0" x2="56.0" y2="404.0"/>
+<line class="g-axis" x1="56.0" y1="404.0" x2="620.0" y2="404.0"/>
+<g class="g-tick" text-anchor="end"><text x="50.0" y="408.0">100</text><text x="50.0" y="355.4">200</text><text x="50.0" y="302.9">300</text><text x="50.0" y="250.3">400</text><text x="50.0" y="197.7">500</text><text x="50.0" y="145.1">600</text><text x="50.0" y="92.6">700</text><text x="50.0" y="40.0">800</text></g>
+<g class="g-tick" text-anchor="middle"><text x="56.0" y="420.0">0</text><text x="154.1" y="420.0">20</text><text x="252.2" y="420.0">40</text><text x="350.3" y="420.0">60</text><text x="448.3" y="420.0">80</text><text x="546.4" y="420.0">100</text><text x="644.5" y="420.0">120</text></g>
+<text class="g-title" x="338.0" y="442.0" text-anchor="middle">Time [s]</text>
+<text class="g-title" x="16" y="220.0" text-anchor="middle" transform="rotate(-90 16 220.0)">Signal [a.u.]</text>
+<line class="g-marker" x1="56.0" y1="30.0" x2="56.0" y2="404.0"/>
+<text class="g-marker-label" x="60.0" y="28.0">Ref · Dyn 1</text>
+<line class="g-marker" x1="399.3" y1="30.0" x2="399.3" y2="404.0"/>
+<text class="g-marker-label" x="403.3" y="28.0">Dyn 8 · 70 s</text>
+<polyline class="g-curve g-curve--1" points="56.0,298.0 105.0,298.8 154.1,298.0 203.1,258.0 252.2,181.0 301.2,102.2 350.3,70.2 399.3,85.5 448.3,101.3 497.4,117.2 546.4,133.0 595.5,149.9"/>
+<polyline class="g-curve g-curve--2" points="56.0,351.0 105.0,352.4 154.1,340.9 203.1,319.2 252.2,298.5 301.2,277.6 350.3,256.9 399.3,247.0 448.3,245.6 497.4,247.0 546.4,246.4 595.5,245.8"/>
+<polyline class="g-curve g-curve--3" points="56.0,323.8 105.0,325.2 154.1,318.0 203.1,303.5 252.2,288.2 301.2,273.0 350.3,259.3 399.3,242.8 448.3,226.9 497.4,218.9 546.4,216.1 595.5,213.4"/>
+<polyline class="g-fit" points="154.1,304.1 350.3,59.6"/>
+<polyline class="g-fit" points="350.3,69.7 595.5,149.3"/>
+<!-- /gen:dce-graph -->
+        </svg>
+        <div class="legend" style="top: var(--nm-space-12); left: calc(var(--nm-space-12) * 2)" aria-label="Curves">
+          <label class="check is-checked"><span class="check__box"><svg class="ic"><use href="#i-check"/></svg></span><span class="legend__line" style="--c: var(--nm-roi-1)"></span>ROI1</label>
+          <label class="check is-checked"><span class="check__box"><svg class="ic"><use href="#i-check"/></svg></span><span class="legend__line" style="--c: var(--nm-roi-2)"></span>ROI2</label>
+          <label class="check is-checked"><span class="check__box"><svg class="ic"><use href="#i-check"/></svg></span><span class="legend__line" style="--c: var(--nm-roi-3)"></span>ROI3</label>
+          <label class="check is-checked"><span class="check__box"><svg class="ic"><use href="#i-check"/></svg></span><span class="legend__line legend__line--linked" style="--c: var(--nm-color-text-primary)"></span>Bilinear fit · ROI1</label>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- gen:statusbar -->
+<footer class="statusbar" data-od-id="statusbar">
+    <span class="sb-item"><svg class="ic"><use href="#i-jobs"/></svg>Jobs <b>0 running</b></span>
+    <span class="sb-sep"></span>
+    <span class="sb-item"><span class="dot dot--success"></span><b>Maps up to date</b></span>
+    <span class="sb-sep"></span>
+    <span class="sb-item"><svg class="ic"><use href="#i-engine"/></svg>Engine <span class="dot dot--success"></span><b>connected</b> · local</span>
+    <span class="sb-sep"></span>
+    <span class="sb-item">Licence <b>active</b></span>
+    <span class="spacer"></span>
+    <span class="sb-item"><svg class="ic"><use href="#i-display"/></svg><b>Diagnostic display</b></span>
+    <span class="sb-sep"></span>
+    <span class="sb-item"><span class="kbd">?</span> shortcuts</span>
+  </footer>
+<!-- /gen:statusbar -->
+</div>
+<template id="nm-dlg-shortcut-sheet"><div class="scrim" data-od-id="shortcut-sheet">
+    <div class="dialog dialog--xl" role="dialog" aria-modal="true" aria-labelledby="ks-title">
+      <div class="dialog__head"><h2 class="dialog__title" id="ks-title">Keyboard shortcuts</h2><div class="search" style="width: calc(var(--nm-space-12) * 5)"><svg class="ic"><use href="#i-search"/></svg><span>Filter shortcuts</span></div><button class="ibtn" aria-label="Close (Esc or ?)"><svg class="ic"><use href="#i-close"/></svg></button></div>
+      <div class="dialog__body">
+        <div class="sheet">
+          <div><h3>Global</h3><div class="krow"><span>Directory</span><span class="kbd">Ctrl+1</span></div><div class="krow"><span>Viewer</span><span class="kbd">Ctrl+2</span></div><div class="krow"><span>Analysis</span><span class="kbd">Ctrl+3</span></div><div class="krow"><span>Reports</span><span class="kbd">Ctrl+4</span></div><div class="krow"><span>Settings</span><span class="kbd">Ctrl+,</span></div><div class="krow"><span>Search studies</span><span class="kbd">Ctrl+K</span></div><div class="krow"><span>Shortcut sheet</span><span class="kbd">?</span></div><div class="krow"><span>Lock workstation</span><span class="kbd">Win+L</span></div></div>
+          <div><h3>Viewer tools</h3><div class="krow"><span>Scroll</span><span class="kbd">S</span></div><div class="krow"><span>Pan</span><span class="kbd">P</span></div><div class="krow"><span>Zoom</span><span class="kbd">Z</span></div><div class="krow"><span>Window / level</span><span class="kbd">W</span></div><div class="krow"><span>Mask</span><span class="kbd">M</span></div><div class="krow"><span>Reset view</span><span class="kbd">R</span></div><div class="krow"><span>Mirror line</span><span class="kbd">L</span></div><div class="krow"><span>Mirror L↔R</span><span class="kbd">Shift+H</span></div><div class="krow"><span>Flip U↔D</span><span class="kbd">Shift+V</span></div><div class="krow"><span>Rotate 90°</span><span class="kbd">Ctrl+R</span></div></div>
+          <div><h3>ROIs and results</h3><div class="krow"><span>Ellipse ROI</span><span class="kbd">E</span></div><div class="krow"><span>Spline ROI</span><span class="kbd">C</span></div><div class="krow"><span>Freehand ROI</span><span class="kbd">F</span></div><div class="krow"><span>Delete ROI</span><span class="kbd">Del</span></div><div class="krow"><span>Duplicate ROI</span><span class="kbd">Ctrl+D</span></div><div class="krow"><span>Undo</span><span class="kbd">Ctrl+Z</span></div><div class="krow"><span>Redo</span><span class="kbd">Ctrl+Y</span></div><div class="krow"><span>Window from ROI</span><span class="kbd">Shift+W</span></div></div>
+          <div><h3>Task guidance</h3><div class="krow"><span>Next step</span><span class="kbd">Ctrl+Enter</span></div><div class="krow"><span>Collapse panel</span><span class="kbd">Ctrl+B</span></div><div class="krow"><span>Inspector</span><span class="kbd">I</span></div><div class="krow"><span>Bookmarks</span><span class="kbd">B</span></div><div class="krow"><span>Layout picker</span><span class="kbd">Ctrl+L</span></div></div>
+          <div><h3>Output</h3><div class="krow"><span>Generate series</span><span class="kbd">Ctrl+G</span></div><div class="krow"><span>Save tables</span><span class="kbd">Ctrl+S</span></div><div class="krow"><span>Report</span><span class="kbd">Ctrl+P</span></div><div class="krow"><span>Copy table</span><span class="kbd">Ctrl+C</span></div></div>
+          <div><h3>Viewports</h3><div class="krow"><span>Previous / next slice</span><span class="kbd">↑ ↓</span></div><div class="krow"><span>Previous / next dynamic</span><span class="kbd">← →</span></div><div class="krow"><span>Maximise viewport</span><span class="kbd">Enter</span></div><div class="krow"><span>Next viewport</span><span class="kbd">Tab</span></div><div class="krow"><span>Context menu</span><span class="kbd">Shift+F10</span></div></div>
+        </div>
+      </div>
+      <div class="dialog__foot"><span class="dense t3">Every toolbar and context-menu action lists its shortcut in its tooltip.</span><span class="spacer"></span><button class="btn btn--secondary">Print sheet</button><button class="btn btn--primary">Close <span class="kbd">Esc</span></button></div>
+    </div>
+  </div></template>
+<script src="screens.js"></script>
+<script src="proto.js"></script>
+</body>
+</html>
