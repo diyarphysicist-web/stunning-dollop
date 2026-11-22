@@ -139,6 +139,13 @@ def topbar(studies: str = '<span class="bf"><span class="bf__k">Study</span><spa
   </header>'''
 
 
+def topbar_none() -> str:
+    """Top bar with no patient context (empty Directory): the banner says so instead of staying blank."""
+    s = topbar()
+    start, end = s.index('<div class="banner"'), s.index('<div class="topbar__actions">')
+    return s[:start] + '<div class="banner" data-od-id="patient-banner" aria-label="Patient"><span class="t2">No patient selected</span></div>' + NL + "    " + s[end:]
+
+
 def rail(active: str) -> str:
     items = [("Directory", "directory", "Ctrl+1"), ("Viewer", "viewer", "Ctrl+2"), ("Analysis", "analysis", "Ctrl+3"), ("Reports", "reports", "Ctrl+4"), ("Settings", "settings", "Ctrl+,")]
     out = ['<nav class="rail" aria-label="Activities" data-od-id="activity-rail">']
@@ -168,6 +175,9 @@ def statusbar(state: str = '<span class="dot dot--success"></span><b>Maps up to 
 
 STATUS = {
     "dir": '<span class="dot dot--warning"></span><b>Pre-processing 1 series</b> · DTI multishell 64 %',
+    "idle": '<span class="dot dot--idle"></span><b>No study open</b>',
+    "import": '<span class="dot dot--warning"></span><b>Importing</b> · 412 / 1 849 files · 22 %',
+    "settings": '<span class="dot dot--success"></span><b>Settings saved</b> · changes apply to new sessions',
     "sub": '<span class="dot dot--success"></span><b>S − 1.00·R</b> · dyn 2–12 − dyn 1 · 0 divisions by zero',
     "echo": '<span class="dot dot--success"></span><b>Σ echoes 1–4</b> · live preview',
     "lba": '<span class="dot dot--success"></span><b>Registered</b> · 5 findings · 2 time points',
@@ -419,7 +429,7 @@ def adv_table() -> str:
     )
 
 
-GENERATORS = {"topbar-2": lambda: topbar('<span class="bf"><span class="bf__k">Studies</span><span class="bf__v">2026-01-01 · 2026-07-01</span></span>'), "lba-table": lba_table, "lba-trend": lba_trend, "adv-graph": adv_graph, "adv-table": adv_table, "fmri-curve": fmri_curve, "mrs-spectrum": mrs_spectrum, "mrs-table": mrs_table, "topbar": topbar, "statusbar": statusbar, "dce-graph": dce_graph, "dce-table": dce_table, "perm-graph": perm_graph, "perm-table": perm_table, "mrs-thumb": mrs_thumb, "sprite": sprite, "aif-grid": aif_grid, "aif-average": aif_average, "mm-signal": mm_signal}
+GENERATORS = {"topbar-none": lambda: topbar_none(), "topbar-2": lambda: topbar('<span class="bf"><span class="bf__k">Studies</span><span class="bf__v">2026-01-01 · 2026-07-01</span></span>'), "lba-table": lba_table, "lba-trend": lba_trend, "adv-graph": adv_graph, "adv-table": adv_table, "fmri-curve": fmri_curve, "mrs-spectrum": mrs_spectrum, "mrs-table": mrs_table, "topbar": topbar, "statusbar": statusbar, "dce-graph": dce_graph, "dce-table": dce_table, "perm-graph": perm_graph, "perm-table": perm_table, "mrs-thumb": mrs_thumb, "sprite": sprite, "aif-grid": aif_grid, "aif-average": aif_average, "mm-signal": mm_signal}
 
 
 def main() -> None:

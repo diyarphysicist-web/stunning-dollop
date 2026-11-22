@@ -70,3 +70,26 @@ Notes
 - **13 Longitudinal.** Uses the two real FLAIR studies (2026-01-01, 2026-07-01). Lesions are detected (threshold 1.5 × median tissue, connected components) and matched by centroid in `render_phantom_imagery.py`. Their volumes equal the phantom truth voxel for voxel: L1 0.123 → 0.257 ml, L2 new, L3 0.257 → 0.123 ml, L4 stable, L5 disappeared; total 0.584 → 0.626 ml. The package is mode-driven (LBA-020…025) rather than step-driven, so laws 2 and 3 apply in adapted form (~): modes, findings and segmentation take the place of steps. The lesion properties dialog is anchored in the inspector (law 1). FLAIR* is shown disabled with its reason, because no SWI/EPI phantom exists; a FLAIR* working-state screen needs that phantom. Compare mode shows the LBA-024 traffic light (green, matching series) and the change-map notice.
 - **14 Advanced Diffusion.** Analyze signal fits kurtosis + simplified IVIM to the phantom ROI with the ADV-007 thresholds (b between 0 and 100 s/mm² excluded): D 1112 ×10⁻⁶ mm²/s, f 6.4 %, K 0.71, R² 0.9998, NRMSE 0.38 % of S0. Excluded b-values are drawn as hollow points on the graph. Computed DWI uses its 1×2 layout (ADV-002).
 - **15 Subtraction / Echo Accumulation.** Compact single-task workspaces (law 2 ~, no steps). Subtraction shows the SUB-008 geometry check as passed, and the division-by-zero count in the status line (SUB-009). The Echo Accumulation imagery is **design-only**: no multi-echo phantom exists, so the renderer decays the baseline FLAIR slice over four TEs (documented in its docstring). A multi-echo phantom should be added to `scripts/make_phantoms.py` before Phase 10.
+
+## Batch 6
+
+| Screen | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 16 Generate series | ~ | — | — | ✓ | ✓ | ✓ | — | — | ✓ | ✓ |
+| 16 Save all tables | ~ | — | — | ✓ | ✓ | ✓ | — | — | ✓ | ✓ |
+| 17 Layout presets | ~ | — | — | — | — | ✓ | — | — | ✓ | ✓ |
+| 17 Settings · analysis defaults | — | — | — | ✓ | — | ✓ | — | — | ✓ | ✓ |
+| 17 Settings · displays | — | — | — | ✓ | — | ✓ | — | — | ✓ | ✓ |
+| 17 Shortcut sheet | ~ | — | — | — | — | ✓ | — | — | — | — |
+| 18 Directory empty | — | — | — | — | — | ✓ | — | — | ✓ | ✓ |
+| 18 Directory importing + PACS error | — | — | — | ✓ | ✓ | ✓ | — | — | ✓ | ✓ |
+| 18 DSC computing | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| 18 Mismatch invalid input + job error | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+
+Notes
+- **Dialogs (16, 17).** Modal only because the user opened them, and none needs image interaction (law 1 ~). Generate Series disables Tmax / Delay with its reason, because Tmax needs the Manual AIF deconvolution method (DSC-013). It records the source series, method and non-default settings (GEN-162), and explains that registered saving can differ from the preview (GEN-161). Save All Tables lists each file it will write and says that files carry patient identifiers (SAFE-010).
+- **Settings.** LUT defaults show a horizontal preview of each LUT, using the new `--nm-lut-*-h` gradients from the LUT module. The example injection preset is flagged and the screen tells the site to replace it (PERM-006). The display calibration check shows an honest "Not checked" state that leads to the test pattern (batch 7), and makes no pass/fail claim.
+- **States (18).** Empty Directory: the banner says "No patient selected" rather than staying blank, and the screen offers the three ways to get data. Importing: progress with Cancel, skeleton rows for series not yet read, the launcher reason taken from `validity.ts` ("Waiting for import and pre-processing to finish."), and a one-sentence PACS error with Retry. DSC computing: the maps viewport shows progress and Cancel in place of the map (no colour bar without a map); the table is marked stale and export is blocked (SAFE-030). Mismatch: the invalid threshold is explained in one sentence that names the likely cause; the failed job offers Retry or Collect diagnostics.
+
+Consistency fix found in this batch
+- Tmax / Delay exists only for the Manual AIF method (DSC-013). Removed the Tmax tab from the Model-free screens (02, 03). The Mismatch screens (05) now state Manual AIF as the step-3 method, because Mismatch seeds on Tmax.
