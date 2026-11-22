@@ -194,10 +194,16 @@ def mm_volumes() -> str:
     m = DATA["dti"]["mismatch"]
     return NL.join([
         f'<tr><td class="strong">Perfusion volume <span class="t3">Tmax &gt; 6.0 s</span></td><td class="num">{m["perfusion_ml"]:.1f}</td><td>ml</td></tr>',
-        f'<tr><td class="strong">Diffusion volume <span class="t3">ADC &lt; 620</span></td><td class="num">{m["diffusion_ml"]:.1f}</td><td>ml</td></tr>',
-        f'<tr><td class="strong">Mismatch volume</td><td class="num">{m["mismatch_ml"]:.1f}</td><td>ml</td></tr>',
-        f'<tr class="is-total"><td>Mismatch ratio <span class="t3">(perf − diff) / perf</span></td><td class="num">{m["ratio_pct"]:.1f}</td><td>%</td></tr>',
+        f'<tr><td class="strong">Diffusion (core) volume <span class="t3">ADC &lt; 620</span></td><td class="num">{m["diffusion_ml"]:.1f}</td><td>ml</td></tr>',
+        f'<tr><td class="strong">Mismatch volume <span class="t3">perfusion − core</span></td><td class="num">{m["mismatch_ml"]:.1f}</td><td>ml</td></tr>',
+        f'<tr class="is-total"><td>Mismatch ratio <span class="t3">perfusion / core</span></td><td class="num">{mm_ratio(m)}</td><td>ratio</td></tr>',
+        f'<tr class="is-total"><td>Relative mismatch <span class="t3">(perfusion − core) / perfusion</span></td><td class="num">{m["ratio_pct"]:.1f}</td><td>%</td></tr>',
     ])
+
+
+def mm_ratio(m: dict) -> str:
+    """Mismatch ratio perfusion / core; undefined without a core (MM-008)."""
+    return "— (no core)" if m["diffusion_ml"] <= 0 else f'{m["perfusion_ml"] / m["diffusion_ml"]:.2f}'
 
 
 def _seed(kind: str, xy: list[float]) -> str:

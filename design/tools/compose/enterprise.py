@@ -96,7 +96,7 @@ start = '''<div class="app app--settings">
             <colgroup><col style="width:28%"><col style="width:16%"><col><col style="width:14%"></colgroup>
             <thead><tr><th>Patient</th><th>Study</th><th>Result (pre-processed)</th><th></th></tr></thead>
             <tbody>
-              <tr class="is-selected"><td class="strong mono">PHANTOM^SYNTHETIC</td><td>2026-01-01</td><td>Perfusion 76.8 ml · diffusion 9.4 ml · mismatch 67.4 ml <span class="chip chip--warning">Not reviewed</span></td><td><button class="btn btn--primary btn--dense">Open <span class="kbd">Enter</span></button></td></tr>
+              <tr class="is-selected"><td class="strong mono">PHANTOM^SYNTHETIC</td><td>2026-01-01</td><td>Perfusion 76.8 ml · core 9.4 ml · mismatch 67.4 ml · ratio 8.17 (87.8 %) <span class="chip chip--warning">Not reviewed</span></td><td><button class="btn btn--primary btn--dense">Open <span class="kbd">Enter</span></button></td></tr>
             </tbody>
           </table>
           <span class="field__hint">Pre-processed in the background; open the case to review registration and segmentation before using the values.</span>''') + "\n" + card("Follow-up · comparison ready", '''          <table class="tbl">
@@ -355,6 +355,7 @@ def img(src: str, cap: str, lut: str = "", hi: str = "", lo: str = "", unit: str
 
 dsc_graph = re.search(r'<svg class="graph".*?</svg>', (S / "03-dsc-perfusion.html").read_text(encoding="utf-8"), re.S).group(0)
 DSC, MM = DATA["dsc"], DATA["dti"]["mismatch"]
+MM_RATIO = "— (no core)" if MM["diffusion_ml"] <= 0 else f'{MM["perfusion_ml"] / MM["diffusion_ml"]:.2f}'  # MM-008
 _T = DSC["table"]
 
 
@@ -391,9 +392,10 @@ mm_paper = f'''    <article class="paper" aria-label="Mismatch report page 1">
       <h2>Volumes</h2>
       <table class="ptbl"><thead><tr><th>Measure</th><th class="num">Value</th><th>Unit</th></tr></thead>
         <tbody><tr><td>Perfusion volume (Tmax &gt; 6.0 s)</td><td class="num">{MM["perfusion_ml"]:.1f}</td><td>ml</td></tr>
-        <tr><td>Diffusion volume (ADC &lt; 620 ×10⁻⁶ mm²/s)</td><td class="num">{MM["diffusion_ml"]:.1f}</td><td>ml</td></tr>
-        <tr><td>Mismatch volume</td><td class="num">{MM["mismatch_ml"]:.1f}</td><td>ml</td></tr>
-        <tr><td><b>Mismatch ratio (perfusion − diffusion) / perfusion</b></td><td class="num"><b>{MM["ratio_pct"]:.1f}</b></td><td>%</td></tr></tbody></table>
+        <tr><td>Diffusion (core) volume (ADC &lt; 620 ×10⁻⁶ mm²/s)</td><td class="num">{MM["diffusion_ml"]:.1f}</td><td>ml</td></tr>
+        <tr><td><b>Mismatch volume (perfusion − core)</b></td><td class="num"><b>{MM["mismatch_ml"]:.1f}</b></td><td>ml</td></tr>
+        <tr><td><b>Mismatch ratio (perfusion / core)</b></td><td class="num"><b>{MM_RATIO}</b></td><td>ratio</td></tr>
+        <tr><td><b>Relative mismatch (perfusion − core) / perfusion</b></td><td class="num"><b>{MM["ratio_pct"]:.1f}</b></td><td>%</td></tr></tbody></table>
       <h2>Method</h2>
       <p>Automatic seed-point segmentation with default thresholds. Perfusion dynamic 1 registered rigidly to the DWI b0 (local correlation). <b>Registration not reviewed by the user.</b> Tmax from Manual AIF deconvolution.</p>
       <p><b>Decision support only — not a stand-alone basis for selecting acute stroke treatment.</b></p>

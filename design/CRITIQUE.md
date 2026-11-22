@@ -158,3 +158,9 @@ The disc and stripe phantoms behind the design imagery are replaced by one skull
 - **17 Settings.** LUT defaults list relCBV and relCBF twice: Manual AIF (0–8 ml/100 g, 0–80 ml/100 g/min) and other methods (0 to the 99th percentile, a.u.).
 - **23 DSC report.** The table, key-image captions and colour bars use a.u. The method line now says that model-free values are relative and that ml/100 g needs Manual AIF deconvolution.
 - **Law check.** Law 4 (units, map name, LUT bar, window) is now correct per method; all other marks are unchanged.
+
+### 3. Mismatch measures (MM-008)
+
+- **05 (2×2, 2×3).** Table 2 now lists perfusion volume, core volume and mismatch volume = perfusion − core (ml), then two summary rows. The mismatch ratio = perfusion / core is shown as 8.17 (unitless). The relative mismatch = (perfusion − core) / perfusion is shown as 87.8 %. Each row carries its formula in tertiary text, so the two measures cannot be confused. Without a core the ratio reads "— (no core)" and is never shown as infinite.
+- **23 Mismatch report.** The same four measures use the same names. The start view (19) summary reads "mismatch 67.4 ml · ratio 8.17 (87.8 %)".
+- **Law check.** Law 4 (units) is met because each row has its own unit (ml, ratio, %). The extra row fits the 2×2 table without scrolling (checked at 1920 × 1080).

@@ -109,7 +109,7 @@ Phantom: gamma-variate tissue curves from known CBV/CBF/MTT/T0 convolved with an
 
 - Registration: rigid (6 DOF), perfusion dynamic 1 → diffusion b0, ANTs local-correlation (CC) metric radius 4, multi-resolution 4/2/1 *(NMR default)*.
 - Automatic segmentation: from each seed, 3D 26-connected region growing over voxels satisfying the threshold (ADC < 620 × 10⁻⁶ mm²/s; Tmax > 6 s), within the brain mask; morphological opening with 1-voxel ball to drop bridges. Exclusion ROIs subtract voxels.
-- Volumes: voxel count × voxel volume [ml]. Mismatch volume = V_perf − V_core (core = diffusion region ∩ brain); mismatch ratio = (V_perf − V_core) / V_perf × 100 %. Penumbra = perfusion region \ diffusion region.
+- Volumes: voxel count × voxel volume [ml]. Mismatch volume = V_perf − V_core (core = diffusion region ∩ brain); mismatch ratio = V_perf / V_core (undefined when V_core = 0; shown as "— (no core)"); relative mismatch = (V_perf − V_core) / V_perf × 100 %. Penumbra = perfusion region \ diffusion region.
 
 Threshold sources: ADC < 620 × 10⁻⁶ mm²/s and Tmax > 6 s are the thresholds widely used in automated stroke imaging (Albers et al., N Engl J Med 2018;378:708–718; Lansberg et al., Lancet Neurol 2012;11:860–867). Reports state they are configurable defaults.
 
