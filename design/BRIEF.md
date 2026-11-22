@@ -65,7 +65,7 @@ All text/surface pairs ≥ 4.5:1 (unit-tested). Data colours (LUTs, ROI palette,
 
 Typography: Inter 13 px base, 12 px dense tables, 11 px viewport overlays (1 px black text shadow), 16 px panel titles, tabular numerals everywhere. JetBrains Mono for DICOM tags, coordinates and numeric readouts.
 
-Layout: 4 px unit; panel padding 12 px; rows 28 / 24 px. Shell = 48 px top bar (patient banner + global actions), 56 px activity rail, 300 px task panel (collapsible to 0), 40 px toolbar, viewport grid, optional 280 px inspector. Grids 1×1, 1×2, 2×1, 2×2 (default), 2×3, 3×3 and user presets.
+Layout: 4 px unit; panel padding 12 px; rows 28 / 24 px. Shell = 48 px top bar (patient banner + global actions), 64 px activity rail, 300 px task panel (collapsible to 0), 40 px toolbar, viewport grid, optional 280 px inspector. Grids 1×1, 1×2, 2×1, 2×2 (default), 2×3, 3×3 and user presets.
 
 Icons: original 20 px outline set, 1.5 px stroke, tooltip with shortcut on every icon. Motion: 120 ms ease-out for panels, 0 ms inside viewports; image data never animates.
 

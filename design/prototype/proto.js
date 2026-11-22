@@ -218,6 +218,8 @@
     if (kind === "seg") {
       const g = el.closest(".seg") || el.parentElement;
       g.querySelectorAll(".seg__item").forEach((s) => { s.classList.toggle("is-selected", s === el); if (s.hasAttribute("aria-checked")) s.setAttribute("aria-checked", String(s === el)); });
+      // Interface scale (GEN-210): preview the chosen scale on this page.
+      if (g.hasAttribute("data-ui-scale")) document.body.style.zoom = String(parseInt(el.textContent, 10) / 100);
     } else if (kind === "tab") {
       const g = el.closest('[role="tablist"]') || el.parentElement;
       g.querySelectorAll('[role="tab"]').forEach((t) => { t.classList.toggle("is-active", t === el); t.setAttribute("aria-selected", String(t === el)); });

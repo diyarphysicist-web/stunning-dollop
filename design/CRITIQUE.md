@@ -164,3 +164,14 @@ The disc and stripe phantoms behind the design imagery are replaced by one skull
 - **05 (2×2, 2×3).** Table 2 now lists perfusion volume, core volume and mismatch volume = perfusion − core (ml), then two summary rows. The mismatch ratio = perfusion / core is shown as 8.17 (unitless). The relative mismatch = (perfusion − core) / perfusion is shown as 87.8 %. Each row carries its formula in tertiary text, so the two measures cannot be confused. Without a core the ratio reads "— (no core)" and is never shown as infinite.
 - **23 Mismatch report.** The same four measures use the same names. The start view (19) summary reads "mismatch 67.4 ml · ratio 8.17 (87.8 %)".
 - **Law check.** Law 4 (units) is met because each row has its own unit (ml, ratio, %). The extra row fits the 2×2 table without scrolling (checked at 1920 × 1080).
+
+### 4. Interface scale and 13 px text (GEN-210, GEN-211)
+
+- **Tokens.** `--nm-font-size-dense` went from 12 to 13 px (line height 17 px), so table cells, table units, hints, chips, rail labels, the status bar and viewport headers are now at least 13 px. `--nm-font-size-overlay` went from 11 to 12 px and is kept only for image overlays, colour bars, graph ticks and keycaps. This departs from brief §4.3 (12 px dense tables, 11 px overlays) at the reviewer's request and is recorded in GEN-211 and DESIGN.md §3.
+- **Density re-check (1920 × 1080 and 1280 × 720 laptop).**
+  - **Rail.** "Directory" and "Analysis" no longer fitted the 56 px rail, so the rail is now 64 px (`--nm-size-rail`).
+  - **Task panel switch.** "Key Images" and "Bookmarks" were cut off with equal columns; the switch now sizes each segment to its label.
+  - **Tables still fit.** The DSC region table (03) and the mismatch table with its extra row (05) fit without scrolling. The Directory (01) still shows all 17 series at 1080 p.
+  - **Laptop (24, ~).** The viewport-pair switcher in the toolbar truncates its labels ("1·2 Source · M…"). Its full name is in the tooltip and F6 cycles the pairs, so it stays usable.
+- **17 Settings · Displays.** New "Interface scale" card: 100 / 125 / 150 % per display, next to the Windows scale. For each display it shows the resulting workspace, e.g. 1920 × 1080 at 125 % Windows × 125 % interface gives 1229 × 691 CSS px, so panels become overlays. Images keep native pixels. In the prototype, picking a scale zooms the Settings page as a live preview.
+- **Law check.** Law 8 (density) is re-checked as above; all other marks are unchanged.

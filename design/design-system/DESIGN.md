@@ -47,8 +47,8 @@ Report pages are documents, not chrome: `--nm-color-print-paper` #FFFFFF, `--nm-
 
 | Use | Family | Size / line | Weight |
 |---|---|---|---|
-| Viewport overlay text | Inter | 11 / 14 px, 1 px black text shadow | 500 |
-| Dense tables, DICOM tag lists | Inter (values: JetBrains Mono) | 12 / 16 px | 400 |
+| Viewport overlays, colour bars, graph ticks, keycaps | Inter | 12 / 15 px, 1 px black text shadow on images | 500 |
+| Dense tables, table units, hints, rail, status bar, chips | Inter (values: JetBrains Mono) | 13 / 17 px | 400 |
 | Base UI | Inter | 13 / 18 px | 400; labels 500 |
 | Panel titles | Inter | 16 / 22 px | 600 |
 | Page headings (Settings, Licence, Sign-in) | Inter | 20 / 26 px | 600 |
@@ -56,7 +56,8 @@ Report pages are documents, not chrome: `--nm-color-print-paper` #FFFFFF, `--nm-
 | DICOM tags, coordinates, numeric readouts | JetBrains Mono | inherits size | 400 |
 
 - `font-variant-numeric: tabular-nums` everywhere a number appears. Numbers right-aligned in tables; unit in the column header or a secondary-colour suffix, never omitted.
-- Sentence case for all labels. Uppercase only for orientation markers (R L A P S I) and 11 px section eyebrows.
+- No interface text is smaller than 13 px at 100 % (GEN-211); only image annotations, graph ticks and keycaps use 12 px. All sizes scale with the interface scale (100 / 125 / 150 %, GEN-210).
+- Sentence case for all labels. Uppercase only for orientation markers (R L A P S I) and section eyebrows.
 
 ## 4. Component Stylings
 
@@ -76,7 +77,7 @@ Report pages are documents, not chrome: `--nm-color-print-paper` #FFFFFF, `--nm-
 ## 5. Layout Principles
 
 - 4 px unit. Panel padding 12 px. Gaps 8 px within a group, 16 px between groups.
-- **Shell:** top bar 48 px (patient banner + global actions) · activity rail 56 px (Directory, Viewer, Analysis, Results/Reports, Settings) · task panel 300 px (collapsible to 0) · toolbar 40 px · viewport grid fills the rest · optional inspector 280 px · status bar 24 px (jobs, engine, licence, display).
+- **Shell:** top bar 48 px (patient banner + global actions) · activity rail 64 px (13 px labels) (Directory, Viewer, Analysis, Results/Reports, Settings) · task panel 300 px (collapsible to 0) · toolbar 40 px · viewport grid fills the rest · optional inspector 280 px · status bar 24 px (jobs, engine, licence, display).
 - Viewport grids: 1×1, 1×2, 2×1, **2×2 (default)**, 2×3, 3×3, user presets. Default analysis roles: (1) source · (2) live maps · (3) table ↔ anatomical · (4) graph ↔ anatomical.
 - Below 1600 px window width the task panel and inspector become overlays over the grid edge (never over the centre of an image). At ≥ 3840 px the inspector is open by default.
 

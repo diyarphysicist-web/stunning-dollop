@@ -161,6 +161,11 @@ Out of scope: cardiac, cartilage, liver, breast, prostate and muscle workflows. 
 
 - **GEN-200** The interface is English only; no other language ships. Every user-facing string (labels, tooltips, messages, launcher reasons, report text) comes from one message catalog in ICU message format, and components never hard-code strings, so a translation can be added later without code changes.
 
+### 1.22 Interface scale and text size
+
+- **GEN-210** Settings → Displays offers an interface scale of 100 %, 125 % or 150 % per user and per display, on top of the Windows display scale. It scales text, controls, icons and spacing of the chrome and the viewport overlays; image pixels are still drawn at the display's native resolution and are never resampled for the chrome scale. The change applies at once, without a restart, and is stored with the user's display profile. The setting shows the resulting workspace width; below 1600 CSS px the task panel and inspector become overlays, as on a laptop.
+- **GEN-211** Minimum text size at 100 %: 13 px for all interface text (panels, tables, table units, menus, buttons, hints, rail, status bar); 12 px only for image overlays, colour bars, graph ticks and keycaps.
+
 ---
 
 ## 2. Study Directory and launcher

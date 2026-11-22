@@ -135,6 +135,19 @@ def main() -> None:
               </table>
               <span class="field__hint">Window roles and hanging protocols per monitor configuration are set in Hanging protocols.</span>''',
              '<button class="btn btn--secondary btn--dense">Identify displays</button>'),
+        card("Interface scale", '''          <table class="tbl">
+                <colgroup><col style="width:30%"><col style="width:16%"><col style="width:26%"><col></colgroup>
+                <thead><tr><th>Display</th><th class="num">Windows scale</th><th>Interface scale</th><th>Workspace at this scale</th></tr></thead>
+                <tbody>
+                  <tr class="is-selected"><td class="strong">Display 1 · primary</td><td class="num">100 %</td>
+                    <td><div class="seg" role="radiogroup" aria-label="Interface scale, display 1" data-ui-scale><button class="seg__item is-selected" role="radio" aria-checked="true">100 %</button><button class="seg__item" role="radio" aria-checked="false">125 %</button><button class="seg__item" role="radio" aria-checked="false">150 %</button></div></td>
+                    <td>2560 × 1440 · full layout</td></tr>
+                  <tr><td class="strong">Display 2</td><td class="num">125 %</td>
+                    <td><div class="seg" role="radiogroup" aria-label="Interface scale, display 2"><button class="seg__item" role="radio" aria-checked="false">100 %</button><button class="seg__item is-selected" role="radio" aria-checked="true">125 %</button><button class="seg__item" role="radio" aria-checked="false">150 %</button></div></td>
+                    <td>1229 × 691 · panels as overlays</td></tr>
+                </tbody>
+              </table>
+              <span class="field__hint">Scales text, controls and overlays for this user; images keep the display's native pixels. Applies at once and is saved with your display profile.</span>'''),
         card("Calibration check · Display 1", '''          <div class="field">
                 <span class="field__label">Grayscale ramp <span>0 – 255</span></span>
                 <span class="lutbar lutbar--wide" style="--lut: var(--nm-lut-gray-h)"></span>
@@ -150,7 +163,7 @@ def main() -> None:
         card("Dark-room mode", '''          <div class="field field--row"><span class="dense">Dim chrome further in reading rooms <span class="t2">images are unchanged</span></span><span class="switch" role="switch" aria-checked="false"><span class="switch__track"></span></span></div>'''),
     ])
     (S / "17-settings-display.html").write_text(HEAD.format(
-        title="Settings · Displays and calibration", comment="Settings, Workstation section: displays, calibration check, dark-room mode.",
+        title="Settings · Displays and calibration", comment="Settings, Workstation section: displays, interface scale (GEN-210), calibration check, dark-room mode.",
         scope="Workstation settings", nav=nav("Displays and calibration"), content=display), encoding="utf-8", newline="\n")
     print("ok")
 

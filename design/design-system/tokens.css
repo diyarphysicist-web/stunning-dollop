@@ -47,14 +47,14 @@
   /* ── Typography (§4.3) ───────────────────────────────────── */
   --nm-font-ui: "Inter", system-ui, "Segoe UI", sans-serif;
   --nm-font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
-  --nm-font-size-overlay: 11px;
-  --nm-font-size-dense: 12px;
+  --nm-font-size-overlay: 12px; /* image overlays, colour bars, graph ticks, keycaps only */
+  --nm-font-size-dense: 13px; /* UI text minimum (GEN-211); dense keeps the tighter line height */
   --nm-font-size-base: 13px;
   --nm-font-size-title: 16px;
   --nm-font-size-heading: 20px;
   --nm-font-size-display: 28px;
-  --nm-line-height-overlay: 14px;
-  --nm-line-height-dense: 16px;
+  --nm-line-height-overlay: 15px;
+  --nm-line-height-dense: 17px;
   --nm-line-height-base: 18px;
   --nm-line-height-title: 22px;
   --nm-line-height-heading: 26px;
@@ -79,7 +79,7 @@
 
   /* ── Shell geometry (§4.4) ───────────────────────────────── */
   --nm-size-topbar: 48px;
-  --nm-size-rail: 56px;
+  --nm-size-rail: 64px;
   --nm-size-task-panel: 300px;
   --nm-size-toolbar: 40px;
   --nm-size-inspector: 280px;
