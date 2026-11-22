@@ -1,7 +1,7 @@
 """Render design imagery from the synthetic phantoms (Phase 1 design assets).
 
 Usage (repository root, after `pnpm phantoms`):
-    uv run --project engine --with pillow python design/tools/render_phantom_imagery.py [--phantoms data/phantoms] [--out design/screens/assets]
+    uv run --project engine --with pillow python design/tools/render_phantom_imagery.py [--phantoms data/phantoms] [--out design/assets]
 
 Reads the phantom DICOM series written by scripts/make_phantoms.py, computes quick
 illustrative maps with numpy (these are design previews, not the validated engine
@@ -59,8 +59,9 @@ def load_luts() -> tuple[dict[str, list[str]], list[str], dict[str, str]]:
     block = re.search(r"CONTROL_POINTS[^{]*\{(.*?)\n\};", src, re.S)
     assert block, "CONTROL_POINTS not found"
     luts = {m.group(1): re.findall(r'"(#[0-9A-Fa-f]{6})"', m.group(2)) for m in re.finditer(r"(\w+):\s*\[([^\]]*)\]", block.group(1))}
-    roi_block = re.search(r"ROI_PALETTE[^\[]*\[(.*?)\]", src, re.S)
+    roi_block = re.search(r"ROI_PALETTE[^=]*=\s*\[(.*?)\]", src, re.S)
     roi = re.findall(r'"(#[0-9A-Fa-f]{6})"', roi_block.group(1)) if roi_block else []
+    assert len(roi) == 8, f"expected 8 ROI colours, found {len(roi)}"
     mm = dict(re.findall(r'(core|deficit|penumbra):\s*"(#[0-9A-Fa-f]{6})"', src))
     return luts, roi, mm
 
@@ -627,7 +628,7 @@ def write_luts_css(out: Path, luts: dict[str, list[str]], roi: list[str], mm: di
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--phantoms", type=Path, default=ROOT / "data" / "phantoms")
-    ap.add_argument("--out", type=Path, default=ROOT / "design" / "screens" / "assets")
+    ap.add_argument("--out", type=Path, default=ROOT / "design" / "assets")
     a = ap.parse_args()
     img, dat = a.out / "img", a.out / "data"
     img.mkdir(parents=True, exist_ok=True)

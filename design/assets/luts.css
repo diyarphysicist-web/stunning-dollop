@@ -1,0 +1,20 @@
+/* Data colours for the design screens, generated from packages/viewer/src/luts/index.ts.
+ * Data only (LUT bars, ROI outlines and curves, mismatch overlays); chrome uses tokens.css. */
+:root {
+  --nm-lut-gray: linear-gradient(to top, #000000, #FFFFFF);
+  --nm-lut-blueToRed: linear-gradient(to top, #0000FF, #00C000, #FFFF00, #FF9900, #FF0000);
+  --nm-lut-stroke: linear-gradient(to top, #000000, #7FD4FF, #00C040, #FFC000, #FF0000);
+  --nm-lut-hot: linear-gradient(to top, #000000, #FF0000, #FFFF00, #FFFFFF);
+  --nm-lut-viridis: linear-gradient(to top, #440154, #472C7A, #3B518B, #2C718E, #21908D, #27AD81, #5CC863, #AADC32, #FDE725);
+  --nm-roi-1: #E69F00;
+  --nm-roi-2: #56B4E9;
+  --nm-roi-3: #009E73;
+  --nm-roi-4: #F0E442;
+  --nm-roi-5: #0072B2;
+  --nm-roi-6: #D55E00;
+  --nm-roi-7: #CC79A7;
+  --nm-roi-8: #FFFFFF;
+  --nm-mismatch-core: #D55E00;
+  --nm-mismatch-deficit: #56B4E9;
+  --nm-mismatch-penumbra: #56B4E9;
+}

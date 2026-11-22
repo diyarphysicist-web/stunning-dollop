@@ -3,7 +3,7 @@
 // files application code consumes:
 //   packages/ui/src/tokens/tokens.css   CSS custom properties (--nm-* only)
 //   packages/ui/src/tokens/tokens.ts    typed values plus var() references
-//   design/screens/assets/tokens.css    the same CSS for the exported design screens
+//   design/assets/tokens.css    the same CSS for the exported design screens
 // Usage: pnpm tokens            (write)
 //        pnpm tokens --check    (exit 1 if the exported files are out of date)
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
@@ -14,7 +14,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const source = join(root, "design/design-system/tokens.css");
 const outCss = join(root, "packages/ui/src/tokens/tokens.css");
 const outTs = join(root, "packages/ui/src/tokens/tokens.ts");
-const outDesign = join(root, "design/screens/assets/tokens.css");
+const outDesign = join(root, "design/assets/tokens.css");
 
 const css = readFileSync(source, "utf8");
 const decls = [...css.matchAll(/^\s*(--nm-[a-z0-9-]+):\s*([^;]+);/gm)].map((m) => [m[1], m[2].trim()]);

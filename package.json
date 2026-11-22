@@ -15,11 +15,13 @@
     "trace": "uv run --project engine python scripts/trace.py",
     "engine:test": "uv run --project engine pytest engine/tests",
     "tokens": "node scripts/export-tokens.mjs",
-    "tokens:check": "node scripts/export-tokens.mjs --check"
+    "tokens:check": "node scripts/export-tokens.mjs --check",
+    "design:render": "node scripts/render-design-screens.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
     "eslint": "^9.36.0",
+    "playwright": "^1.65.1",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.44.0",
     "vitest": "^3.2.4"
