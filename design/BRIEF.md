@@ -110,6 +110,7 @@ Numbering matches `design/screens/<nn>-<name>.{html,png}`. Screens 01–24 are b
 | 12 | Spectroscopy | MRS-001…013 |
 | 13a / 13b | Longitudinal: Longitudinal mode, Compare + change map | LBA-001…042 |
 | 13c | Lesion properties dialog with volume trend | LBA-037, LBA-040 |
+| 13d | FLAIR* mode with central-vein review | LBA-025, LBA-026, SAFE-070 |
 | 14a / 14b | Advanced Diffusion: cDWI and Analyze signal | ADV-001…011 |
 | 15a / 15b | Subtraction; Echo Accumulation | SUB-001…009, ECHO-001…003 |
 | 16a / 16b | Generate Series dialog; Save All Tables dialog | GEN-160…171 |

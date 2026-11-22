@@ -4830,7 +4830,54 @@
    15.0,
    20.0
   ],
-  "slice": 16
+  "slice": 16,
+  "slices": 32,
+  "window_e1": [
+   2.4,
+   1471.7
+  ],
+  "window_sum": [
+   27.6,
+   5219.1
+  ]
+ },
+ "flair_star": {
+  "lesion": "L1",
+  "centre_slice": {
+   "ax": 13,
+   "cor": 23,
+   "sag": 23
+  },
+  "slices": {
+   "ax": 32,
+   "cor": 64,
+   "sag": 64
+  },
+  "shift_mm": [
+   1.5,
+   -1.0
+  ],
+  "ncc": 0.986,
+  "windows": {
+   "swi": [
+    9.92,
+    639.01
+   ],
+   "flair": [
+    3.45,
+    607.53
+   ],
+   "prod": [
+    0.0,
+    1.08
+   ]
+  },
+  "baseline_lesions": [
+   "L1",
+   "L3",
+   "L4",
+   "L5"
+  ]
  },
  "coreg": {
   "matrix": [

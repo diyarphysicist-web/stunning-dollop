@@ -182,6 +182,7 @@ STATUS = {
     "sub": '<span class="dot dot--success"></span><b>S − 1.00·R</b> · dyn 2–12 − dyn 1 · 0 divisions by zero',
     "echo": '<span class="dot dot--success"></span><b>Σ echoes 1–4</b> · live preview',
     "lba": '<span class="dot dot--success"></span><b>Registered</b> · 5 findings · 2 time points',
+    "fstar": '<span class="dot dot--success"></span><b>FLAIR* up to date</b> · central-vein review 3 of 4',
     "trk": '<span class="dot dot--success"></span><b>2 bundles · 50 fibers</b> · tracking rules FA 0.20 / 45° / 10 mm',
     "fmri": '<span class="dot dot--success"></span><b>SPMs up to date</b> · Block · 1 task',
     "mrs": '<span class="dot dot--success"></span><b>Processed</b> · voxel quality good',

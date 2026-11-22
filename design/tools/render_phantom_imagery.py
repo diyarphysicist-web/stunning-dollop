@@ -25,8 +25,10 @@ follow-up (64 × 64 × 32, 1 mm). The co-registration screen fuses the follow-up
 onto the baseline (reference) after applying a known residual rigid offset
 (COREG_RESIDUAL_*) so that the review state has something to correct.
 
-Design-only multi-echo: Phase 0 has no multi-echo phantom. Echo Accumulation imagery decays
-the baseline FLAIR slice over ECHO_TE_MS with T2* 60 ms (tissue) and 30 ms (lesions).
+Echo Accumulation reads the multi_echo_gre phantom (4 echoes). FLAIR* reads the swi_epi phantom
+with the baseline FLAIR: the SWI/EPI is registered to the FLAIR by an in-plane rigid search
+(a design preview of the engine registration), both are normalised by their 99th percentile in
+the brain, and the product is shown in three planes around lesion L1.
 """
 
 from __future__ import annotations
@@ -52,7 +54,6 @@ LESION_DR2_SCALE = 0.5
 CORE_ADC_SCALE = 0.45
 COREG_RESIDUAL_SHIFT_MM = (0.0, -1.5, 2.5)  # (z, y, x)
 COREG_RESIDUAL_ROT_DEG = 2.0  # about the z axis
-ECHO_TE_MS = (5.0, 10.0, 15.0, 20.0)  # design-only multi-echo for Echo Accumulation (no multi-echo phantom yet)
 
 
 def disc(shape: tuple[int, int], pixel_mm: float, radius_mm: float) -> np.ndarray:
@@ -632,12 +633,80 @@ def flair(ph: Path, img: Path, data: dict, luts: dict[str, np.ndarray]) -> None:
         "lesions": match_lesions(b, f, vox_ml),
         "window": [r(glo, 1), r(ghi, 1)],
     }
-    # Echo Accumulation (design-only multi-echo, see ECHO_TE_MS): 4 echoes from the baseline FLAIR slice
-    t2s = np.where(b[z] > 1.5 * np.median(b[z][b[z] > 0.2 * b[z].max()]), 30.0, 60.0)  # lesions decay faster
-    echoes = [b[z] * np.exp(-te / t2s) for te in ECHO_TE_MS]
-    elo, ehi = save_gray(img / "echo_e1.png", echoes[0])
-    save_gray(img / "echo_sum.png", sum(echoes), elo, ehi * len(echoes) * 0.7)
-    data["echo"] = {"te_ms": list(ECHO_TE_MS), "slice": z + 1}
+
+
+# ── Echo Accumulation (multi_echo_gre phantom) ────────────────────────────────
+def echo(ph: Path, img: Path, data: dict) -> None:
+    arr, ds = load_series(ph / "multi_echo_gre" / "dicom")
+    te = sorted({float(d.EchoTime) for d in ds})
+    z = data["flair"]["slice"] - 1  # same slice as the FLAIR screens (same head grid)
+    elo, ehi = save_gray(img / "echo_e1.png", arr[0, z])
+    total = arr[:, z].sum(0)
+    slo, shi = save_gray(img / "echo_sum.png", total)
+    data["echo"] = {
+        "te_ms": te,
+        "slice": z + 1,
+        "slices": arr.shape[1],
+        "window_e1": [r(elo, 1), r(ehi, 1)],
+        "window_sum": [r(slo, 1), r(shi, 1)],
+    }
+
+
+# ── FLAIR* (swi_epi phantom + baseline FLAIR) ─────────────────────────────────
+def flair_star(ph: Path, img: Path, data: dict) -> None:
+    swi = load_series(ph / "swi_epi" / "dicom")[0][0]
+    fl, ds = load_series(ph / "flair_baseline" / "dicom")
+    fl = fl[0]
+    px = float(ds[0].PixelSpacing[0])
+
+    def mask(v: np.ndarray) -> np.ndarray:
+        return v > 0.5 * np.median(v[v > 0.2 * v.max()])
+
+    fm = mask(fl)
+    fz = (fl - fl.mean()) / fl.std()
+    best = (-1.0, 0.0, 0.0)
+    for dy in np.arange(-3, 3.01, 0.25):
+        for dx in np.arange(-3, 3.01, 0.25):
+            m = ndimage.shift(swi, (0, dy, dx), order=1)
+            ncc = float(((m - m.mean()) / m.std() * fz).mean())  # normalised cross-correlation
+            if ncc > best[0]:
+                best = (ncc, dy, dx)
+    _, dy, dx = best
+    reg = ndimage.shift(swi, (0, dy, dx), order=1)
+    brain = fm
+
+    def norm(v: np.ndarray) -> np.ndarray:
+        return np.clip(v / np.percentile(v[brain], 99), 0, None)
+
+    prod = norm(reg) * norm(fl) * brain
+    l1 = next(x for x in data["flair"]["lesions"] if x["name"] == "L1")
+    cz, cy, cx = (int(round(v)) for v in l1["centre_zyx"])
+    h = 16  # 32-voxel crops = zoom 200 % of the 64-voxel field
+
+    def planes(v: np.ndarray) -> dict[str, np.ndarray]:
+        return {
+            "ax": v[cz, cy - h : cy + h, cx - h : cx + h],
+            "cor": v[::-1, cy, cx - h : cx + h],  # superior at the top
+            "sag": v[::-1, cy - h : cy + h, cx],  # anterior on the left
+        }
+
+    windows = {}
+    for name, vol in (("swi", reg), ("flair", fl), ("prod", prod)):
+        pl = planes(vol)
+        lo, hi = save_gray(img / f"fstar_{name}_ax.png", pl["ax"])
+        for k in ("cor", "sag"):
+            save_gray(img / f"fstar_{name}_{k}.png", pl[k], lo, hi)
+        windows[name] = [r(lo, 2), r(hi, 2)]
+    nz = fl.shape[0]
+    data["flair_star"] = {
+        "lesion": "L1",
+        "centre_slice": {"ax": cz + 1, "cor": cy + 1, "sag": cx + 1},
+        "slices": {"ax": nz, "cor": fl.shape[1], "sag": fl.shape[2]},
+        "shift_mm": [r(-dy * px, 1), r(-dx * px, 1)],  # SWI/EPI displacement (y, x) found by the search
+        "ncc": r(best[0], 3),
+        "windows": windows,
+        "baseline_lesions": [x["name"] for x in data["flair"]["lesions"] if x["ml_base"] > 0],
+    }
 
 
 def match_lesions(b: np.ndarray, f: np.ndarray, vox_ml: float) -> list[dict]:
@@ -1012,6 +1081,8 @@ def main() -> None:
     dce(a.phantoms, img, data, luts)
     fmri(a.phantoms, img, data, luts)
     flair(a.phantoms, img, data, luts)
+    echo(a.phantoms, img, data)
+    flair_star(a.phantoms, img, data)
     coreg(a.phantoms, img, data, luts)
     tractography(a.phantoms, img, data)
     test_pattern(img)

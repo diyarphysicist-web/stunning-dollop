@@ -1244,3 +1244,9 @@ ul, ol { list-style: none; }
 .app--laptop > .panel { display: none; }
 .app--laptop > .panel.panel--overlay { display: flex; position: absolute; z-index: var(--nm-z-panel-overlay); left: var(--nm-size-rail); top: var(--nm-size-topbar); bottom: var(--nm-size-statusbar); width: var(--nm-size-task-panel); box-shadow: var(--nm-elevation-popover); }
 .app--laptop .banner { gap: var(--nm-space-3); }
+
+/* --------------------------------------------------------------------------
+   30. FLAIR* (LBA-025/026) — 3×3 grid: rows = planes, columns = SWI/EPI, FLAIR, FLAIR*
+   -------------------------------------------------------------------------- */
+.vgrid--3x3 { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(3, minmax(0, 1fr)); }
+.cvs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--nm-space-1); }

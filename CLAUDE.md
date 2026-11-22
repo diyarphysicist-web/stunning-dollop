@@ -52,6 +52,7 @@ CI: `.github/workflows/ci.yml` (node, engine, traceability with `CURRENT_PHASE`,
 - Batch 5: 13 Longitudinal (Longitudinal and Compare modes; lesions matched from the FLAIR pair), 14 Advanced Diffusion (Analyze signal with real kurtosis + simplified IVIM fit; Computed DWI), 15 Subtraction, 15 Echo Accumulation (design-only multi-echo imagery).
 - Batch 6: 16 Generate Series / Save All Tables, 17 Layout presets, Settings (analysis defaults; displays and calibration check), shortcut sheet, 18 states (Directory empty, importing + PACS error, DSC computing, Mismatch invalid input + failed job). Variant screens are rebuilt by `design/tools/compose/*.py` (see its README). Fixed: Tmax only with Manual AIF (02, 03, 05).
 - Batch 7: 19 sign-in, lock, Neurologist start view; 20 hanging protocols, display test pattern; 21 Licence, System; 22 audit log, Collect diagnostics; 23 PDF report previews (DSC, Mismatch). Print tokens (`--nm-color-print-*`) added to the design system, used only inside report pages. Composer `design/tools/compose/enterprise.py`.
+- Revision 2026-11-22 (Diyar's decisions): English only (GEN-200; RTL screen removed); launcher rules use DIR-003 types (Subtraction rules approved); SWI/EPI and multi-echo phantoms; 13 FLAIR* mode with central-vein review (new `13-flair-star`, LBA-026, composer `compose/flair_star.py`); 13 and 15 imagery from the new phantoms.
 - Batch 8: 24 laptop DSC (collapsed and overlay panel) (`design/tools/compose/variants.py`); `design/COMPONENTS.md`. The Arabic RTL Directory was removed on 2026-11-22: the product is English only.
 - Workflow: screens are written in `design/screens/`, mirrored into the Open Design project (`…/open-design/.od/projects/neuromr-pro/screens/`), rendered at 1920×1080 and 2560×1440, self-critiqued against brief §4.6.
 
@@ -67,7 +68,6 @@ CI: `.github/workflows/ci.yml` (node, engine, traceability with `CURRENT_PHASE`,
 - Spectroscopy phantom is written as `fid.npz` (no DICOM MR Spectroscopy writer yet; due Phase 8).
 - `apps/desktop` (Electron) is created in Phase 2a.
 - Open Design MCP is not reachable from cloud sessions; it also disconnected locally during batch 6 (files are still synced by copying into the project folder).
-- SWI/EPI (`swi_epi`) and multi-echo (`multi_echo_gre`) phantoms now exist, but screens 13 (FLAIR* shown disabled) and 15 (design-only decayed FLAIR imagery) still use the earlier imagery; switching them to the phantoms needs Diyar's go-ahead because the design is in review.
 - Local tooling: `uv` is not on PATH on Diyar's PC; the system Python 3.14 (`/c/Python314/python`) has numpy/scipy/pydicom/Pillow and runs `design/tools/*.py`. Run `inject_plots.py` after editing any screen with `gen:` regions, then `pnpm design:render <filter>`, then copy changed files into the Open Design project folder.
 
 **Exact next step:** Wait for Diyar's review. Apply any requested changes through the same design path (screens → inject_plots → render → critique → commit). On "design approved": mark the design locked here and start Phase 2.
