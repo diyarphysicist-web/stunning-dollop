@@ -55,3 +55,6 @@ export const roiColor = (index: number): string => ROI_PALETTE[index % ROI_PALET
 
 /** Mismatch overlays (MM-008): diffusion core and perfusion deficit; penumbra uses the deficit colour hatched. */
 export const MISMATCH_PALETTE = { core: "#D55E00", deficit: "#56B4E9", penumbra: "#56B4E9" } as const;
+
+/** FA direction colour coding (DIF-005): principal eigenvector |x|, |y|, |z| → red R–L, green A–P, blue S–I. */
+export const FA_DIRECTION_PALETTE = { rl: "#FF0000", ap: "#00FF00", si: "#0000FF" } as const;
