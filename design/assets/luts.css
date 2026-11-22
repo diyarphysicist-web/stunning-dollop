@@ -20,4 +20,7 @@
   --nm-dir-rl: #FF0000;
   --nm-dir-ap: #00FF00;
   --nm-dir-si: #0000FF;
+  --nm-plane-axial: #56B4E9;
+  --nm-plane-coronal: #009E73;
+  --nm-plane-sagittal: #E69F00;
 }

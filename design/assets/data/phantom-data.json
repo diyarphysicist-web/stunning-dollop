@@ -4804,6 +4804,48 @@
    480.3
   ]
  },
+ "trk": {
+  "bundles": [
+   {
+    "name": "A\u2013P band",
+    "roi_voxels": 26,
+    "roi_fa": 0.804,
+    "roi_adc_e6": 765.0,
+    "fibers": 26,
+    "mean_length_mm": 64.3,
+    "fa_mean": 0.8,
+    "fa_sd": 0.029,
+    "adc_mean_e6": 769.0,
+    "adc_sd_e6": 34.0,
+    "roi_centre_mm": [
+     15.7,
+     0.0
+    ]
+   },
+   {
+    "name": "R\u2013L band",
+    "roi_voxels": 24,
+    "roi_fa": 0.81,
+    "roi_adc_e6": 757.0,
+    "fibers": 24,
+    "mean_length_mm": 16.0,
+    "fa_mean": 0.807,
+    "fa_sd": 0.027,
+    "adc_mean_e6": 762.0,
+    "adc_sd_e6": 40.0,
+    "roi_centre_mm": [
+     0.0,
+     0.0
+    ]
+   }
+  ],
+  "si_band_fibers": 0,
+  "fov_mm": 64.0,
+  "flair_window": [
+   1.4,
+   480.3
+  ]
+ },
  "mrs": {
   "ppm": [
    4.196,

@@ -72,6 +72,8 @@ def load_luts() -> tuple[dict[str, list[str]], list[str], dict[str, str]]:
     mm = dict(re.findall(r'(core|deficit|penumbra):\s*"(#[0-9A-Fa-f]{6})"', src))
     dirs = re.search(r"FA_DIRECTION_PALETTE\s*=\s*\{([^}]*)\}", src)
     mm |= {f"dir-{k}": v for k, v in re.findall(r'(rl|ap|si):\s*"(#[0-9A-Fa-f]{6})"', dirs.group(1))} if dirs else {}
+    planes = re.search(r"PLANE_PALETTE\s*=\s*\{([^}]*)\}", src)
+    mm |= {f"plane-{k}": v for k, v in re.findall(r'(axial|coronal|sagittal):\s*"(#[0-9A-Fa-f]{6})"', planes.group(1))} if planes else {}
     return luts, roi, mm
 
 
@@ -143,6 +145,8 @@ def r(x: float, n: int = 3) -> float:
 
 
 PALETTE: dict[str, np.ndarray] = {}  # mismatch colours, filled in main() from the viewer LUT module
+DTI_CACHE: dict = {}  # tensor results shared by dti() and tractography()
+ROI_RGB: list[np.ndarray] = []  # ROI palette as RGB, filled in main()
 
 
 def hexrgb(h: str) -> np.ndarray:
@@ -393,6 +397,7 @@ def dti(ph: Path, img: Path, data: dict, luts: dict[str, np.ndarray], mm: dict[s
     save_gray(img / "dti_ad.png", ad * 1e6, 0, 3000)
     save_gray(img / "dti_rd.png", rd * 1e6, 0, 3000)
     save_gray(img / "dti_ra.png", ra, 0, 1.2)
+    DTI_CACHE.update(e1=e1.reshape(*shp, 3), fa=fa, adc_e6=md.reshape(shp) * 1e6 * mask, mask=mask, px=px)
     col = np.abs(e1.reshape(*shp, 3)) * fa[..., None]
     Image.fromarray((np.clip(up(col, 0), 0, 1) * 255).astype(np.uint8), "RGB").save(img / "dti_fa_direction.png")
     # Mismatch core: ADC < 620e-6 mm²/s inside brain; paired with DSC deficit
@@ -671,6 +676,188 @@ def coreg(ph: Path, img: Path, data: dict, luts: dict[str, np.ndarray]) -> None:
     }
 
 
+# ── Tractography (TRK-006 rules on the in-plane DTI phantom tensors) ──────────
+def track(e1: np.ndarray, fa: np.ndarray, seeds: np.ndarray, px: float) -> list[np.ndarray]:
+    """Deterministic streamlines (y, x in voxels): FA >= 0.20, turn <= 45 deg, length >= 10 mm, step 0.5 voxel."""
+    ny, nx = fa.shape
+    cos_max = np.cos(np.deg2rad(45.0))
+    fibers = []
+    for sy, sx in seeds:
+        halves = []
+        for sign in (1.0, -1.0):
+            p = np.array([sy + 0.5, sx + 0.5])
+            d0 = e1[int(sy), int(sx), [1, 0]]
+            if np.linalg.norm(d0) < 1e-6:
+                break
+            prev = sign * d0 / np.linalg.norm(d0)
+            pts = [p.copy()]
+            for _ in range(400):
+                q = p + 0.5 * prev
+                iy, ix = int(q[0]), int(q[1])
+                if not (0 <= iy < ny and 0 <= ix < nx) or fa[iy, ix] < 0.20:
+                    break
+                d = e1[iy, ix, [1, 0]]
+                n = np.linalg.norm(d)
+                if n < 0.5:  # principal direction mostly through-plane: no in-plane step
+                    break
+                d = d / n
+                if np.dot(d, prev) < 0:
+                    d = -d
+                if np.dot(d, prev) < cos_max:
+                    break
+                p, prev = q, d
+                pts.append(p.copy())
+            halves.append(np.array(pts))
+        if len(halves) == 2:
+            f = np.concatenate([halves[1][::-1], halves[0][1:]])
+            if (len(f) - 1) * 0.5 * px >= 10.0:
+                fibers.append(f)
+    return fibers
+
+
+def tractography(ph: Path, img: Path, data: dict) -> None:
+    c = DTI_CACHE
+    e1, fa, adc, px = c["e1"], c["fa"], c["adc_e6"], c["px"]
+    ny, nx = fa.shape
+    yy, xx = np.mgrid[0:ny, 0:nx]
+    bundles = []
+    centres = data["dti"]["class_centres_px"]
+    for name, cls in (("A–P band", "class3"), ("R–L band", "class2")):
+        cx = centres[cls][0] / UPSAMPLE_TO * nx
+        roi = ((xx + 0.5 - cx) / 2.5) ** 2 + ((yy + 0.5 - ny / 2) / 3.5) ** 2 <= 1
+        fibers = track(e1, fa, np.argwhere(roi), px)
+        lens = [(len(f) - 1) * 0.5 * px for f in fibers]
+        vox = np.concatenate([f.astype(int) for f in fibers]) if fibers else np.zeros((0, 2), int)
+        fav = fa[vox[:, 0], vox[:, 1]] if len(vox) else np.zeros(1)
+        adv = adc[vox[:, 0], vox[:, 1]] if len(vox) else np.zeros(1)
+        bundles.append({
+            "name": name,
+            "roi_voxels": int(roi.sum()),
+            "roi_fa": r(fa[roi].mean(), 3),
+            "roi_adc_e6": r(adc[roi].mean(), 0),
+            "fibers": len(fibers),
+            "mean_length_mm": r(np.mean(lens) if lens else 0, 1),
+            "fa_mean": r(fav.mean(), 3), "fa_sd": r(fav.std(), 3),
+            "adc_mean_e6": r(adv.mean(), 0), "adc_sd_e6": r(adv.std(), 0),
+            "roi_centre_mm": [r((cx - nx / 2) * px, 1), 0.0],
+            "_fibers_mm": [np.stack([(f[:, 1] - nx / 2) * px, (f[:, 0] - ny / 2) * px], 1) for f in fibers],
+        })
+    # seeds in the S–I band have no in-plane principal direction: report it, as the UI does
+    si = data["dti"]["class_centres_px"]["class4"][0] / UPSAMPLE_TO * nx
+    si_roi = ((xx + 0.5 - si) / 2.5) ** 2 + ((yy + 0.5 - ny / 2) / 3.5) ** 2 <= 1
+    si_fibers = len(track(e1, fa, np.argwhere(si_roi), px))
+
+    # Anatomy: 3D FLAIR baseline (64 × 64 × 32, 1 mm), centred on the DTI field of view
+    fl, _ = load_series(ph / "flair_baseline" / "dicom")
+    fl = fl[0]
+    fz, fy, fx = fl.shape
+    fg = fl[fl > 0.2 * fl.max()]
+    glo, ghi = float(np.percentile(fl, 1)), float(1.6 * np.median(fg))
+    gray = lambda a: np.repeat(window(a, glo, ghi)[..., None] * 255, 3, axis=-1)  # noqa: E731
+    dir_rgb = np.abs(e1) * fa[..., None] * 255
+    half = fx / 2.0  # mm, FLAIR is 1 mm isotropic
+
+    def axial_rgb(xm: np.ndarray, ym: np.ndarray) -> np.ndarray:
+        """FLAIR axial at the plane plus FA-direction overlay where FA >= 0.2."""
+        ix = np.clip((xm + half).astype(int), 0, fx - 1)
+        iy = np.clip((ym + half).astype(int), 0, fy - 1)
+        a = fl[fz // 2][iy, ix]
+        g = gray(a)
+        dx = np.clip((xm / px + nx / 2).astype(int), 0, nx - 1)
+        dy = np.clip((ym / px + ny / 2).astype(int), 0, ny - 1)
+        # overlay inside the head only, fading in from FA 0.2 to 0.5 so isolated noise voxels stay quiet
+        alpha = (np.clip((fa[dy, dx] - 0.2) / 0.3, 0, 1) * 0.65 * (a > 0.2 * fl.max()))[..., None]
+        return (1 - alpha) * g + alpha * dir_rgb[dy, dx]
+
+    # 3D view: orthographic, z-buffered point splatting of the three planes and the fibers
+    az, el = np.deg2rad(-58.0), np.deg2rad(32.0)
+    cam = np.array([np.cos(el) * np.cos(az), np.cos(el) * np.sin(az), np.sin(el)])
+    right = np.array([-np.sin(az), np.cos(az), 0.0])
+    up = np.cross(cam, right)
+    size, scale = 1024, 12.0
+    canvas = np.zeros((size, size, 3))
+    depth = np.full((size, size), -np.inf)
+
+    def splat(p: np.ndarray, rgb: np.ndarray, rad: int = 0) -> None:
+        sx = np.round(size / 2 + scale * (p @ right)).astype(int)
+        sy = np.round(size / 2 - scale * (p @ up)).astype(int)
+        dz = p @ cam
+        for oy in range(-rad, rad + 1):
+            for ox in range(-rad, rad + 1):
+                X, Y = sx + ox, sy + oy
+                ok = (X >= 0) & (X < size) & (Y >= 0) & (Y < size)
+                Xo, Yo, Do, Co = X[ok], Y[ok], dz[ok], rgb[ok]
+                order = np.argsort(Do)
+                Xo, Yo, Do, Co = Xo[order], Yo[order], Do[order], Co[order]
+                closer = Do > depth[Yo, Xo]
+                depth[Yo[closer], Xo[closer]] = Do[closer]
+                canvas[Yo[closer], Xo[closer]] = Co[closer]
+
+    step = 0.2
+    g1 = np.arange(-half, half, step)
+    gz = np.arange(-fz / 2, fz / 2, step)
+    X, Y = np.meshgrid(g1, g1)
+    splat(np.stack([X.ravel(), Y.ravel(), np.zeros(X.size)], 1), axial_rgb(X, Y).reshape(-1, 3), 1)
+    Xc, Zc = np.meshgrid(g1, gz)
+    cor = gray(fl[np.clip((Zc + fz / 2).astype(int), 0, fz - 1), fy // 2, np.clip((Xc + half).astype(int), 0, fx - 1)])
+    splat(np.stack([Xc.ravel(), np.zeros(Xc.size), Zc.ravel()], 1), cor.reshape(-1, 3), 1)
+    Ys, Zs = np.meshgrid(g1, gz)
+    sag = gray(fl[np.clip((Zs + fz / 2).astype(int), 0, fz - 1), np.clip((Ys + half).astype(int), 0, fy - 1), fx // 2])
+    splat(np.stack([np.zeros(Ys.size), Ys.ravel(), Zs.ravel()], 1), sag.reshape(-1, 3), 1)
+    # plane outlines
+    t = np.arange(-half, half, 0.05)
+    tz = np.arange(-fz / 2, fz / 2, 0.05)
+    lines = {
+        "axial": [np.stack([t, np.full_like(t, s), np.zeros_like(t)], 1) for s in (-half, half)] + [np.stack([np.full_like(t, s), t, np.zeros_like(t)], 1) for s in (-half, half)],
+        "coronal": [np.stack([t, np.zeros_like(t), np.full_like(t, s)], 1) for s in (-fz / 2, fz / 2)] + [np.stack([np.full_like(tz, s), np.zeros_like(tz), tz], 1) for s in (-half, half)],
+        "sagittal": [np.stack([np.zeros_like(t), t, np.full_like(t, s)], 1) for s in (-fz / 2, fz / 2)] + [np.stack([np.zeros_like(tz), np.full_like(tz, s), tz], 1) for s in (-half, half)],
+    }
+    for k, segs in lines.items():
+        for sgm in segs:
+            splat(sgm + cam * 0.05, np.tile(PALETTE[f"plane-{k}"], (len(sgm), 1)), 1)
+    # fibers (bundle colours = ROI palette order), lifted 0.4 mm above the axial plane
+    head = fl[fz // 2] > 0.2 * fl.max()
+
+    def keep(f: np.ndarray) -> np.ndarray:
+        """Fiber points inside the FLAIR head outline (the DTI phantom's field of view is larger)."""
+        ix = np.clip((f[:, 0] + half).astype(int), 0, fx - 1)
+        iy = np.clip((f[:, 1] + half).astype(int), 0, fy - 1)
+        return (np.abs(f[:, 0]) < half) & (np.abs(f[:, 1]) < half) & head[iy, ix]
+    for b, colour in zip(bundles, ROI_RGB, strict=False):
+        for f in b["_fibers_mm"]:
+            f = f[keep(f)]
+            if len(f) < 2:
+                continue
+            seg = np.concatenate([np.linspace(f[i], f[i + 1], 6) for i in range(len(f) - 1)])
+            pts = np.column_stack([seg, np.full(len(seg), 0.4)])
+            splat(pts, np.tile(colour, (len(pts), 1)), 1)
+    Image.fromarray(canvas.astype(np.uint8), "RGB").resize((768, 768), Image.LANCZOS).save(img / "trk_3d.png")
+
+    # Reference views (2D) with fibers projected and plane lines drawn in the screens' SVG
+    ref = np.arange(0, 2 * half, 2 * half / UPSAMPLE_TO) - half + half / UPSAMPLE_TO
+    RX, RY = np.meshgrid(ref, ref)
+    ax_img = axial_rgb(RX, RY)
+    from PIL import ImageDraw
+    pil = Image.fromarray(ax_img.astype(np.uint8), "RGB")
+    dr = ImageDraw.Draw(pil)
+    to_px = lambda v: (v + half) / (2 * half) * UPSAMPLE_TO  # noqa: E731
+    for b, colour in zip(bundles, ROI_RGB, strict=False):
+        for f in b["_fibers_mm"]:
+            f = f[keep(f)]
+            if len(f) >= 2:
+                dr.line([(float(to_px(x)), float(to_px(y))) for x, y in f], fill=tuple(int(v) for v in colour), width=2)
+    pil.save(img / "trk_ref_ax.png")
+    h2 = UPSAMPLE_TO * fz // fx
+    cor_img = gray(ndimage.zoom(fl[::-1, fy // 2, :], (h2 / fz, UPSAMPLE_TO / fx), order=1))
+    sag_img = gray(ndimage.zoom(fl[::-1, :, fx // 2], (h2 / fz, UPSAMPLE_TO / fy), order=1))
+    Image.fromarray(cor_img.astype(np.uint8), "RGB").save(img / "trk_ref_cor.png")
+    Image.fromarray(sag_img.astype(np.uint8), "RGB").save(img / "trk_ref_sag.png")
+    Image.fromarray(gray(ndimage.zoom(fl[fz // 2], UPSAMPLE_TO / fx, order=1)).astype(np.uint8), "RGB").save(img / "mrs_ref_ax.png")
+    for b in bundles:
+        b.pop("_fibers_mm")
+    data["trk"] = {"bundles": bundles, "si_band_fibers": si_fibers, "fov_mm": 2 * half, "flair_window": [r(glo, 1), r(ghi, 1)]}
+
+
 # ── Spectroscopy ──────────────────────────────────────────────────────────────
 def mrs(ph: Path, data: dict) -> None:
     d = np.load(ph / "mrs_svs" / "fid.npz")
@@ -732,7 +919,7 @@ def write_luts_css(out: Path, luts: dict[str, list[str]], roi: list[str], mm: di
     for i, c in enumerate(roi, start=1):
         lines.append(f"  --nm-roi-{i}: {c};")
     for k, c in mm.items():
-        lines.append(f"  --nm-{k}: {c};" if k.startswith("dir-") else f"  --nm-mismatch-{k}: {c};")
+        lines.append(f"  --nm-{k}: {c};" if k.startswith(("dir-", "plane-")) else f"  --nm-mismatch-{k}: {c};")
     lines.append("}")
     (out / "luts.css").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
@@ -748,6 +935,7 @@ def main() -> None:
     lut_pts, roi, mm = load_luts()
     luts = {k: build_lut(v) for k, v in lut_pts.items()}
     PALETTE.update({k: hexrgb(v) for k, v in mm.items()})
+    ROI_RGB.extend(hexrgb(c) for c in roi)
     data: dict = {}
     dsc(a.phantoms, img, data, luts)
     dti(a.phantoms, img, data, luts, mm)
@@ -756,6 +944,7 @@ def main() -> None:
     fmri(a.phantoms, img, data, luts)
     flair(a.phantoms, img, data, luts)
     coreg(a.phantoms, img, data, luts)
+    tractography(a.phantoms, img, data)
     mrs(a.phantoms, data)
     (dat / "_deficit.npy").unlink(missing_ok=True)
     (dat / "_deficit_px.npy").unlink(missing_ok=True)
