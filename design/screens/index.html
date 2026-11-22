@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>NeuroMR-PRO · Screens</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../assets/tokens.css">
+<style>
+  /* Screen index (built by design/tools/compose/gallery.py). Tokens only. */
+  body { margin: 0; background: var(--nm-color-bg); color: var(--nm-color-text-primary); font-family: var(--nm-font-ui); font-size: var(--nm-font-size-base); line-height: var(--nm-line-height-base); }
+  .g-head { padding: var(--nm-space-8) var(--nm-space-8) var(--nm-space-4); }
+  .g-head h1 { margin: 0; font-size: var(--nm-font-size-display); line-height: var(--nm-line-height-display); font-weight: var(--nm-font-weight-semibold); }
+  .g-head p { margin: var(--nm-space-2) 0 0; color: var(--nm-color-text-secondary); }
+  .g-state { display: inline-block; margin-top: var(--nm-space-3); padding: var(--nm-space-1) var(--nm-space-2); border-radius: var(--nm-radius-md); background: var(--nm-color-warning-subtle); font-size: var(--nm-font-size-dense); }
+  .g-grid { list-style: none; margin: 0; padding: 0 var(--nm-space-8) var(--nm-space-8); display: grid; grid-template-columns: repeat(auto-fill, minmax(calc(var(--nm-space-12) * 6.5), 1fr)); gap: var(--nm-space-4); }
+  .g-card { display: block; background: var(--nm-color-surface); border: var(--nm-size-hairline) solid var(--nm-color-border); border-radius: var(--nm-radius-lg); overflow: hidden; color: inherit; text-decoration: none; }
+  .g-card:hover, .g-card:focus-visible { border-color: var(--nm-color-accent); outline: none; }
+  .g-card img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; object-position: top left; background: var(--nm-color-viewport); }
+  .g-cap { display: flex; gap: var(--nm-space-2); padding: var(--nm-space-2) var(--nm-space-3); }
+  .g-num { color: var(--nm-color-text-tertiary); font-variant-numeric: var(--nm-font-numeric); }
+</style>
+</head>
+<body>
+<header class="g-head">
+  <h1>NeuroMR-PRO screens</h1>
+  <p>46 screens in number order. Click a thumbnail to open the HTML screen. Imagery comes from synthetic phantoms.</p>
+  <span class="g-state">Design draft, awaiting approval</span>
+</header>
+<main>
+  <ul class="g-grid">
+    <li><a class="g-card" href="01-study-directory.html"><img src="01-study-directory.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">01</span>Study Directory</span></a></li>
+    <li><a class="g-card" href="02-workspace-shell.html"><img src="02-workspace-shell.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">02</span>Analysis Workspace shell</span></a></li>
+    <li><a class="g-card" href="03-dsc-perfusion.html"><img src="03-dsc-perfusion.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">03</span>DSC Neuro Perfusion</span></a></li>
+    <li><a class="g-card" href="04-define-aif.html"><img src="04-define-aif.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">04</span>Define AIF</span></a></li>
+    <li><a class="g-card" href="05-mismatch-2x2.html"><img src="05-mismatch-2x2.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">05</span>Diffusion–Perfusion Mismatch (2×2)</span></a></li>
+    <li><a class="g-card" href="05-mismatch-2x3.html"><img src="05-mismatch-2x3.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">05</span>Diffusion–Perfusion Mismatch (2×3)</span></a></li>
+    <li><a class="g-card" href="06-coregistration.html"><img src="06-coregistration.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">06</span>Co-registration Review &amp; Edit</span></a></li>
+    <li><a class="g-card" href="07-dce-perfusion.html"><img src="07-dce-perfusion.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">07</span>DCE / T1 Perfusion</span></a></li>
+    <li><a class="g-card" href="08-permeability.html"><img src="08-permeability.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">08</span>Permeability</span></a></li>
+    <li><a class="g-card" href="09-diffusion-1x1.html"><img src="09-diffusion-1x1.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">09</span>Diffusion (maps 1×1)</span></a></li>
+    <li><a class="g-card" href="09-diffusion-2x2.html"><img src="09-diffusion-2x2.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">09</span>Diffusion (maps 2×2)</span></a></li>
+    <li><a class="g-card" href="10-tractography.html"><img src="10-tractography.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">10</span>Tractography</span></a></li>
+    <li><a class="g-card" href="11-brain-function.html"><img src="11-brain-function.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">11</span>Brain Function</span></a></li>
+    <li><a class="g-card" href="11-paradigm-editor-block.html"><img src="11-paradigm-editor-block.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">11</span>Paradigm Editor (block)</span></a></li>
+    <li><a class="g-card" href="11-paradigm-editor-event.html"><img src="11-paradigm-editor-event.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">11</span>Paradigm Editor (event)</span></a></li>
+    <li><a class="g-card" href="12-spectroscopy.html"><img src="12-spectroscopy.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">12</span>Spectroscopy</span></a></li>
+    <li><a class="g-card" href="13-flair-star.html"><img src="13-flair-star.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">13</span>Longitudinal Brain Analysis · FLAIR*</span></a></li>
+    <li><a class="g-card" href="13-longitudinal-compare.html"><img src="13-longitudinal-compare.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">13</span>Longitudinal Brain Analysis (Compare)</span></a></li>
+    <li><a class="g-card" href="13-longitudinal.html"><img src="13-longitudinal.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">13</span>Longitudinal Brain Analysis</span></a></li>
+    <li><a class="g-card" href="14-advanced-diffusion-cdwi.html"><img src="14-advanced-diffusion-cdwi.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">14</span>Advanced Diffusion (Computed DWI)</span></a></li>
+    <li><a class="g-card" href="14-advanced-diffusion-signal.html"><img src="14-advanced-diffusion-signal.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">14</span>Advanced Diffusion (Analyze signal)</span></a></li>
+    <li><a class="g-card" href="15-echo-accumulation.html"><img src="15-echo-accumulation.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">15</span>Echo Accumulation</span></a></li>
+    <li><a class="g-card" href="15-subtraction.html"><img src="15-subtraction.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">15</span>Subtraction</span></a></li>
+    <li><a class="g-card" href="16-generate-series.html"><img src="16-generate-series.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">16</span>Generate Series</span></a></li>
+    <li><a class="g-card" href="16-save-tables.html"><img src="16-save-tables.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">16</span>Save All Tables</span></a></li>
+    <li><a class="g-card" href="17-layout-presets.html"><img src="17-layout-presets.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">17</span>Layout Presets</span></a></li>
+    <li><a class="g-card" href="17-settings-defaults.html"><img src="17-settings-defaults.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">17</span>Settings · Analysis defaults</span></a></li>
+    <li><a class="g-card" href="17-settings-display.html"><img src="17-settings-display.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">17</span>Settings · Displays and calibration</span></a></li>
+    <li><a class="g-card" href="17-shortcuts.html"><img src="17-shortcuts.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">17</span>Keyboard Shortcuts</span></a></li>
+    <li><a class="g-card" href="18-directory-empty.html"><img src="18-directory-empty.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">18</span>Study Directory (empty)</span></a></li>
+    <li><a class="g-card" href="18-directory-loading-error.html"><img src="18-directory-loading-error.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">18</span>Study Directory (importing, PACS error)</span></a></li>
+    <li><a class="g-card" href="18-dsc-computing.html"><img src="18-dsc-computing.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">18</span>DSC Neuro Perfusion (computing)</span></a></li>
+    <li><a class="g-card" href="18-mismatch-error-invalid.html"><img src="18-mismatch-error-invalid.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">18</span>Diffusion–Perfusion Mismatch (invalid input, error)</span></a></li>
+    <li><a class="g-card" href="19-lock.html"><img src="19-lock.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">19</span>Locked</span></a></li>
+    <li><a class="g-card" href="19-sign-in.html"><img src="19-sign-in.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">19</span>Sign in</span></a></li>
+    <li><a class="g-card" href="19-start-neurologist.html"><img src="19-start-neurologist.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">19</span>Start · Neurologist</span></a></li>
+    <li><a class="g-card" href="20-multi-monitor.html"><img src="20-multi-monitor.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">20</span>Settings · Hanging protocols</span></a></li>
+    <li><a class="g-card" href="20-test-pattern.html"><img src="20-test-pattern.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">20</span>Display test pattern</span></a></li>
+    <li><a class="g-card" href="21-licence.html"><img src="21-licence.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">21</span>Settings · Licence</span></a></li>
+    <li><a class="g-card" href="21-system.html"><img src="21-system.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">21</span>Settings · System</span></a></li>
+    <li><a class="g-card" href="22-audit-log.html"><img src="22-audit-log.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">22</span>Settings · Audit log</span></a></li>
+    <li><a class="g-card" href="22-collect-diagnostics.html"><img src="22-collect-diagnostics.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">22</span>Collect diagnostics</span></a></li>
+    <li><a class="g-card" href="23-report-dsc.html"><img src="23-report-dsc.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">23</span>Report · DSC</span></a></li>
+    <li><a class="g-card" href="23-report-mismatch.html"><img src="23-report-mismatch.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">23</span>Report · Mismatch</span></a></li>
+    <li><a class="g-card" href="24-laptop-dsc-panel.html"><img src="24-laptop-dsc-panel.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">24</span>DSC Neuro Perfusion (laptop, task panel open)</span></a></li>
+    <li><a class="g-card" href="24-laptop-dsc.html"><img src="24-laptop-dsc.png" alt="" loading="lazy" width="1920" height="1080"><span class="g-cap"><span class="g-num">24</span>DSC Neuro Perfusion (laptop)</span></a></li>
+  </ul>
+</main>
+</body>
+</html>

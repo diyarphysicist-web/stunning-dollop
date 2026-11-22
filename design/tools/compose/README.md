@@ -10,4 +10,5 @@ python design/tools/compose/flair_star.py # 13-flair-star (base: 13-longitudinal
 python design/tools/compose/states.py     # 18-directory-empty, 18-directory-loading-error (base: 01), 18-dsc-computing (03), 18-mismatch-error-invalid (05-2x2)
 python design/tools/inject_plots.py       # refill generated regions
 pnpm design:render 1                      # re-render PNGs
+python design/tools/compose/gallery.py    # rebuild design/screens/index.html (all screens, number order)
 ```

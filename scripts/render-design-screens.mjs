@@ -12,7 +12,9 @@ import { chromium } from "playwright";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const dir = join(root, "design/screens");
 const filter = process.argv[2] ?? "";
-const files = readdirSync(dir).filter((f) => f.endsWith(".html") && f.includes(filter)).sort();
+const files = readdirSync(dir)
+  .filter((f) => f.endsWith(".html") && f !== "index.html" && f.includes(filter))
+  .sort();
 
 const browser = await chromium.launch();
 let count = 0;

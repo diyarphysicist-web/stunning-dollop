@@ -54,7 +54,7 @@ CI: `.github/workflows/ci.yml` (node, engine, traceability with `CURRENT_PHASE`,
 - Batch 7: 19 sign-in, lock, Neurologist start view; 20 hanging protocols, display test pattern; 21 Licence, System; 22 audit log, Collect diagnostics; 23 PDF report previews (DSC, Mismatch). Print tokens (`--nm-color-print-*`) added to the design system, used only inside report pages. Composer `design/tools/compose/enterprise.py`.
 - Revision 2026-11-22 (Diyar's decisions): English only (GEN-200; RTL screen removed); launcher rules use DIR-003 types (Subtraction rules approved); SWI/EPI and multi-echo phantoms; 13 FLAIR* mode with NAIMS central-vein review, Excluded mark with reason, and CVS summary (new `13-flair-star`, LBA-026/027, composer `compose/flair_star.py`); 13 and 15 imagery from the new phantoms; Directory 01 lists #610 and #620.
 - Batch 8: 24 laptop DSC (collapsed and overlay panel) (`design/tools/compose/variants.py`); `design/COMPONENTS.md`. The Arabic RTL Directory was removed on 2026-11-22: the product is English only.
-- Workflow: screens are written in `design/screens/`, mirrored into the Open Design project (`…/open-design/.od/projects/neuromr-pro/screens/`), rendered at 1920×1080 and 2560×1440, self-critiqued against brief §4.6.
+- Workflow: screens are written in `design/screens/`, mirrored into the Open Design project (`…/open-design/.od/projects/neuromr-pro/screens/`), rendered at 1920×1080 and 2560×1440, self-critiqued against brief §4.6. `design/screens/index.html` (built by `compose/gallery.py`, skipped by the renderer) links every screen.
 
 **Phase 1 batches remaining:** none.
 
