@@ -24,6 +24,9 @@ Design-only misalignment: the only 3D volumes in Phase 0 are the FLAIR baseline 
 follow-up (64 × 64 × 32, 1 mm). The co-registration screen fuses the follow-up (input)
 onto the baseline (reference) after applying a known residual rigid offset
 (COREG_RESIDUAL_*) so that the review state has something to correct.
+
+Design-only multi-echo: Phase 0 has no multi-echo phantom. Echo Accumulation imagery decays
+the baseline FLAIR slice over ECHO_TE_MS with T2* 60 ms (tissue) and 30 ms (lesions).
 """
 
 from __future__ import annotations
@@ -49,6 +52,7 @@ LESION_DR2_SCALE = 0.5
 CORE_ADC_SCALE = 0.45
 COREG_RESIDUAL_SHIFT_MM = (0.0, -1.5, 2.5)  # (z, y, x)
 COREG_RESIDUAL_ROT_DEG = 2.0  # about the z axis
+ECHO_TE_MS = (5.0, 10.0, 15.0, 20.0)  # design-only multi-echo for Echo Accumulation (no multi-echo phantom yet)
 
 
 def disc(shape: tuple[int, int], pixel_mm: float, radius_mm: float) -> np.ndarray:
@@ -496,6 +500,7 @@ def dce(ph: Path, img: Path, data: dict, luts: dict[str, np.ndarray]) -> None:
         relenh = np.where(mask, (s / np.maximum(s[0], 1e-6) - 1) * 100, 0)
     maxrel = relenh.max(0)
     glo, ghi = save_gray(img / "dce_source.png", s[int(np.argmax(relenh.mean((1, 2))))])
+    save_gray(img / "dce_dyn01.png", s[0], glo, ghi)
     save_gray(img / "dce_subtracted.png", (s[int(np.argmax(relenh.mean((1, 2))))] - s[0]) * mask)
     save_map(img / "dce_maxrelenh.png", maxrel, mask, luts["blueToRed"], 0, float(np.percentile(maxrel[mask], 99)))
     save_map(img / "dce_ttp.png", times[np.argmax(s, 0)], mask, luts["blueToRed"], float(times.min()), float(times.max()))
@@ -624,7 +629,36 @@ def flair(ph: Path, img: Path, data: dict, luts: dict[str, np.ndarray]) -> None:
         "lesion_volumes_ml_followup": [r(v * vox_ml, 2) for v in tf],
         "change_threshold": r(thr, 1),
         "change_window": [r(-rng, 1), r(rng, 1)],
+        "lesions": match_lesions(b, f, vox_ml),
+        "window": [r(glo, 1), r(ghi, 1)],
     }
+    # Echo Accumulation (design-only multi-echo, see ECHO_TE_MS): 4 echoes from the baseline FLAIR slice
+    t2s = np.where(b[z] > 1.5 * np.median(b[z][b[z] > 0.2 * b[z].max()]), 30.0, 60.0)  # lesions decay faster
+    echoes = [b[z] * np.exp(-te / t2s) for te in ECHO_TE_MS]
+    elo, ehi = save_gray(img / "echo_e1.png", echoes[0])
+    save_gray(img / "echo_sum.png", sum(echoes), elo, ehi * len(echoes) * 0.7)
+    data["echo"] = {"te_ms": list(ECHO_TE_MS), "slice": z + 1}
+
+
+def match_lesions(b: np.ndarray, f: np.ndarray, vox_ml: float) -> list[dict]:
+    """Bright lesions in both time points (threshold 1.5 × median tissue), matched by centroid distance."""
+    def find(v: np.ndarray) -> list[tuple[np.ndarray, int]]:
+        m = v > 1.5 * np.median(v[v > 0.2 * v.max()])
+        lab, n = ndimage.label(m)
+        cms = ndimage.center_of_mass(m, lab, range(1, n + 1))
+        return [(np.array(c), int(s)) for c, s in zip(cms, ndimage.sum(m, lab, range(1, n + 1)), strict=True)]
+
+    out: list[dict] = []
+    for when, found in (("base", find(b)), ("follow", find(f))):
+        for c, vox in found:
+            hit = next((x for x in out if np.linalg.norm(np.array(x["centre_zyx"]) - c) < 3), None)
+            if hit is None:
+                hit = {"centre_zyx": [r(v, 1) for v in c], "ml_base": 0.0, "ml_follow": 0.0}
+                out.append(hit)
+            hit[f"ml_{when}"] = r(vox * vox_ml, 3)
+    for i, x in enumerate(sorted(out, key=lambda x: x["centre_zyx"]), start=1):
+        x["name"] = f"L{i}"
+    return sorted(out, key=lambda x: x["name"])
 
 
 # ── Co-registration review (design-only residual offset, see module docstring) ─

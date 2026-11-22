@@ -4765,7 +4765,72 @@
   "change_window": [
    -318.5,
    318.5
+  ],
+  "lesions": [
+   {
+    "centre_zyx": [
+     12.0,
+     22.0,
+     22.0
+    ],
+    "ml_base": 0.123,
+    "ml_follow": 0.257,
+    "name": "L1"
+   },
+   {
+    "centre_zyx": [
+     14.0,
+     42.0,
+     42.0
+    ],
+    "ml_base": 0.0,
+    "ml_follow": 0.123,
+    "name": "L2"
+   },
+   {
+    "centre_zyx": [
+     16.0,
+     40.0,
+     24.0
+    ],
+    "ml_base": 0.257,
+    "ml_follow": 0.123,
+    "name": "L3"
+   },
+   {
+    "centre_zyx": [
+     20.0,
+     24.0,
+     42.0
+    ],
+    "ml_base": 0.123,
+    "ml_follow": 0.123,
+    "name": "L4"
+   },
+   {
+    "centre_zyx": [
+     22.0,
+     32.0,
+     32.0
+    ],
+    "ml_base": 0.081,
+    "ml_follow": 0.0,
+    "name": "L5"
+   }
+  ],
+  "window": [
+   1.9,
+   601.1
   ]
+ },
+ "echo": {
+  "te_ms": [
+   5.0,
+   10.0,
+   15.0,
+   20.0
+  ],
+  "slice": 16
  },
  "coreg": {
   "matrix": [
