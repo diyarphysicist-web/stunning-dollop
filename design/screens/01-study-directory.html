@@ -210,16 +210,16 @@
     <div class="panel__body">
       <div class="lx" role="listbox" aria-label="Packages">
         <div class="lx__item is-valid is-selected" role="option" aria-selected="true"><svg class="ic"><use href="#i-check"/></svg><span class="lx__name">DSC Neuro Perfusion</span><span class="kbd">Enter</span><span class="lx__sub">Mismatch available: DTI 32dir has 2 b-values</span></div>
-        <div class="lx__item is-valid" role="option"><svg class="ic"><use href="#i-check"/></svg><span class="lx__name">DCE / T1 Perfusion</span><span></span></div>
-        <div class="lx__item is-valid" role="option"><svg class="ic"><use href="#i-check"/></svg><span class="lx__name">Brain Function</span><span></span></div>
         <div class="lx__item is-valid" role="option"><svg class="ic"><use href="#i-check"/></svg><span class="lx__name">Longitudinal Brain Analysis</span><span></span></div>
-        <div class="lx__item is-valid" role="option"><svg class="ic"><use href="#i-check"/></svg><span class="lx__name">Subtraction</span><span></span></div>
-        <div class="lx__item is-invalid" role="option" aria-disabled="true"><svg class="ic"><use href="#i-close"/></svg><span class="lx__name">Permeability</span><span></span><span class="lx__why">Needs a non-dynamic T1 reference series for the baseline T1 map.</span></div>
-        <div class="lx__item is-invalid" role="option" aria-disabled="true"><svg class="ic"><use href="#i-close"/></svg><span class="lx__name">Diffusion</span><span></span><span class="lx__why">Needs at least 2 b-values.</span></div>
-        <div class="lx__item is-invalid" role="option" aria-disabled="true"><svg class="ic"><use href="#i-close"/></svg><span class="lx__name">Tractography</span><span></span><span class="lx__why">Needs at least 2 b-values.</span></div>
-        <div class="lx__item is-invalid" role="option" aria-disabled="true"><svg class="ic"><use href="#i-close"/></svg><span class="lx__name">Advanced Diffusion</span><span></span><span class="lx__why">Needs at least 2 b-values.</span></div>
+        <div class="lx__item is-invalid" role="option" aria-disabled="true"><svg class="ic"><use href="#i-close"/></svg><span class="lx__name">DCE / T1 Perfusion</span><span></span><span class="lx__why">Needs a DCE (T1-weighted dynamic) series.</span></div>
+        <div class="lx__item is-invalid" role="option" aria-disabled="true"><svg class="ic"><use href="#i-close"/></svg><span class="lx__name">Brain Function</span><span></span><span class="lx__why">Needs a BOLD fMRI series.</span></div>
+        <div class="lx__item is-invalid" role="option" aria-disabled="true"><svg class="ic"><use href="#i-close"/></svg><span class="lx__name">Subtraction</span><span></span><span class="lx__why">Not for DSC, BOLD, spectroscopy or screen-capture series.</span></div>
+        <div class="lx__item is-invalid" role="option" aria-disabled="true"><svg class="ic"><use href="#i-close"/></svg><span class="lx__name">Permeability</span><span></span><span class="lx__why">Needs a DCE series with at least 20 dynamics.</span></div>
+        <div class="lx__item is-invalid" role="option" aria-disabled="true"><svg class="ic"><use href="#i-close"/></svg><span class="lx__name">Diffusion</span><span></span><span class="lx__why">Needs a diffusion series (DWI or DTI).</span></div>
+        <div class="lx__item is-invalid" role="option" aria-disabled="true"><svg class="ic"><use href="#i-close"/></svg><span class="lx__name">Tractography</span><span></span><span class="lx__why">Needs a DTI series.</span></div>
+        <div class="lx__item is-invalid" role="option" aria-disabled="true"><svg class="ic"><use href="#i-close"/></svg><span class="lx__name">Advanced Diffusion</span><span></span><span class="lx__why">Needs a diffusion series (DWI or DTI).</span></div>
         <div class="lx__item is-invalid" role="option" aria-disabled="true"><svg class="ic"><use href="#i-close"/></svg><span class="lx__name">Spectroscopy</span><span></span><span class="lx__why">Needs a spectroscopy series.</span></div>
-        <div class="lx__item is-invalid" role="option" aria-disabled="true"><svg class="ic"><use href="#i-close"/></svg><span class="lx__name">Echo Accumulation</span><span></span><span class="lx__why">Needs a series with at least 2 echoes.</span></div>
+        <div class="lx__item is-invalid" role="option" aria-disabled="true"><svg class="ic"><use href="#i-close"/></svg><span class="lx__name">Echo Accumulation</span><span></span><span class="lx__why">Needs a multi-echo series.</span></div>
       </div>
     </div>
     <div class="panel__foot">

@@ -68,7 +68,6 @@ CI: `.github/workflows/ci.yml` (node, engine, traceability with `CURRENT_PHASE`,
 - `apps/desktop` (Electron) is created in Phase 2a.
 - Open Design MCP is not reachable from cloud sessions; it also disconnected locally during batch 6 (files are still synced by copying into the project folder).
 - No SWI/EPI or multi-echo phantom: FLAIR* is shown disabled and Echo Accumulation uses design-only decayed FLAIR imagery. Add both phantoms to `scripts/make_phantoms.py` before Phases 9–10.
-- DIR-004 rules in `packages/workspace/src/validity.ts` check dynamics only, so a DSC series is reported valid for DCE, Brain Function and Subtraction; the rules should use DIR-003 series types. Awaiting Diyar's decision (found in Phase 1 batch 3).
 - Local tooling: `uv` is not on PATH on Diyar's PC; the system Python 3.14 (`/c/Python314/python`) has numpy/scipy/pydicom/Pillow and runs `design/tools/*.py`. Run `inject_plots.py` after editing any screen with `gen:` regions, then `pnpm design:render <filter>`, then copy changed files into the Open Design project folder.
 
 **Exact next step:** Wait for Diyar's review. Apply any requested changes through the same design path (screens → inject_plots → render → critique → commit). On "design approved": mark the design locked here and start Phase 2.

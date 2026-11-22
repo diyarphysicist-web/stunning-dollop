@@ -168,22 +168,22 @@ Out of scope: cardiac, cartilage, liver, breast, prostate and muscle workflows. 
 - **DIR-001** Sources: local folder or DICOMDIR import, configured PACS nodes, and the local store (including studies pushed to the built-in C-STORE SCP).
 - **DIR-002** Study list → series list with thumbnails, series description, number of images, and series-type badges.
 - **DIR-003** Series-type classifier assigns one or more types from DICOM attributes: DSC, DCE, DWI, DTI, fMRI (BOLD), MRS-SVS, MRS-CSI, FLAIR, T1, T2, SWI, multi-echo, VFA reference (T1 gradient echo, non-dynamic, flip angle recorded), derived map, Secondary Capture.
-- **DIR-004** The analysis launcher lists every package with valid/invalid status for the current selection. Invalid packages show a one-line reason. Validity rules:
+- **DIR-004** The analysis launcher lists every package with valid/invalid status for the current selection. Invalid packages show a one-line reason. Each rule first checks the DIR-003 series type of the primary (first selected) series, then its counts; a series without the required type is invalid with a reason that names the type it needs. Validity rules:
 
 | Package | Rule |
 |---|---|
-| DCE / T1 Perfusion | dynamic series with ≥ 4 dynamics |
-| DSC Neuro Perfusion | dynamic T2*-sensitive series with ≥ 5 dynamics |
-| Mismatch (inside DSC) | DSC package open and a diffusion series in the study with ≥ 2 b-values (or ADC maps) |
+| DCE / T1 Perfusion | DCE series (T1-weighted dynamic) with ≥ 4 dynamics |
+| DSC Neuro Perfusion | DSC series (dynamic T2*-weighted) with ≥ 5 dynamics |
+| Mismatch (inside DSC) | DSC package open and a DWI or DTI series in the study with ≥ 2 b-values (or ADC maps) |
 | Permeability | DCE series with ≥ 20 dynamics, plus ≥ 1 non-dynamic VFA reference series with a different flip angle (2 recommended) |
-| Diffusion | DWI with ≥ 2 b-values; FA and directional maps need ≥ 6 gradient directions plus b = 0 |
-| Tractography | DTI with ≥ 6 directions and ≥ 2 b-values |
-| Brain Function | dynamic BOLD series (≥ 20 dynamics required, ≥ 80 recommended) |
+| Diffusion | DWI or DTI series with ≥ 2 b-values; FA and directional maps need ≥ 6 gradient directions plus b = 0 |
+| Tractography | DTI series with ≥ 6 directions and ≥ 2 b-values |
+| Brain Function | FMRI (BOLD) series (≥ 20 dynamics required, ≥ 80 recommended) |
 | Spectroscopy | an MRS series (SVS or CSI) **and** an imaging series selected together |
 | Longitudinal | 1–4 MR studies of the same patient |
-| Advanced Diffusion | isotropic DWI with ≥ 2 b-values (model list filtered per ADV-010) |
-| Subtraction | any series with ≥ 2 dynamics, or two series with matching geometry |
-| Echo Accumulation | series with ≥ 2 echoes |
+| Advanced Diffusion | isotropic DWI or DTI series with ≥ 2 b-values (model list filtered per ADV-010) |
+| Subtraction | an imaging series with ≥ 2 dynamics, or two imaging series with matching geometry. DSC and FMRI time series are not valid (they open in their own packages), nor are MRS series or Secondary Captures (no measured pixel values) |
+| Echo Accumulation | multi-echo series with ≥ 2 echoes |
 
 - **DIR-005** Background pre-processing progress per series is visible in the Directory (DIR-003 classification, and rules from the brief §12.6).
 - **DIR-006** Corrupt or unreadable DICOM is quarantined with a message naming the file and the reason; it never blocks the rest of the import.
