@@ -245,7 +245,7 @@ events = [
     ("2026-11-22 13:57:40", "dr.neuro", "Neurologist", "Signed in", "Windows SSO · WS-NEURO-03", "f08a…2c19"),
     ("2026-11-22 11:20:15", "site.admin", "Site administrator", "Setting changed", "Auto-lock 10 → 15 min", "66c1…d0ae"),
     ("2026-11-22 09:02:00", "system", "—", "Licence checked", "Spectroscopy trial ends 2026-12-13", "2b75…91f3"),
-    ("2026-11-22 08:45:31", "tech01", "Technologist", "Import finished", "1 849 files · 1 quarantined", "e94d…4b60"),
+    ("2026-11-22 08:45:31", "tech01", "Technologist", "Import finished", "2 009 files · 1 quarantined", "e94d…4b60"),
 ]
 ev_rows = "".join(f'<tr{" class=\"is-selected\" aria-selected=\"true\"" if i == 2 else ""}><td class="mono">{t}</td><td>{u}</td><td class="t2">{r}</td><td class="strong">{a}</td><td>{o}</td><td class="mono t2">{h}</td></tr>' for i, (t, u, r, a, o, h) in enumerate(events))
 audit = "\n".join([

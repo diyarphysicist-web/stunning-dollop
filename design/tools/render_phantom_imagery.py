@@ -697,6 +697,7 @@ def flair_star(ph: Path, img: Path, data: dict) -> None:
         for k in ("cor", "sag"):
             save_gray(img / f"fstar_{name}_{k}.png", pl[k], lo, hi)
         windows[name] = [r(lo, 2), r(hi, 2)]
+    save_gray(img / "swi_epi.png", swi[data["flair"]["slice"] - 1])  # Directory thumbnail
     nz = fl.shape[0]
     data["flair_star"] = {
         "lesion": "L1",
