@@ -42,7 +42,7 @@ CI: `.github/workflows/ci.yml` (node, engine, traceability with `CURRENT_PHASE`,
 
 ## Handoff
 
-**Phase status:** Phase 0 (Foundation) complete. Phase 1 (Design) in progress in Open Design (project **NeuroMR-PRO**, design system `neuromr-pro`); batches 1–5 committed.
+**Phase status:** Phase 0 (Foundation) complete. Phase 1 (Design) in progress in Open Design (project **NeuroMR-PRO**, design system `neuromr-pro`); batches 1–6 committed.
 
 **Done in Phase 1 so far**
 - Batch 1: `design/BRIEF.md`, design system `design/design-system/` (DESIGN.md, tokens.css, manifest), tokens exported to `packages/ui/src/tokens/` with tests, phantom imagery (`design/tools/render_phantom_imagery.py` → `design/assets/img`, `assets/data/phantom-data.json`), Playwright PNG export (`pnpm design:render`), shared `design/screens/shell.css`, screens 02 Workspace shell and 03 DSC Perfusion.
@@ -50,9 +50,10 @@ CI: `.github/workflows/ci.yml` (node, engine, traceability with `CURRENT_PHASE`,
 - Batch 3: 01 Study Directory, 07 DCE / T1 Perfusion, 08 Permeability, 09 Diffusion (1×1, 2×2). `inject_plots.py` now also generates the top bar (`gen:topbar`), rail (`gen:rail-<activity>`) and status bar (`gen:statusbar[-<state>]`). Spec: PERM-012, DIF-012 task guidance; `FA_DIRECTION_PALETTE` in the viewer LUT module.
 - Batch 4: 10 Tractography (streamlines tracked from the DTI phantom with TRK-006 rules, z-buffered 3D render), 11 Brain Function, 11 Paradigm editor (block, event), 12 Spectroscopy. `PLANE_PALETTE` added to the viewer LUT module.
 - Batch 5: 13 Longitudinal (Longitudinal and Compare modes; lesions matched from the FLAIR pair), 14 Advanced Diffusion (Analyze signal with real kurtosis + simplified IVIM fit; Computed DWI), 15 Subtraction, 15 Echo Accumulation (design-only multi-echo imagery).
+- Batch 6: 16 Generate Series / Save All Tables, 17 Layout presets, Settings (analysis defaults; displays and calibration check), shortcut sheet, 18 states (Directory empty, importing + PACS error, DSC computing, Mismatch invalid input + failed job). Variant screens are rebuilt by `design/tools/compose/*.py` (see its README). Fixed: Tmax only with Manual AIF (02, 03, 05).
 - Workflow: screens are written in `design/screens/`, mirrored into the Open Design project (`…/open-design/.od/projects/neuromr-pro/screens/`), rendered at 1920×1080 and 2560×1440, self-critiqued against brief §4.6.
 
-**Phase 1 batches remaining:** 6 dialogs (Generate Series, Save Tables, layouts, settings, shortcuts), states · 7 sign-in/lock, multi-monitor, licence/system, audit/diagnostics, PDF reports · 8 laptop and RTL variants, `design/COMPONENTS.md`.
+**Phase 1 batches remaining:** 7 sign-in/lock, multi-monitor, licence/system, audit/diagnostics, PDF reports · 8 laptop and RTL variants, `design/COMPONENTS.md`.
 
 **Done in Phase 0**
 - Manual chapters read (General, T1, T2*/Mismatch, Permeability, Diffusion, fiber tracking, Brain Function, spectroscopy, Longitudinal, Subtraction, Echo Accumulation, Advanced Diffusion); spec and algorithms written in original wording.
@@ -68,4 +69,4 @@ CI: `.github/workflows/ci.yml` (node, engine, traceability with `CURRENT_PHASE`,
 - DIR-004 rules in `packages/workspace/src/validity.ts` check dynamics only, so a DSC series is reported valid for DCE, Brain Function and Subtraction; the rules should use DIR-003 series types. Awaiting Diyar's decision (found in Phase 1 batch 3).
 - Local tooling: `uv` is not on PATH on Diyar's PC; the system Python 3.14 (`/c/Python314/python`) has numpy/scipy/pydicom/Pillow and runs `design/tools/*.py`. Run `inject_plots.py` after editing any screen with `gen:` regions, then `pnpm design:render <filter>`, then copy changed files into the Open Design project folder.
 
-**Exact next step:** Phase 1 batch 6 — screens 16 Generate Series and Save All Tables dialogs, 17 Layout preset manager, Settings (LUT, smoothing, injection presets, data types, display calibration check) and Shortcut sheet, 18 Empty / loading / error / invalid-input states for the Directory and one package, on `shell.css` and the `neuromr-pro` tokens; render, critique, commit, push; then the next batch. When all screens are done, mark the design "draft – awaiting Diyar's approval" (do not lock, do not start Phase 2 until Diyar writes "design approved").
+**Exact next step:** Phase 1 batch 7 — screens 19 Sign-in, lock screen, role-based start view; 20 Multi-monitor setup and display test pattern; 21 Licence page and Settings → System; 22 Audit log viewer and Collect diagnostics; 23 PDF report preview (DSC, Mismatch), on `shell.css` and the `neuromr-pro` tokens; render, critique, commit, push; then the next batch. When all screens are done, mark the design "draft – awaiting Diyar's approval" (do not lock, do not start Phase 2 until Diyar writes "design approved").
