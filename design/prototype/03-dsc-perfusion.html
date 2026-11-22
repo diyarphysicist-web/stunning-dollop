@@ -276,7 +276,7 @@
       </div>
       <div class="vp__body">
         <div class="vp__stage">
-          <img src="../assets/img/dsc_relcbv.png" width="512" height="512" alt="relCBV map, slice 4 of 8, Stroke LUT 0 to 8 ml/100 g">
+          <img src="../assets/img/dsc_relcbv.png" width="512" height="512" alt="relCBV map, slice 4 of 8, Stroke LUT 0 to 150 a.u.">
 <!-- gen:dsc-rois -->
 <svg viewBox="0 0 512 512" aria-hidden="true">
 <ellipse class="roi roi--1" cx="164.0" cy="244.0" rx="20.0" ry="28.0"/>
@@ -285,15 +285,15 @@
 </svg>
 <!-- /gen:dsc-rois -->
         </div>
-        <div class="ov ov--tl">relCBV [ml/100 g]<br><span class="t2">Model-free · Stroke LUT · Slice 4/8</span></div>
+        <div class="ov ov--tl">relCBV [a.u.]<br><span class="t2">Model-free · Stroke LUT · Slice 4/8</span></div>
         <div class="ov ov--tr">PHANTOM^SYNTHETIC<br><span class="t2">NMR-PHANTOM-001 · 2026-01-01</span></div>
-        <div class="ov ov--bl">Window 0–8 <span class="t2">ml/100 g</span><br><span class="t2">Opacity 100 %</span></div>
+        <div class="ov ov--bl">Window 0–150 <span class="t2">a.u.</span><br><span class="t2">Opacity 100 %</span></div>
         <div class="ov ov--br">Zoom 100 %<br><span class="t2">1.8 × 1.8 mm · 128 × 128</span></div>
         <div class="cbar" style="--lut: var(--nm-lut-stroke)" data-od-id="colorbar-relcbv">
-          <span>8</span>
+          <span>150</span>
           <span class="cbar__ramp"></span>
           <span>0</span>
-          <span class="cbar__meta">ml/100 g<br>W 0–8</span>
+          <span class="cbar__meta">a.u.<br>W 0–150</span>
         </div>
         <span class="ov orient orient--n">A</span>
         <span class="ov orient orient--s">P</span>
@@ -317,15 +317,15 @@
         <div class="tbl-head">
           <h3 data-od-id="region-parameters-title">Region parameters</h3>
           <span class="spacer"></span>
-          <span class="dense t3">Slice 4/8 · Model-free · 3 ROIs</span>
+          <span class="dense t3">Slice 4/8 · Model-free · relative units (a.u.) · 3 ROIs</span>
         </div>
         <table class="tbl" data-od-id="region-parameters-table">
           <colgroup><col style="width:18%"><col style="width:14%"><col style="width:19%"><col style="width:12%"><col style="width:12%"><col style="width:11%"><col style="width:14%"></colgroup>
           <thead>
             <tr>
               <th>ROI<span class="unit">name</span></th>
-              <th class="num">relCBV<span class="unit">[ml/100 g]</span></th>
-              <th class="num">relCBF<span class="unit">[ml/100 g/min]</span></th>
+              <th class="num">relCBV<span class="unit">[a.u.]</span></th>
+              <th class="num">relCBF<span class="unit">[a.u.]</span></th>
               <th class="num">MTT<span class="unit">[s]</span></th>
               <th class="num">TTP<span class="unit">[s]</span></th>
               <th class="num">T0<span class="unit">[s]</span></th>
@@ -334,9 +334,9 @@
           </thead>
           <tbody>
 <!-- gen:dsc-table -->
-<tr class="is-selected" aria-selected="true"><td class="strong"><span class="swatch" style="--c: var(--nm-roi-1)"></span>ROI1</td><td class="num">2.80</td><td class="num">22.7</td><td class="num">12.14</td><td class="num">28.5</td><td class="num">22.5</td><td class="num">112</td></tr>
-<tr><td class="strong"><span class="swatch swatch--linked" style="--c: var(--nm-roi-1)"></span>ROI1-mirror</td><td class="num">3.44</td><td class="num">46.6</td><td class="num">7.14</td><td class="num">19.5</td><td class="num">15.0</td><td class="num">112</td></tr>
-<tr><td class="strong"><span class="swatch" style="--c: var(--nm-roi-2)"></span>ROI2</td><td class="num">2.68</td><td class="num">36.2</td><td class="num">7.31</td><td class="num">19.5</td><td class="num">15.0</td><td class="num">80</td></tr>
+<tr class="is-selected" aria-selected="true"><td class="strong"><span class="swatch" style="--c: var(--nm-roi-1)"></span>ROI1</td><td class="num">64.0</td><td class="num">5.27</td><td class="num">12.14</td><td class="num">28.5</td><td class="num">22.5</td><td class="num">112</td></tr>
+<tr><td class="strong"><span class="swatch swatch--linked" style="--c: var(--nm-roi-1)"></span>ROI1-mirror</td><td class="num">78.7</td><td class="num">11.03</td><td class="num">7.14</td><td class="num">19.5</td><td class="num">15.0</td><td class="num">112</td></tr>
+<tr><td class="strong"><span class="swatch" style="--c: var(--nm-roi-2)"></span>ROI2</td><td class="num">61.4</td><td class="num">8.39</td><td class="num">7.31</td><td class="num">19.5</td><td class="num">15.0</td><td class="num">80</td></tr>
 <!-- /gen:dsc-table -->
           </tbody>
         </table>
@@ -358,8 +358,8 @@
           </thead>
           <tbody>
 <!-- gen:dsc-ratio -->
-<tr><td class="strong">relCBV <span class="t3">[ml/100 g]</span></td><td class="num">2.80</td><td class="num">3.44</td><td class="num strong">0.81</td></tr>
-<tr><td class="strong">relCBF <span class="t3">[ml/100 g/min]</span></td><td class="num">22.7</td><td class="num">46.6</td><td class="num strong">0.49</td></tr>
+<tr><td class="strong">relCBV <span class="t3">[a.u.]</span></td><td class="num">64.0</td><td class="num">78.7</td><td class="num strong">0.81</td></tr>
+<tr><td class="strong">relCBF <span class="t3">[a.u.]</span></td><td class="num">5.27</td><td class="num">11.03</td><td class="num strong">0.48</td></tr>
 <tr><td class="strong">MTT <span class="t3">[s]</span></td><td class="num">12.14</td><td class="num">7.14</td><td class="num strong">1.70</td></tr>
 <!-- /gen:dsc-ratio -->
           </tbody>

@@ -360,25 +360,25 @@ _T = DSC["table"]
 
 def _dsc_row(key: str, name: str) -> str:
     r = _T[key]
-    return (f'<tr><td>{name}</td><td class="num">{r["relCBV"]:.2f}</td><td class="num">{r["relCBF"]:.1f}</td>'
+    return (f'<tr><td>{name}</td><td class="num">{r["relCBV_au"]:.1f}</td><td class="num">{r["relCBF_au"]:.2f}</td>'
             f'<td class="num">{r["MTT"]:.2f}</td><td class="num">{r["TTP"]:.1f}</td><td class="num">{r["T0"]:.1f}</td></tr>')
 
 
 DSC_ROWS = "\n        ".join(_dsc_row(k, n) for k, n in (("roi1", "ROI1"), ("roi1_mirror", "ROI1-mirror"), ("roi2", "ROI2")))
-DSC_RATIO = "".join(f'<td class="num"><b>{_T["roi1"][k] / _T["roi1_mirror"][k]:.2f}</b></td>' for k in ("relCBV", "relCBF", "MTT"))
+DSC_RATIO = "".join(f'<td class="num"><b>{_T["roi1"][k] / _T["roi1_mirror"][k]:.2f}</b></td>' for k in ("relCBV_au", "relCBF_au", "MTT"))
 dsc_paper = f'''    <article class="paper" aria-label="DSC report page 1">
       <div class="paper__head"><div><h1>DSC Neuro Perfusion</h1><span class="p2">Demonstration site · Neuroradiology</span></div><div class="p2" style="text-align: right">Analysis 2026-11-22 14:05<br>NeuroMR-PRO 1.0.0-dev</div></div>
 {IDS}
       <h2>Key images · slice {DSC["slice"]}/{DSC["slices"]}</h2>
-      <div class="paper__imgs">{img("dsc_source_peak.png", f"Source · dyn {DSC['peak_dynamic']}/{DSC['dynamics']}")}{img("dsc_relcbv.png", "relCBV [ml/100 g] · Stroke 0–8", "stroke", "8", "0", "ml/100 g")}{img("dsc_relcbf.png", "relCBF [ml/100 g/min] · Stroke 0–80", "stroke", "80", "0", "ml/100 g/min")}</div>
+      <div class="paper__imgs">{img("dsc_source_peak.png", f"Source · dyn {DSC['peak_dynamic']}/{DSC['dynamics']}")}{img("dsc_relcbv.png", "relCBV [a.u.] · Stroke 0–150", "stroke", "150", "0", "a.u.")}{img("dsc_relcbf.png", "relCBF [a.u.] · Stroke 0–20", "stroke", "20", "0", "a.u.")}</div>
       <h2>Region parameters</h2>
-      <table class="ptbl"><thead><tr><th>ROI</th><th class="num">relCBV [ml/100 g]</th><th class="num">relCBF [ml/100 g/min]</th><th class="num">MTT [s]</th><th class="num">TTP [s]</th><th class="num">T0 [s]</th></tr></thead>
+      <table class="ptbl"><thead><tr><th>ROI</th><th class="num">relCBV [a.u.]</th><th class="num">relCBF [a.u.]</th><th class="num">MTT [s]</th><th class="num">TTP [s]</th><th class="num">T0 [s]</th></tr></thead>
         <tbody>{DSC_ROWS}
         <tr><td><b>ROI1 / mirror</b></td>{DSC_RATIO}<td></td><td></td></tr></tbody></table>
       <h2>Concentration-time curves</h2>
       <div class="paper__graph">{dsc_graph}</div>
       <h2>Method</h2>
-      <p>Model-free analysis of ΔR2*(t) from DSC perf SNR50 ({DSC['dynamics']} dynamics, TR {DSC['tr_s']} s, TE {DSC['te_ms']:g} ms); automatic AIF; no spatial or temporal smoothing. Perfusion values depend on acquisition and method; compare follow-ups with the same method.</p>
+      <p>Model-free analysis of ΔR2*(t) from DSC perf SNR50 ({DSC['dynamics']} dynamics, TR {DSC['tr_s']} s, TE {DSC['te_ms']:g} ms); no spatial or temporal smoothing. Model-free values are relative (a.u.); ml/100 g needs Manual AIF deconvolution. Perfusion values depend on acquisition and method; compare follow-ups with the same method.</p>
       <div class="paper__foot"><span>PHANTOM^SYNTHETIC · NMR-PHANTOM-001 · 2026-01-01</span><span>Default settings · page 1 of 1</span></div>
     </article>'''
 report("23-report-dsc", "Report · DSC", "DSC Neuro Perfusion", ["Key images", "Region parameters and ratios", "Concentration-time graph", "Method summary"], dsc_paper)

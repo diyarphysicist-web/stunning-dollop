@@ -75,7 +75,8 @@ def card(title: str, body: str, actions: str = "") -> str:
 
 def main() -> None:
     luts = [
-        ("relCBV", "stroke", "Stroke", "0 – 12", "ml/100 g"), ("relCBF", "stroke", "Stroke", "0 – 80", "ml/100 g/min"),
+        ("relCBV · Manual AIF", "stroke", "Stroke", "0 – 8", "ml/100 g"), ("relCBV · other methods", "stroke", "Stroke", "0 – 99th percentile", "a.u."),
+        ("relCBF · Manual AIF", "stroke", "Stroke", "0 – 80", "ml/100 g/min"), ("relCBF · other methods", "stroke", "Stroke", "0 – 99th percentile", "a.u."),
         ("MTT", "blueToRed", "Blue-to-Red", "0 – 14", "s"), ("TTP", "blueToRed", "Blue-to-Red", "10 – 40", "s"),
         ("Tmax / Delay", "stroke", "Stroke", "0 – 12", "s"), ("Ktrans", "stroke", "Stroke", "0 – 0.30", "min⁻¹"),
         ("FA", "gray", "Gray", "0 – 1", "unitless"), ("ADC", "gray", "Gray", "0 – 3000", "×10⁻⁶ mm²/s"),

@@ -257,8 +257,17 @@ def dsc(ph: Path, img: Path, data: dict, luts: dict[str, np.ndarray]) -> None:
     gm = m & (labels[z] == 2) & (area > 0)
     cbv_scale = float(truth["cbv"][2]) / float(np.median(area[gm]))
     cbf_scale = float(truth["cbf"][2]) / float(np.median(cbf_raw[gm]))
-    rel_cbv = np.where(m, area * cbv_scale, 0)
-    rel_cbf = np.where(m, cbf_raw * cbf_scale, 0)
+    # Model-free maps are relative (DSC-017): relCBV = area [a.u.], relCBF = area / MTT [a.u.]
+    rel_cbv = np.where(m, area, 0)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        rel_cbf = np.where(m & (mtt > 0), area / np.where(mtt > 0, mtt, 1), 0)
+
+    def nice_hi(v: np.ndarray) -> float:
+        hi = float(np.percentile(v[m], 99))
+        step = 10 ** np.floor(np.log10(hi))
+        return float(np.ceil(hi / step * 2) / 2 * step)
+
+    cbv_hi, cbf_hi = nice_hi(rel_cbv), nice_hi(rel_cbf)
 
     windows: dict[str, list[float]] = {}
     glo, ghi = save_gray(img / "dsc_source_dyn01.png", arr[0, z])
@@ -266,8 +275,8 @@ def dsc(ph: Path, img: Path, data: dict, luts: dict[str, np.ndarray]) -> None:
     save_gray(img / "dsc_source_peak.png", arr[pk_dyn, z], glo, ghi)
     windows["source"] = [r(glo, 1), r(ghi, 1)]
     for name, mp, lo, hi, lut in (
-        ("relcbv", rel_cbv, 0.0, 8.0, "stroke"),
-        ("relcbf", rel_cbf, 0.0, 80.0, "stroke"),
+        ("relcbv", rel_cbv, 0.0, cbv_hi, "stroke"),
+        ("relcbf", rel_cbf, 0.0, cbf_hi, "stroke"),
         ("mtt", mtt, 0.0, 14.0, "blueToRed"),
         ("ttp", ttp, 10.0, 40.0, "blueToRed"),
         ("tmax", tmax, 0.0, 12.0, "stroke"),
@@ -276,7 +285,7 @@ def dsc(ph: Path, img: Path, data: dict, luts: dict[str, np.ndarray]) -> None:
         save_map(img / f"dsc_{name}.png", mp, m, luts[lut], lo, hi)
         save_map(img / f"dsc_{name}_overlay.png", mp, m, luts[lut], lo, hi, alpha=True)
         windows[name] = [r(lo, 2), r(hi, 2)]
-    save_gray(img / "dsc_relcbv_gray.png", rel_cbv, 0, 8)
+    save_gray(img / "dsc_relcbv_gray.png", rel_cbv, 0, cbv_hi)
 
     # ROIs: ROI1 on the hypoperfused region, its mirror, ROI2 in healthy left parieto-occipital tissue
     lz = labels[z]

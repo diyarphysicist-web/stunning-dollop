@@ -33,8 +33,8 @@ gen = f'''  <div class="scrim" data-od-id="generate-series">
         </div>
         <div class="grid2">
           <div class="field"><span class="field__label">Maps</span>
-            {check("relCBV", True, "ml/100 g")}
-            {check("relCBF", True, "ml/100 g/min")}
+            {check("relCBV", True, "a.u.")}
+            {check("relCBF", True, "a.u.")}
             {check("MTT", True, "s")}
             {check("TTP", True, "s")}
             {check("T0", False, "s")}

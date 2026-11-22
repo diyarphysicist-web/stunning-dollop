@@ -102,14 +102,15 @@ def dsc_table() -> str:
     for key, name, sw, var in DSC_ROWS:
         r = tb[key]
         sel = ' class="is-selected" aria-selected="true"' if key == "roi1" else ""
-        cells = "".join(f'<td class="num">{v}</td>' for v in (f"{r['relCBV']:.2f}", f"{r['relCBF']:.1f}", f"{r['MTT']:.2f}", f"{r['TTP']:.1f}", f"{r['T0']:.1f}", f"{r['voxels']:,}"))
+        # screen 03 runs Model-free: relCBV and relCBF in a.u. (DSC-017)
+        cells = "".join(f'<td class="num">{v}</td>' for v in (f"{r['relCBV_au']:.1f}", f"{r['relCBF_au']:.2f}", f"{r['MTT']:.2f}", f"{r['TTP']:.1f}", f"{r['T0']:.1f}", f"{r['voxels']:,}"))
         out.append(f'<tr{sel}><td class="strong"><span class="{sw}" style="--c: var({var})"></span>{name}</td>{cells}</tr>')
     return NL.join(out)
 
 
 def dsc_ratio() -> str:
     a, b = DATA["dsc"]["table"]["roi1"], DATA["dsc"]["table"]["roi1_mirror"]
-    rows = (("relCBV", "ml/100 g", "relCBV", 2), ("relCBF", "ml/100 g/min", "relCBF", 1), ("MTT", "s", "MTT", 2))
+    rows = (("relCBV", "a.u.", "relCBV_au", 1), ("relCBF", "a.u.", "relCBF_au", 2), ("MTT", "s", "MTT", 2))  # Model-free (DSC-017)
     return NL.join(
         f'<tr><td class="strong">{n} <span class="t3">[{u}]</span></td><td class="num">{a[k]:.{nd}f}</td><td class="num">{b[k]:.{nd}f}</td>'
         f'<td class="num strong">{a[k] / b[k]:.2f}</td></tr>'

@@ -150,3 +150,11 @@ The disc and stripe phantoms behind the design imagery are replaced by one skull
 - **DCE ROI3 (white matter) does not enhance.** T0 and the fitted parameters show "—", as `ALGORITHMS.md` §0.1 now defines for curves that never reach a 20 % rise.
 - **Tractography (10).** Bundles are the corpus callosum (R–L) and a left posterior A–P bundle. The notice explains that left corticospinal seeds give no fibers because the tract runs through-plane on 5 mm slices.
 - **Law check.** No layout changed; all ten laws keep their previous marks. Smaller ROIs on the 128-matrix (DCE rim ROI 10 voxels) are still legible because outlines are 2 px and labelled.
+
+### 2. DSC units follow the method (DSC-017)
+
+- **03, 02, 16–18, 23, 24.** These screens run Model-free, so relCBV and relCBF are relative: a.u. in the table columns, ratio rows, map overlay, window, colour bar (relCBV 0–150, relCBF 0–20 a.u.) and the Generate series list. The region table header says "Model-free · relative units (a.u.)", so the unit change is explained where the numbers are. MTT, TTP and T0 stay in seconds.
+- **04, 05.** Manual AIF with deconvolution: these are the only places where ml/100 g and ml/100 g/min may appear.
+- **17 Settings.** LUT defaults list relCBV and relCBF twice: Manual AIF (0–8 ml/100 g, 0–80 ml/100 g/min) and other methods (0 to the 99th percentile, a.u.).
+- **23 DSC report.** The table, key-image captions and colour bars use a.u. The method line now says that model-free values are relative and that ml/100 g needs Manual AIF deconvolution.
+- **Law check.** Law 4 (units, map name, LUT bar, window) is now correct per method; all other marks are unchanged.

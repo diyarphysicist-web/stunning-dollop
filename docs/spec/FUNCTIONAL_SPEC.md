@@ -221,6 +221,7 @@ Out of scope: cardiac, cartilage, liver, breast, prostate and muscle workflows. 
 - **DSC-014** Leakage correction (Boxerman–Schmainda–Weisskoff): reference curve = mean ΔR2* of non-enhancing brain voxels inside the mask; per voxel, linear least squares fits K1 (bolus scaling, typically 0–2) and K2 [1/min] (leakage; positive when T1 effects dominate, negative when T2* effects dominate). Outputs relCBVuncorr, relCBVcorr, K1, K2.
 - **DSC-015** Leakage advanced maps (More → Advanced maps): R² goodness of fit and the reference-voxel mask.
 - **DSC-016** A contextual notice for deconvolution states that results depend on model assumptions and can over- or under-estimate true perfusion.
+- **DSC-017** Units follow the method. Gamma variate, Model-free and Leakage correction have no arterial input, so relCBV and relCBF (and every value derived from them, such as ratios' inputs, map windows, colour bars, table columns, saved series and reports) are in arbitrary units [a.u.]; MTT, TTP and T0 stay in seconds and ratios are unitless. ml/100 g and ml/100 g/min appear only for Manual AIF (deconvolution, DSC-013). Changing the method changes the units shown everywhere at once, and the region table names the method and its units in its header.
 
 ### 4.3 Define AIF workspace
 

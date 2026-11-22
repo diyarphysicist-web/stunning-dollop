@@ -59,13 +59,13 @@ Model on the first pass: C(t) = K·(t − T0)^α·exp(−(t − T0)/β) for t > 
 
 - relCBV = ∫C dt = K·β^(α+1)·Γ(α+1) (analytic).
 - MTT = ∫(t − T0)·C dt / ∫C dt = β·(α + 1) (analytic first moment from arrival).
-- TTP = T0 + α·β; relCBF = relCBV / MTT.
+- TTP = T0 + α·β; relCBF = relCBV / MTT. relCBV and relCBF are in a.u. (DSC-017); only deconvolution with an AIF (§2.5) gives ml/100 g and ml/100 g/min.
 
 References: Thompson et al., Circ Res 1964;14:502–515. Davenport, J Nucl Med 1983;24:945–948. Benner et al., Magn Reson Imaging 1997;15:307–317. Belliveau et al., Magn Reson Med 1990;14:538–546.
 
 ### 2.3 Model-free (DSC-012)
 Front baseline as §0.1; tail baseline = mean of ΔR2* after recirculation (last 20 % of dynamics); bolus window = [T0, T_end] where T_end is the first post-peak dynamic where ΔR2* returns within 3·SD of the tail baseline. Integrals by trapezoid over the window after subtracting a linear baseline joining front and tail levels.
-- relCBV = ∫C dt; MTT = ∫(t − T0)·C dt / ∫C dt; relCBF = relCBV / MTT; TTP at max C.
+- relCBV = ∫C dt; MTT = ∫(t − T0)·C dt / ∫C dt; relCBF = relCBV / MTT; TTP at max C. relCBV and relCBF are in a.u. (DSC-017).
 
 Reference: Meyer-Bäse et al., IEEE Trans Inf Technol Biomed 2007;11:563–573 (model-free time-series analysis).
 
