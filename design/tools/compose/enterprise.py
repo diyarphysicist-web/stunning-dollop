@@ -1,5 +1,6 @@
 """Compose batch 7 screens: sign-in, lock, role start view, multi-monitor, test pattern, licence,
 system, audit log, collect diagnostics, PDF report previews (DSC, Mismatch)."""
+import json
 import re
 import sys
 from pathlib import Path
@@ -8,6 +9,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from settings import HEAD, card, nav  # noqa: E402
 
 S = Path("design/screens")
+DATA = json.loads(Path("design/assets/data/phantom-data.json").read_text(encoding="utf-8"))
 DOC = """<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -94,7 +96,7 @@ start = '''<div class="app app--settings">
             <colgroup><col style="width:28%"><col style="width:16%"><col><col style="width:14%"></colgroup>
             <thead><tr><th>Patient</th><th>Study</th><th>Result (pre-processed)</th><th></th></tr></thead>
             <tbody>
-              <tr class="is-selected"><td class="strong mono">PHANTOM^SYNTHETIC</td><td>2026-01-01</td><td>Perfusion 6.7 ml · diffusion 1.9 ml · mismatch 4.8 ml <span class="chip chip--warning">Not reviewed</span></td><td><button class="btn btn--primary btn--dense">Open <span class="kbd">Enter</span></button></td></tr>
+              <tr class="is-selected"><td class="strong mono">PHANTOM^SYNTHETIC</td><td>2026-01-01</td><td>Perfusion 76.8 ml · diffusion 9.4 ml · mismatch 67.4 ml <span class="chip chip--warning">Not reviewed</span></td><td><button class="btn btn--primary btn--dense">Open <span class="kbd">Enter</span></button></td></tr>
             </tbody>
           </table>
           <span class="field__hint">Pre-processed in the background; open the case to review registration and segmentation before using the values.</span>''') + "\n" + card("Follow-up · comparison ready", '''          <table class="tbl">
@@ -352,21 +354,31 @@ def img(src: str, cap: str, lut: str = "", hi: str = "", lo: str = "", unit: str
 
 
 dsc_graph = re.search(r'<svg class="graph".*?</svg>', (S / "03-dsc-perfusion.html").read_text(encoding="utf-8"), re.S).group(0)
+DSC, MM = DATA["dsc"], DATA["dti"]["mismatch"]
+_T = DSC["table"]
+
+
+def _dsc_row(key: str, name: str) -> str:
+    r = _T[key]
+    return (f'<tr><td>{name}</td><td class="num">{r["relCBV"]:.2f}</td><td class="num">{r["relCBF"]:.1f}</td>'
+            f'<td class="num">{r["MTT"]:.2f}</td><td class="num">{r["TTP"]:.1f}</td><td class="num">{r["T0"]:.1f}</td></tr>')
+
+
+DSC_ROWS = "\n        ".join(_dsc_row(k, n) for k, n in (("roi1", "ROI1"), ("roi1_mirror", "ROI1-mirror"), ("roi2", "ROI2")))
+DSC_RATIO = "".join(f'<td class="num"><b>{_T["roi1"][k] / _T["roi1_mirror"][k]:.2f}</b></td>' for k in ("relCBV", "relCBF", "MTT"))
 dsc_paper = f'''    <article class="paper" aria-label="DSC report page 1">
       <div class="paper__head"><div><h1>DSC Neuro Perfusion</h1><span class="p2">Demonstration site · Neuroradiology</span></div><div class="p2" style="text-align: right">Analysis 2026-11-22 14:05<br>NeuroMR-PRO 1.0.0-dev</div></div>
 {IDS}
-      <h2>Key images · slice 3/4</h2>
-      <div class="paper__imgs">{img("dsc_source_peak.png", "Source · dyn 9/60")}{img("dsc_relcbv.png", "relCBV [ml/100 g] · Stroke 0–12", "stroke", "12", "0", "ml/100 g")}{img("dsc_relcbf.png", "relCBF [ml/100 g/min] · Stroke 0–80", "stroke", "80", "0", "ml/100 g/min")}</div>
+      <h2>Key images · slice {DSC["slice"]}/{DSC["slices"]}</h2>
+      <div class="paper__imgs">{img("dsc_source_peak.png", f"Source · dyn {DSC['peak_dynamic']}/{DSC['dynamics']}")}{img("dsc_relcbv.png", "relCBV [ml/100 g] · Stroke 0–8", "stroke", "8", "0", "ml/100 g")}{img("dsc_relcbf.png", "relCBF [ml/100 g/min] · Stroke 0–80", "stroke", "80", "0", "ml/100 g/min")}</div>
       <h2>Region parameters</h2>
       <table class="ptbl"><thead><tr><th>ROI</th><th class="num">relCBV [ml/100 g]</th><th class="num">relCBF [ml/100 g/min]</th><th class="num">MTT [s]</th><th class="num">TTP [s]</th><th class="num">T0 [s]</th></tr></thead>
-        <tbody><tr><td>ROI1</td><td class="num">1.48</td><td class="num">14.0</td><td class="num">6.58</td><td class="num">29.4</td><td class="num">23.1</td></tr>
-        <tr><td>ROI1-mirror</td><td class="num">3.42</td><td class="num">42.5</td><td class="num">4.40</td><td class="num">16.8</td><td class="num">14.7</td></tr>
-        <tr><td>ROI2</td><td class="num">3.83</td><td class="num">37.8</td><td class="num">5.55</td><td class="num">16.8</td><td class="num">14.7</td></tr>
-        <tr><td><b>ROI1 / mirror</b></td><td class="num"><b>0.43</b></td><td class="num"><b>0.33</b></td><td class="num"><b>1.50</b></td><td></td><td></td></tr></tbody></table>
+        <tbody>{DSC_ROWS}
+        <tr><td><b>ROI1 / mirror</b></td>{DSC_RATIO}<td></td><td></td></tr></tbody></table>
       <h2>Concentration-time curves</h2>
       <div class="paper__graph">{dsc_graph}</div>
       <h2>Method</h2>
-      <p>Model-free analysis of ΔR2*(t) from DSC perf SNR50 (60 dynamics, TR 2.1 s, TE 30 ms); automatic AIF; no spatial or temporal smoothing. Perfusion values depend on acquisition and method; compare follow-ups with the same method.</p>
+      <p>Model-free analysis of ΔR2*(t) from DSC perf SNR50 ({DSC['dynamics']} dynamics, TR {DSC['tr_s']} s, TE {DSC['te_ms']:g} ms); automatic AIF; no spatial or temporal smoothing. Perfusion values depend on acquisition and method; compare follow-ups with the same method.</p>
       <div class="paper__foot"><span>PHANTOM^SYNTHETIC · NMR-PHANTOM-001 · 2026-01-01</span><span>Default settings · page 1 of 1</span></div>
     </article>'''
 report("23-report-dsc", "Report · DSC", "DSC Neuro Perfusion", ["Key images", "Region parameters and ratios", "Concentration-time graph", "Method summary"], dsc_paper)
@@ -375,13 +387,13 @@ mm_paper = f'''    <article class="paper" aria-label="Mismatch report page 1">
       <div class="paper__head"><div><h1>Diffusion–Perfusion Mismatch</h1><span class="p2">Demonstration site · Neuroradiology</span></div><div class="p2" style="text-align: right">Analysis 2026-11-22 14:05<br>NeuroMR-PRO 1.0.0-dev</div></div>
 {IDS}
       <h2>Key images</h2>
-      <div class="paper__imgs">{img("mismatch_core_on_adc.png", "Core on ADC · slice 2/2 · ADC < 620 ×10⁻⁶ mm²/s")}{img("mismatch_deficit_on_tmax.png", "Deficit on Tmax · slice 3/4 · Tmax > 6.0 s")}{img("mismatch_penumbra_on_b0.png", "Core (fill) and penumbra (hatched) on DWI b0")}</div>
+      <div class="paper__imgs">{img("mismatch_core_on_adc.png", f"Core on ADC · slice {DATA['dti']['slice']}/{DATA['dti']['slices']} · ADC < 620 ×10⁻⁶ mm²/s")}{img("mismatch_deficit_on_tmax.png", f"Deficit on Tmax · slice {DSC['slice']}/{DSC['slices']} · Tmax > 6.0 s")}{img("mismatch_penumbra_on_b0.png", "Core (fill) and penumbra (hatched) on DWI b0")}</div>
       <h2>Volumes</h2>
       <table class="ptbl"><thead><tr><th>Measure</th><th class="num">Value</th><th>Unit</th></tr></thead>
-        <tbody><tr><td>Perfusion volume (Tmax &gt; 6.0 s)</td><td class="num">6.7</td><td>ml</td></tr>
-        <tr><td>Diffusion volume (ADC &lt; 620 ×10⁻⁶ mm²/s)</td><td class="num">1.9</td><td>ml</td></tr>
-        <tr><td>Mismatch volume</td><td class="num">4.8</td><td>ml</td></tr>
-        <tr><td><b>Mismatch ratio (perfusion − diffusion) / perfusion</b></td><td class="num"><b>72.1</b></td><td>%</td></tr></tbody></table>
+        <tbody><tr><td>Perfusion volume (Tmax &gt; 6.0 s)</td><td class="num">{MM["perfusion_ml"]:.1f}</td><td>ml</td></tr>
+        <tr><td>Diffusion volume (ADC &lt; 620 ×10⁻⁶ mm²/s)</td><td class="num">{MM["diffusion_ml"]:.1f}</td><td>ml</td></tr>
+        <tr><td>Mismatch volume</td><td class="num">{MM["mismatch_ml"]:.1f}</td><td>ml</td></tr>
+        <tr><td><b>Mismatch ratio (perfusion − diffusion) / perfusion</b></td><td class="num"><b>{MM["ratio_pct"]:.1f}</b></td><td>%</td></tr></tbody></table>
       <h2>Method</h2>
       <p>Automatic seed-point segmentation with default thresholds. Perfusion dynamic 1 registered rigidly to the DWI b0 (local correlation). <b>Registration not reviewed by the user.</b> Tmax from Manual AIF deconvolution.</p>
       <p><b>Decision support only — not a stand-alone basis for selecting acute stroke treatment.</b></p>

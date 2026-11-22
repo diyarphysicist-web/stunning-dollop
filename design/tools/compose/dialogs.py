@@ -70,7 +70,7 @@ tables = f'''  <div class="scrim" data-od-id="save-tables">
           <colgroup><col><col style="width:22%"><col style="width:26%"></colgroup>
           <thead><tr><th>Table</th><th class="num">Rows</th><th>File</th></tr></thead>
           <tbody>
-            <tr><td>Region parameters · slice 3/4</td><td class="num">3</td><td class="mono">regions.csv</td></tr>
+            <tr><td>Region parameters · slice 4/8</td><td class="num">3</td><td class="mono">regions.csv</td></tr>
             <tr><td>Ratio ROI1 / ROI1-mirror</td><td class="num">3</td><td class="mono">ratios.csv</td></tr>
             <tr><td>ROI dynamic values · ΔR2*</td><td class="num">60</td><td class="mono">curves.csv</td></tr>
             <tr><td>Graph · concentration-time</td><td class="num">—</td><td class="mono">graph.png</td></tr>

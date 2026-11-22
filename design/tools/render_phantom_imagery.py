@@ -12,20 +12,18 @@ algorithms), and writes:
 LUT control points and palettes are parsed from packages/viewer/src/luts/index.ts so the
 design and the app share one source of data colours.
 
-Design-only lesion: the Phase 0 DSC and DTI phantoms have no delayed or restricted
-region, so a faithful Tmax map is flat and the mismatch volume is zero. To show the
-DSC and Mismatch screens in their working state, this renderer adds one synthetic
-right-hemisphere lesion to the loaded phantom arrays (never to the files on disk):
-DSC curves inside a 22 mm disc get ΔR2* × 0.5 and a 4-dynamic bolus delay; DTI
-signal inside an 11 mm disc at the same centre gets ADC × 0.45. The validated stroke
-phantom arrives with the Mismatch package (Phase 3).
+Source: the anatomical brain phantom (scripts/make_phantoms.py --only brain, folders brain_*):
+one skull-stripped head with GM, WM, CSF and ventricles, a right-MCA stroke (core and delayed,
+hypoperfused tissue), a left frontal enhancing tumour, MS-like lesions and task activation. Lesions,
+deficits and ROIs come from the phantom's truth and the maps computed here, never from shapes
+painted onto the images. Perfusion and mismatch volumes are measured over all slices.
 
-Design-only misalignment: the only 3D volumes in Phase 0 are the FLAIR baseline and
-follow-up (64 × 64 × 32, 1 mm). The co-registration screen fuses the follow-up (input)
+Design-only misalignment: the 3D volumes are the FLAIR baseline and follow-up
+(128 × 128 × 96, 1.5 mm). The co-registration screen fuses the follow-up (input)
 onto the baseline (reference) after applying a known residual rigid offset
 (COREG_RESIDUAL_*) so that the review state has something to correct.
 
-Echo Accumulation reads the multi_echo_gre phantom (4 echoes). FLAIR* reads the swi_epi phantom
+Echo Accumulation reads the brain multi-echo GRE (4 echoes). FLAIR* reads the brain SWI/EPI
 with the baseline FLAIR: the SWI/EPI is registered to the FLAIR by an in-plane rigid search
 (a design preview of the engine registration), both are normalised by their 99th percentile in
 the brain, and the product is shown in three planes around lesion L1.
@@ -46,23 +44,17 @@ from scipy import ndimage
 ROOT = Path(__file__).resolve().parents[2]
 UPSAMPLE_TO = 512
 
-LESION_CENTRE_MM = (-30.0, 0.0)  # (x, y) from image centre; patient right
-DEFICIT_RADIUS_MM = 22.0
-CORE_RADIUS_MM = 11.0
-LESION_DELAY_DYN = 4
-LESION_DR2_SCALE = 0.5
-CORE_ADC_SCALE = 0.45
 COREG_RESIDUAL_SHIFT_MM = (0.0, -1.5, 2.5)  # (z, y, x)
 COREG_RESIDUAL_ROT_DEG = 2.0  # about the z axis
 
 
-def disc(shape: tuple[int, int], pixel_mm: float, radius_mm: float) -> np.ndarray:
-    ny, nx = shape
-    yy, xx = np.mgrid[0:ny, 0:nx]
-    x = (xx - (nx - 1) / 2) * pixel_mm
-    y = (yy - (ny - 1) / 2) * pixel_mm
-    return (x - LESION_CENTRE_MM[0]) ** 2 + (y - LESION_CENTRE_MM[1]) ** 2 <= radius_mm**2
-
+def pad_square(a: np.ndarray) -> np.ndarray:
+    """Pad a 2D image with zeros to a centred square."""
+    n = max(a.shape)
+    out = np.zeros((n, n), a.dtype)
+    y0, x0 = (n - a.shape[0]) // 2, (n - a.shape[1]) // 2
+    out[y0 : y0 + a.shape[0], x0 : x0 + a.shape[1]] = a
+    return out
 
 
 # ── LUTs from the viewer package ──────────────────────────────────────────────
@@ -210,31 +202,35 @@ def dsc_params(c: np.ndarray, times: np.ndarray) -> dict[str, float]:
     return {"area": area, "mtt": mtt, "t0": t0, "ttp": float(times[np.argmax(c)])}
 
 
+def mm_box(shape: tuple[int, int], px: float, x_mm: float, y_mm: float, h: int, w: int) -> list[int]:
+    """Voxel box [y0, y1, x0, x1] of h × w voxels centred on (x, y) [mm] from the image centre."""
+    ny, nx = shape
+    cy = int(round((ny - 1) / 2 + y_mm / px))
+    cx = int(round((nx - 1) / 2 + x_mm / px))
+    return [cy - h // 2, cy - h // 2 + h, cx - w // 2, cx - w // 2 + w]
+
+
 def dsc(ph: Path, img: Path, data: dict, luts: dict[str, np.ndarray]) -> None:
-    arr, ds = load_series(ph / "dsc_snr50_tr2.1" / "dicom")
+    arr, ds = load_series(ph / "brain_dsc" / "dicom")
+    truth = np.load(ph / "brain_dsc" / "truth.npz")
     te = float(ds[0].EchoTime) / 1000.0
     nz, ny, nx = arr.shape[1:]
     px = float(ds[0].PixelSpacing[0])
     times = np.array([float(d.TriggerTime) / 1000.0 for d in ds[::nz]])
     n, dt = len(times), float(times[1] - times[0])
     s0 = arr[:5].mean(0)
-    mask = s0 > 0.25 * s0.max()
-    # design-only lesion (see module docstring)
-    lesion = disc((ny, nx), px, DEFICIT_RADIUS_MM)
-    for zz in range(nz):
-        les = lesion & mask[zz]
-        sig = arr[:, zz][:, les]
-        base = s0[zz][les]
-        sig = base * np.power(np.clip(sig / base, 1e-6, None), LESION_DR2_SCALE)
-        sig = np.concatenate([np.repeat(sig[:1], LESION_DELAY_DYN, 0), sig[:-LESION_DELAY_DYN]], 0)
-        arr[:, zz][:, les] = sig
+    mask = s0 > 0.15 * np.percentile(s0, 99)
+    labels = truth["labels"]
+    tissue3 = mask & (labels >= 2) & (labels <= 7)  # GM and WM incl. the stroke, no CSF or artery
     with np.errstate(divide="ignore", invalid="ignore"):
         dr2 = np.where(mask, -np.log(np.clip(arr, 1e-6, None) / np.clip(s0, 1e-6, None)) / te, 0.0)
     dr2 = dr2 - dr2[:5].mean(0)
-    z = nz // 2
-    m = mask[z]
-    # voxel maps: 3×3 display smoothing of the curves, then the same moments
-    sm = ndimage.uniform_filter(dr2[:, z], size=(1, 3, 3))
+    z = int(truth["display_slice"])
+    # perfused tissue: a first-pass bolus well above noise (CSF and background have none)
+    peak = ndimage.uniform_filter(dr2[:, z], size=(1, 3, 3)).max(0)
+    m = mask[z] & (peak > 0.25 * np.median(peak[mask[z]]))
+    # voxel maps: 5×5 display smoothing of the curves, then model-free moments (DSC-012)
+    sm = ndimage.uniform_filter(dr2[:, z], size=(1, 5, 5))
     area = np.zeros((ny, nx))
     mtt = np.zeros((ny, nx))
     t0 = np.zeros((ny, nx))
@@ -242,8 +238,7 @@ def dsc(ph: Path, img: Path, data: dict, luts: dict[str, np.ndarray]) -> None:
     for iy, ix in zip(*np.nonzero(m), strict=True):
         p = dsc_params(sm[:, iy, ix], times)
         area[iy, ix], mtt[iy, ix], t0[iy, ix], ttp[iy, ix] = p["area"], p["mtt"], p["t0"], p["ttp"]
-    # block-circulant SVD deconvolution with the phantom's AIF (Tmax preview)
-    truth = np.load(ph / "dsc_snr50_tr2.1" / "truth.npz")
+    # block-circulant SVD deconvolution with the phantom's AIF (Tmax and relCBF previews)
     aif = truth["aif_dr2"]
     npad = 2 * n
     a = np.concatenate([aif, np.zeros(npad - n)])
@@ -254,14 +249,14 @@ def dsc(ph: Path, img: Path, data: dict, luts: dict[str, np.ndarray]) -> None:
     def residue(curves: np.ndarray) -> np.ndarray:
         return inv @ np.concatenate([curves, np.zeros((npad - n, curves.shape[1]))])
 
-    sm5 = ndimage.uniform_filter(dr2[:, z], size=(1, 5, 5))
-    res = residue(sm5.reshape(n, -1))
-    tmax = np.where(m, (np.argmax(res[:n], 0) * dt).reshape(ny, nx), 0)
-    cbf_raw = res[:n].max(0).reshape(ny, nx)
-    # scale to the phantom's absolute truth using the healthy-tissue median (display units)
-    healthy = m & ~lesion
-    cbv_scale = np.median(truth["cbv"]) / np.median(area[healthy])
-    cbf_scale = np.median(truth["cbf"]) / np.median(cbf_raw[healthy])
+    res_all = residue(ndimage.uniform_filter(dr2, size=(1, 1, 5, 5)).reshape(n, -1))[:n]
+    tmax3 = np.where(mask, (np.argmax(res_all, 0) * dt).reshape(nz, ny, nx), 0)
+    tmax = tmax3[z]
+    cbf_raw = res_all.max(0).reshape(nz, ny, nx)[z]
+    # absolute scale (Manual AIF + deconvolution only, DSC-013): healthy cortex = phantom GM truth
+    gm = m & (labels[z] == 2) & (area > 0)
+    cbv_scale = float(truth["cbv"][2]) / float(np.median(area[gm]))
+    cbf_scale = float(truth["cbf"][2]) / float(np.median(cbf_raw[gm]))
     rel_cbv = np.where(m, area * cbv_scale, 0)
     rel_cbf = np.where(m, cbf_raw * cbf_scale, 0)
 
@@ -271,7 +266,7 @@ def dsc(ph: Path, img: Path, data: dict, luts: dict[str, np.ndarray]) -> None:
     save_gray(img / "dsc_source_peak.png", arr[pk_dyn, z], glo, ghi)
     windows["source"] = [r(glo, 1), r(ghi, 1)]
     for name, mp, lo, hi, lut in (
-        ("relcbv", rel_cbv, 0.0, 12.0, "stroke"),
+        ("relcbv", rel_cbv, 0.0, 8.0, "stroke"),
         ("relcbf", rel_cbf, 0.0, 80.0, "stroke"),
         ("mtt", mtt, 0.0, 14.0, "blueToRed"),
         ("ttp", ttp, 10.0, 40.0, "blueToRed"),
@@ -281,19 +276,27 @@ def dsc(ph: Path, img: Path, data: dict, luts: dict[str, np.ndarray]) -> None:
         save_map(img / f"dsc_{name}.png", mp, m, luts[lut], lo, hi)
         save_map(img / f"dsc_{name}_overlay.png", mp, m, luts[lut], lo, hi, alpha=True)
         windows[name] = [r(lo, 2), r(hi, 2)]
-    save_gray(img / "dsc_relcbv_gray.png", rel_cbv, 0, 12)
+    save_gray(img / "dsc_relcbv_gray.png", rel_cbv, 0, 8)
 
-    # ROIs in voxel boxes: ROI1 inside the lesion, its mirror, ROI2 healthy
-    cxl = int(round((nx - 1) / 2 + LESION_CENTRE_MM[0] / px))
-    cy = int(round((ny - 1) / 2 + LESION_CENTRE_MM[1] / px))
+    # ROIs: ROI1 on the hypoperfused region, its mirror, ROI2 in healthy left parieto-occipital tissue
+    lz = labels[z]
+    yy, xx = np.nonzero((lz >= 4) & (lz <= 7))
+    cy_mm = (yy.mean() - (ny - 1) / 2) * px
+    cx_mm = (xx.mean() - (nx - 1) / 2) * px
     boxes = {
-        "roi1": [cy - 5, cy + 5, cxl - 4, cxl + 4],
-        "roi1_mirror": [cy - 5, cy + 5, nx - 1 - (cxl + 4), nx - 1 - (cxl - 4)],
-        "roi2": [cy - 20, cy - 14, (nx - 1) // 2 - 4, (nx - 1) // 2 + 4],
+        "roi1": mm_box((ny, nx), px, cx_mm, cy_mm, 14, 10),
+        "roi1_mirror": mm_box((ny, nx), px, -cx_mm, cy_mm, 14, 10),
+        "roi2": mm_box((ny, nx), px, 24.0, 34.0, 8, 12),
     }
 
+    def ellipse(b: list[int]) -> np.ndarray:
+        """Elliptical ROI inscribed in the voxel box [y0, y1, x0, x1]."""
+        yy, xx = np.mgrid[0:ny, 0:nx]
+        cy, cx = (b[0] + b[1] - 1) / 2, (b[2] + b[3] - 1) / 2
+        return ((yy - cy) / ((b[1] - b[0]) / 2)) ** 2 + ((xx - cx) / ((b[3] - b[2]) / 2)) ** 2 <= 1
+
     def roi_curve(b: list[int]) -> np.ndarray:
-        return dr2[:, z, b[0] : b[1], b[2] : b[3]].mean((1, 2))
+        return dr2[:, z][:, ellipse(b)].mean(1)
 
     table = {}
     curves = {"times_s": [r(t, 2) for t in times], "aif_truth": [r(v, 3) for v in aif]}
@@ -304,20 +307,25 @@ def dsc(ph: Path, img: Path, data: dict, luts: dict[str, np.ndarray]) -> None:
         table[key] = {
             "relCBV": r(p["area"] * cbv_scale, 2),
             "relCBF": r(rr.max() * cbf_scale, 1),
+            "relCBV_au": r(p["area"], 1),
+            "relCBF_au": r(p["area"] / max(p["mtt"], 1e-9), 2),
             "MTT": r(p["mtt"], 2),
             "TTP": r(p["ttp"], 1),
             "T0": r(p["t0"], 1),
             "Tmax": r(np.argmax(rr) * dt, 1),
-            "voxels": int((b[1] - b[0]) * (b[3] - b[2])),
+            "voxels": int(ellipse(b).sum()),
         }
         curves[key] = [r(v, 3) for v in c]
-    curves["signal_roi1"] = [r(v, 1) for v in arr[:, z, boxes["roi1"][0] : boxes["roi1"][1], boxes["roi1"][2] : boxes["roi1"][3]].mean((1, 2))]
-    # 7×7 AIF box: brightest early-peaking healthy region of the mid slice
-    pk = np.where(healthy, dr2[:, z].max(0), 0)
-    by, bx = np.unravel_index(np.argmax(ndimage.uniform_filter(pk, 7)), pk.shape)
+    curves["signal_roi1"] = [r(v, 1) for v in arr[:, z][:, ellipse(boxes["roi1"])].mean(1)]
+    # 7×7 AIF box centred on the strongest early, narrow arterial curve outside the hypoperfused region
+    pk = dr2[:, z].max(0)
+    early = np.argmax(dr2[:, z], 0) <= np.argmax(aif) + 1
+    cand = np.where(m & early & ~((lz >= 4) & (lz <= 7)), pk, 0)
+    by, bx = np.unravel_index(np.argmax(cand), cand.shape)
     by, bx = int(np.clip(by, 3, ny - 4)), int(np.clip(bx, 3, nx - 4))
     box = dr2[:, z, by - 3 : by + 4, bx - 3 : bx + 4]
     selected = sorted(int(i) for i in np.argsort(box.max(0).ravel())[-6:])
+    vox_ml = px * px * float(ds[0].SliceThickness) / 1000.0
     data["dsc"] = {
         "slice": z + 1,
         "slices": nz,
@@ -325,9 +333,12 @@ def dsc(ph: Path, img: Path, data: dict, luts: dict[str, np.ndarray]) -> None:
         "tr_s": r(dt, 2),
         "te_ms": r(te * 1000, 1),
         "pixel_mm": r(px, 2),
+        "slice_mm": r(float(ds[0].SliceThickness), 1),
         "matrix": [ny, nx],
         "peak_dynamic": pk_dyn + 1,
         "windows": windows,
+        "au_per_ml_cbv": r(1 / cbv_scale, 2),
+        "au_per_ml_cbf": r(1 / cbf_scale, 4),
         "curves": curves,
         "table": table,
         "roi_boxes_vox": boxes,
@@ -337,58 +348,61 @@ def dsc(ph: Path, img: Path, data: dict, luts: dict[str, np.ndarray]) -> None:
             "selected": selected,
             "average": [r(v, 3) for v in box.reshape(n, 49)[:, selected].mean(1)],
         },
-        "lesion": {"centre_mm": list(LESION_CENTRE_MM), "deficit_radius_mm": DEFICIT_RADIUS_MM, "core_radius_mm": CORE_RADIUS_MM},
+        "truth": {k: [r(v, 2) for v in truth[k]] for k in ("cbf", "cbv", "mtt", "delay")},
     }
-    deficit = ndimage.binary_opening((tmax > 6.0) & m, iterations=2)
-    lab, nlab = ndimage.label(deficit)
+    # Tmax > 6 s deficit in tissue (all slices), largest connected component
+    deficit3 = ndimage.binary_opening((tmax3 > 6.0) & tissue3, structure=np.ones((1, 3, 3)), iterations=1)
+    lab3, nlab = ndimage.label(deficit3)
     if nlab:
-        deficit = lab == (1 + int(np.argmax(ndimage.sum(deficit, lab, range(1, nlab + 1)))))
-    np.save(img.parent / "data" / "_deficit.npy", deficit)
-    np.save(img.parent / "data" / "_deficit_px.npy", np.array([px]))
+        deficit3 = lab3 == (1 + int(np.argmax(ndimage.sum(deficit3, lab3, range(1, nlab + 1)))))
+    deficit = deficit3[z]
+    np.save(img.parent / "data" / "_deficit.npy", deficit3)
+    np.save(img.parent / "data" / "_deficit_px.npy", np.array([px, vox_ml]))
     save_overlay_on_gray(img / "dsc_tmax_on_source.png", arr[0, z], glo, ghi, tmax, deficit, luts["stroke"], 0, 12, 0.7)
-    # Mismatch perfusion viewer: Tmax map with the segmented deficit (light fill + outline)
     tmax_rgb = np.repeat(window(up(tmax), 0, 12)[..., None] * 255, 3, axis=2)
     Image.fromarray(segmentation_overlay(tmax_rgb, deficit, PALETTE["deficit"], 0.35), "RGB").save(img / "mismatch_deficit_on_tmax.png")
     mir = deficit[:, ::-1] & ~deficit & m
     data["dsc"]["mismatch"] = {
         "deficit_seed_px": seed_px(deficit),
         "deficit_voxels_slice": int(deficit.sum()),
+        "deficit_ml": r(float(deficit3.sum()) * vox_ml, 1),
         "signal_deficit": [r(v, 1) for v in arr[:, z][:, deficit].mean(1)],
         "signal_contra": [r(v, 1) for v in arr[:, z][:, mir].mean(1)],
     }
 
 
 # ── DTI / diffusion ───────────────────────────────────────────────────────────
+TRK_SLICE = 6  # DTI slice (z 24.5 mm) through the corpus callosum body and the corticospinal tracts beside it
+
+
 def dti(ph: Path, img: Path, data: dict, luts: dict[str, np.ndarray], mm: dict[str, str]) -> None:
-    arr, ds = load_series(ph / "dti_32dir_snr30.0" / "dicom")
-    nz = arr.shape[1]
+    arr, ds = load_series(ph / "brain_dti_32dir" / "dicom")
+    truth = np.load(ph / "brain_dti_32dir" / "truth.npz")
+    nz, ny, nx = arr.shape[1:]
     hdr = ds[::nz]
     bvals = np.array([float(d.DiffusionBValue) for d in hdr])
     bvecs = np.array([[float(v) for v in d.DiffusionGradientOrientation] if "DiffusionGradientOrientation" in d else [0, 0, 0] for d in hdr])
-    z = nz // 2
-    s = np.clip(arr[:, z], 1e-3, None)
-    b0 = s[bvals == 0].mean(0)
-    mask = b0 > 0.25 * b0.max()
+    z = int(truth["display_slice"])
     px = float(ds[0].PixelSpacing[0])
-    core_disc = disc(b0.shape, px, CORE_RADIUS_MM) & mask  # design-only core (module docstring)
-    s[:, core_disc] = b0[core_disc] * np.power(np.clip(s[:, core_disc] / b0[core_disc], 1e-6, None), CORE_ADC_SCALE)
+    s3 = np.clip(arr, 1e-3, None)
+    b03 = s3[bvals == 0].mean(0)
+    mask3 = b03 > 0.15 * np.percentile(b03, 99)
     g = bvecs
     design = np.column_stack([np.ones(len(bvals)), -bvals * g[:, 0] ** 2, -bvals * g[:, 1] ** 2, -bvals * g[:, 2] ** 2,
                               -2 * bvals * g[:, 0] * g[:, 1], -2 * bvals * g[:, 0] * g[:, 2], -2 * bvals * g[:, 1] * g[:, 2]])
-    y = np.log(s.reshape(len(bvals), -1))
-    coef, *_ = np.linalg.lstsq(design, y, rcond=None)
+    coef, *_ = np.linalg.lstsq(design, np.log(s3.reshape(len(bvals), -1)), rcond=None)
     dxx, dyy, dzz, dxy, dxz, dyz = coef[1:]
     tens = np.stack([np.stack([dxx, dxy, dxz], -1), np.stack([dxy, dyy, dyz], -1), np.stack([dxz, dyz, dzz], -1)], -2)
     ev, evec = np.linalg.eigh(tens)
     ev = np.clip(ev[:, ::-1], 0, None)
-    e1 = evec[:, :, -1]
-    md = ev.mean(1)
+    e1_3 = evec[:, :, -1].reshape(nz, ny, nx, 3)
+    md3 = ev.mean(1).reshape(nz, ny, nx) * mask3
     with np.errstate(divide="ignore", invalid="ignore"):
-        fa = np.sqrt(1.5 * ((ev - md[:, None]) ** 2).sum(1) / np.maximum((ev**2).sum(1), 1e-20))
-        ra = np.sqrt(((ev - md[:, None]) ** 2).sum(1) / 3) / np.maximum(md, 1e-20)
-    shp = b0.shape
-    fa, md, ra = fa.reshape(shp) * mask, md.reshape(shp) * mask, ra.reshape(shp) * mask
-    ad, rd = ev[:, 0].reshape(shp) * mask, ev[:, 1:].mean(1).reshape(shp) * mask
+        fa3 = np.sqrt(1.5 * ((ev - ev.mean(1)[:, None]) ** 2).sum(1) / np.maximum((ev**2).sum(1), 1e-20)).reshape(nz, ny, nx) * mask3
+        ra3 = (np.sqrt(((ev - ev.mean(1)[:, None]) ** 2).sum(1) / 3) / np.maximum(ev.mean(1), 1e-20)).reshape(nz, ny, nx) * mask3
+    ad3, rd3 = ev[:, 0].reshape(nz, ny, nx) * mask3, ev[:, 1:].mean(1).reshape(nz, ny, nx) * mask3
+    mask, b0, s = mask3[z], b03[z], s3[:, z]
+    fa, md, ra, ad, rd = fa3[z], md3[z], ra3[z], ad3[z], rd3[z]
     adc_e6 = md * 1e6
     bmax = bvals.max()
     dwi_iso = b0 * np.exp(-bmax * md)
@@ -402,20 +416,15 @@ def dti(ph: Path, img: Path, data: dict, luts: dict[str, np.ndarray], mm: dict[s
     save_gray(img / "dti_ad.png", ad * 1e6, 0, 3000)
     save_gray(img / "dti_rd.png", rd * 1e6, 0, 3000)
     save_gray(img / "dti_ra.png", ra, 0, 1.2)
-    DTI_CACHE.update(e1=e1.reshape(*shp, 3), fa=fa, adc_e6=md.reshape(shp) * 1e6 * mask, mask=mask, px=px)
-    col = np.abs(e1.reshape(*shp, 3)) * fa[..., None]
+    t = TRK_SLICE
+    DTI_CACHE.update(e1=e1_3[t], fa=fa3[t], adc_e6=md3[t] * 1e6, mask=mask3[t], labels=truth["labels"][t], px=px, z_mm=float(truth["slice_z_mm"][t]))
+    col = np.abs(e1_3[z]) * fa[..., None]
     Image.fromarray((np.clip(up(col, 0), 0, 1) * 255).astype(np.uint8), "RGB").save(img / "dti_fa_direction.png")
-    # Mismatch core: ADC < 620e-6 mm²/s inside brain; paired with DSC deficit
-    core = (adc_e6 < 620) & mask
-    d_src = np.load(img.parent / "data" / "_deficit.npy")
-    d_px = float(np.load(img.parent / "data" / "_deficit_px.npy")[0])
-    yy, xx = np.mgrid[0 : core.shape[0], 0 : core.shape[1]]
-    sy = np.round((yy - (core.shape[0] - 1) / 2) * px / d_px + (d_src.shape[0] - 1) / 2).astype(int)
-    sx = np.round((xx - (core.shape[1] - 1) / 2) * px / d_px + (d_src.shape[1] - 1) / 2).astype(int)
-    inside = (sy >= 0) & (sy < d_src.shape[0]) & (sx >= 0) & (sx < d_src.shape[1])
-    deficit = np.zeros_like(core)
-    deficit[inside] = d_src[sy[inside], sx[inside]]
-    deficit &= mask
+    # Mismatch core: ADC < 620e-6 mm²/s in brain tissue (all slices), paired with the DSC Tmax > 6 s deficit
+    tissue3 = mask3 & (truth["labels"] >= 2)
+    core3 = ndimage.binary_opening((md3 * 1e6 < 620) & tissue3, structure=np.ones((1, 3, 3)))
+    deficit3 = np.load(img.parent / "data" / "_deficit.npy") & mask3
+    core, deficit = core3[z], deficit3[z]
     g = window(up(b0), glo, ghi)[..., None] * 255
     cu = up(core.astype(float), 0) > 0.5
     du = up(deficit.astype(float), 0) > 0.5
@@ -426,23 +435,28 @@ def dti(ph: Path, img: Path, data: dict, luts: dict[str, np.ndarray], mm: dict[s
     out = np.where((pen & hatch)[..., None], 0.35 * out + 0.65 * hexrgb(mm["penumbra"]), out)
     out = np.where(cu[..., None], 0.35 * out + 0.65 * hexrgb(mm["core"]), out)
     Image.fromarray(out.astype(np.uint8), "RGB").save(img / "mismatch_penumbra_on_b0.png")
-    # Mismatch diffusion viewer: ADC map with the segmented core (light fill + outline)
     adc_rgb = np.repeat(window(up(adc_e6), 0, 3000)[..., None] * 255, 3, axis=2)
     Image.fromarray(segmentation_overlay(adc_rgb, core, PALETTE["core"], 0.35), "RGB").save(img / "mismatch_core_on_adc.png")
-    vox_ml = float(ds[0].PixelSpacing[0]) ** 2 * float(ds[0].SliceThickness) / 1000.0
-    perf_ml, diff_ml = float(deficit.sum()) * vox_ml * nz, float(core.sum()) * vox_ml * nz
-    truth = np.load(ph / "dti_32dir_snr30.0" / "truth.npz")
+    vox_ml = px**2 * float(ds[0].SliceThickness) / 1000.0
+    perf_ml, diff_ml = float(deficit3.sum()) * vox_ml, float(core3.sum()) * vox_ml
+    lab = truth["labels"][z]
+    inner = lambda k: ndimage.binary_erosion((lab == k) & mask)  # noqa: E731  (away from partial volume)
+    names = {"gm": 2, "wm_ap": 3, "wm_rl": 4, "wm_si": 5, "core": 6}
     data["dti"] = {
         "bvals": sorted({int(b) for b in bvals}),
         "directions": int((bvals > 0).sum()),
         "slices": nz,
         "slice": z + 1,
+        "slice_mm": r(float(ds[0].SliceThickness), 1),
         "matrix": [int(ds[0].Rows), int(ds[0].Columns)],
-        "pixel_mm": r(float(ds[0].PixelSpacing[0]), 2),
-        "fa_classes_truth": [r(v, 3) for v in truth["fa"]],
-        "class_centres_px": class_centres_px(np.where(mask, truth["labels"][z], -1)),
-        "fa_classes_measured": [r(fa[truth["labels"][z] == k].mean(), 3) for k in range(len(truth["fa"]))],
-        "adc_classes_e6": [r(adc_e6[truth["labels"][z] == k].mean(), 0) for k in range(len(truth["fa"]))],
+        "pixel_mm": r(px, 2),
+        "tissue": {k: {"fa_truth": r(truth["fa"][v], 3), "md_truth_e6": r(truth["md"][v] * 1e6, 0),
+                       "fa": r(fa[(lab == v) & mask].mean(), 3) if ((lab == v) & mask).any() else None,
+                       "adc_e6": r(adc_e6[(lab == v) & mask].mean(), 0) if ((lab == v) & mask).any() else None}
+                   for k, v in names.items()},
+        "csf_adc_e6": r(float(np.median(adc_e6[inner(1)])), 0),
+        "deep_gm_adc_e6": r(float(np.median(adc_e6[inner(2)])), 0),
+        "wm_adc_e6": r(float(np.median(adc_e6[inner(3)])), 0),
         "adc_window_e6": [0, 3000],
         "b0_window": [r(glo, 1), r(ghi, 1)],
         "mismatch": {
@@ -450,39 +464,57 @@ def dti(ph: Path, img: Path, data: dict, luts: dict[str, np.ndarray], mm: dict[s
             "diffusion_ml": r(diff_ml, 1),
             "mismatch_ml": r(perf_ml - diff_ml, 1),
             "ratio_pct": r(100 * (perf_ml - diff_ml) / max(perf_ml, 1e-9), 1),
+            "ratio": r(perf_ml / max(diff_ml, 1e-9), 2),
             "core_mean_adc_e6": r(adc_e6[core].mean() if core.any() else 0, 0),
             "core_seed_px": seed_px(core),
             "core_voxels_slice": int(core.sum()),
             "deficit_voxels_slice": int(deficit.sum()),
             "penumbra_mean_adc_e6": r(adc_e6[deficit & ~core].mean() if (deficit & ~core).any() else 0, 0),
+            "regions": {
+                name: {
+                    "slice_cm2": [r(float(m3[k].sum()) * px * px / 100.0, 2) for k in range(nz)],
+                    "ml": r(float(m3.sum()) * vox_ml, 1),
+                    "mean_adc_e6": r(float(md3[m3].mean()) * 1e6, 0) if m3.any() else 0,
+                }
+                for name, m3 in (("core", core3), ("deficit", deficit3), ("penumbra", deficit3 & ~core3))
+            },
         },
     }
 
 
 # ── Advanced diffusion (IVIM / DKI) ───────────────────────────────────────────
 def ivim(ph: Path, img: Path, data: dict, luts: dict[str, np.ndarray]) -> None:
-    arr, ds = load_series(ph / "ivim_dki" / "dicom")
+    arr, ds = load_series(ph / "brain_ivim_dki" / "dicom")
+    truth = np.load(ph / "brain_ivim_dki" / "truth.npz")
     nz = arr.shape[1]
     bvals = np.array([float(d.DiffusionBValue) for d in ds[::nz]])
-    z = nz // 2
+    z = int(truth["display_slice"])
     s = np.clip(arr[:, z], 1e-3, None)
-    mask = s[0] > 0.25 * s[0].max()
+    mask = s[0] > 0.15 * np.percentile(s[0], 99)
     hi = (bvals >= 200) & (bvals <= 1000)
     p = np.polyfit(bvals[hi], np.log(s[hi].reshape(hi.sum(), -1)), 1)
     d = np.clip(-p[0], 0, None).reshape(s.shape[1:]) * mask
     f = np.clip(1 - np.exp(p[1]).reshape(s.shape[1:]) / s[0], 0, 1) * mask
+    lab = np.clip(truth["labels"][z], 0, None)
     save_gray(img / "ivim_b0.png", s[0])
     save_map(img / "ivim_d.png", d * 1e6, mask, luts["blueToRed"], 0, 3000)
     save_map(img / "ivim_f.png", f * 100, mask, luts["blueToRed"], 0, 30)
-    truth = np.load(ph / "ivim_dki" / "truth.npz")
-    save_map(img / "ivim_dstar.png", np.where(mask, truth["dstar"][np.clip(truth["labels"][z], 0, None)] * 1e3, 0), mask, luts["blueToRed"], 0, 50)
-    save_map(img / "ivim_k.png", np.where(mask, truth["k"][np.clip(truth["labels"][z], 0, None)], 0), mask, luts["blueToRed"], 0, 2)
-    # cDWI at b = 1400 from the mono-exponential fit
+    save_map(img / "ivim_dstar.png", np.where(mask, truth["dstar"][lab] * 1e3, 0), mask, luts["blueToRed"], 0, 50)
+    save_map(img / "ivim_k.png", np.where(mask, truth["k"][lab], 0), mask, luts["blueToRed"], 0, 2)
     s0 = np.exp(p[1]).reshape(s.shape[1:])
     save_gray(img / "ivim_cdwi_b1400.png", s0 * np.exp(-1400 * d) * mask)
-    roi = (slice(16, 24), slice(8, 14))
+    # ROI1 on the stroke core (restricted diffusion), 6 × 6 voxels
+    yy, xx = np.nonzero(lab == 4)
+    cy, cx = int(round(yy.mean())), int(round(xx.mean()))
+    roi = (slice(cy - 3, cy + 3), slice(cx - 3, cx + 3))
     data["ivim"] = {
         "bvals": [int(b) for b in bvals],
+        "slice": z + 1,
+        "slices": nz,
+        "matrix": [int(ds[0].Rows), int(ds[0].Columns)],
+        "pixel_mm": r(float(ds[0].PixelSpacing[0]), 2),
+        "roi1_box_vox": [cy - 3, cy + 3, cx - 3, cx + 3],
+        "roi1_centre_px": [r((cx + 0.0) / s.shape[2] * UPSAMPLE_TO, 1), r((cy + 0.0) / s.shape[1] * UPSAMPLE_TO, 1)],
         "signal_roi1": [r(v, 1) for v in s[:, roi[0], roi[1]].mean((1, 2))],
         "fit": {"D_e6": r(d[roi].mean() * 1e6, 0), "f_pct": r(f[roi].mean() * 100, 1)},
         "truth": {k: [r(v, 5) for v in truth[k]] for k in ("d", "f", "dstar", "k")},
@@ -490,57 +522,89 @@ def ivim(ph: Path, img: Path, data: dict, luts: dict[str, np.ndarray]) -> None:
 
 
 # ── DCE semi-quantitative and Tofts ───────────────────────────────────────────
+# DCE and permeability ROIs [mm from the image centre]: centre (x, y), semi-axes (x, y).
+# ROI1 on the lateral enhancing rim of the left frontal tumour, ROI2 in its necrotic centre,
+# ROI3 in contralateral (right) frontal white matter.
+DCE_ROI_MM = {"roi1": ((48.5, -40.0), (2.6, 4.5)), "roi2": ((38.0, -40.0), (3.6, 3.6)), "roi3": ((-28.0, -22.0), (5.4, 7.2))}
+
+
+def ellipse_rois(shape: tuple[int, int], px: float) -> dict[str, tuple[np.ndarray, dict]]:
+    """Masks and 512-px overlay geometry of the DCE ROIs."""
+    ny, nx = shape
+    yy, xx = np.mgrid[0:ny, 0:nx]
+    s = UPSAMPLE_TO / nx
+    out = {}
+    for key, ((x, y), (ax, ay)) in DCE_ROI_MM.items():
+        cx, cy = (nx - 1) / 2 + x / px, (ny - 1) / 2 + y / px
+        m = ((xx - cx) / (ax / px)) ** 2 + ((yy - cy) / (ay / px)) ** 2 <= 1
+        out[key] = (m, {"cx": r((cx + 0.5) * s, 1), "cy": r((cy + 0.5) * s, 1), "rx": r(ax / px * s, 1), "ry": r(ay / px * s, 1),
+                        "voxels": int(m.sum()), "area_mm2": r(float(m.sum()) * px * px, 0)})
+    return out
+
+
 def dce(ph: Path, img: Path, data: dict, luts: dict[str, np.ndarray]) -> None:
-    arr, ds = load_series(ph / "dce_semiquant" / "dicom")
+    arr, ds = load_series(ph / "brain_dce_semiquant" / "dicom")
+    truth = np.load(ph / "brain_dce_semiquant" / "truth.npz")
     nz = arr.shape[1]
     times = np.array([float(d.TriggerTime) / 1000.0 for d in ds[::nz]])
-    z = 0
+    z = int(truth["display_slice"])
     s = arr[:, z]
-    mask = s[0] > 0.2 * s[0].max()
+    mask = s[0] > 0.15 * np.percentile(s[0], 99)
     with np.errstate(divide="ignore", invalid="ignore"):
         relenh = np.where(mask, (s / np.maximum(s[0], 1e-6) - 1) * 100, 0)
     maxrel = relenh.max(0)
-    glo, ghi = save_gray(img / "dce_source.png", s[int(np.argmax(relenh.mean((1, 2))))])
+    src = int(np.argmax(relenh[:, truth["labels"][z] == 4].mean(1)))
+    glo, ghi = save_gray(img / "dce_source.png", s[src])
     save_gray(img / "dce_dyn01.png", s[0], glo, ghi)
-    save_gray(img / "dce_subtracted.png", (s[int(np.argmax(relenh.mean((1, 2))))] - s[0]) * mask)
-    save_map(img / "dce_maxrelenh.png", maxrel, mask, luts["blueToRed"], 0, float(np.percentile(maxrel[mask], 99)))
+    save_gray(img / "dce_subtracted.png", (s[src] - s[0]) * mask)
+    save_map(img / "dce_maxrelenh.png", maxrel, mask, luts["blueToRed"], 0, float(np.percentile(maxrel[mask], 99.5)))
     save_map(img / "dce_ttp.png", times[np.argmax(s, 0)], mask, luts["blueToRed"], float(times.min()), float(times.max()))
-    truth = np.load(ph / "dce_semiquant" / "truth.npz")
     lab = truth["labels"][z]
+    rois = ellipse_rois(lab.shape, float(ds[0].PixelSpacing[0]))
     data["dce"] = {
         "times_s": [r(t, 1) for t in times],
         "dynamics": len(times),
-        "curves": {f"class{k}": [r(v, 1) for v in s[:, lab == k].mean(1)] for k in range(len(truth["s0"]))},
-        "maxrelenh_window": [0, r(np.percentile(maxrel[mask], 99), 0)],
+        "slice": z + 1,
+        "slices": nz,
+        "matrix": [int(ds[0].Rows), int(ds[0].Columns)],
+        "pixel_mm": r(float(ds[0].PixelSpacing[0]), 2),
+        "curves": {f"class{k}": [r(v, 1) for v in s[:, lab == k].mean(1)] for k in range(len(truth["s0"])) if (lab == k).any()},
+        "rois": {k: g for k, (_, g) in rois.items()},
+        "roi_curves": {k: [r(v, 1) for v in s[:, m].mean(1)] for k, (m, _) in rois.items()},
+        "maxrelenh_window": [0, r(np.percentile(maxrel[mask], 99.5), 0)],
         "class_centres_px": class_centres_px(np.where(mask, lab, -1)),
-        "source_dynamic": int(np.argmax(relenh.mean((1, 2)))) + 1,
+        "source_dynamic": src + 1,
         "truth": {k: [r(v, 3) for v in truth[k]] for k in ("s0", "s1", "t0", "t1", "washin", "washout", "maxenh", "maxrelenh")},
     }
-    # Tofts: maps from the phantom's ground-truth parameters per tissue class
-    arr2, ds2 = load_series(ph / "dce_tofts" / "dicom_dce")
+    arr2, ds2 = load_series(ph / "brain_dce_tofts" / "dicom_dce")
+    tr = np.load(ph / "brain_dce_tofts" / "truth.npz")
     nz2 = arr2.shape[1]
+    z2 = int(tr["display_slice"])
     t2 = np.array([float(d.TriggerTime) / 1000.0 for d in ds2[::nz2]])
-    tr = np.load(ph / "dce_tofts" / "truth.npz")
-    lab2 = tr["labels"][0]
-    m2 = lab2 >= 0
-    save_gray(img / "perm_source.png", arr2[-1, 0])
+    lab2 = tr["labels"][z2]
+    m2 = lab2 >= 2  # GM, WM and the tumour (no CSF or background)
+    save_gray(img / "perm_source.png", arr2[-1, z2])
     for key, lo, hi_ in (("ktrans", 0, 0.3), ("kep", 0, 1.5), ("ve", 0, 0.6), ("vp", 0, 0.1)):
         vals = tr[key][np.clip(lab2, 0, None)]
         save_map(img / f"perm_{key}.png", np.where(m2, vals, 0), m2, luts["stroke"], lo, hi_)
-    vfa5, _ = load_series(ph / "dce_tofts" / "dicom_vfa5")
-    vfa15, _ = load_series(ph / "dce_tofts" / "dicom_vfa15")
-    save_gray(img / "perm_vfa5.png", vfa5[0, 0])
-    save_gray(img / "perm_vfa15.png", vfa15[0, 0])
-    save_map(img / "perm_t1.png", np.where(m2, tr["t1"][np.clip(lab2, 0, None)], 0), m2, luts["blueToRed"], 500, 2500)
+    vfa5, _ = load_series(ph / "brain_dce_tofts" / "dicom_vfa5")
+    vfa15, _ = load_series(ph / "brain_dce_tofts" / "dicom_vfa15")
+    save_gray(img / "perm_vfa5.png", vfa5[0, z2])
+    save_gray(img / "perm_vfa15.png", vfa15[0, z2])
+    save_map(img / "perm_t1.png", np.where(lab2 >= 1, tr["t1"][np.clip(lab2, 0, None)], 0), lab2 >= 1, luts["blueToRed"], 500, 2500)
+    rois2 = ellipse_rois(lab2.shape, float(ds2[0].PixelSpacing[0]))
     data["perm"] = {
         "times_s": [r(t, 1) for t in t2],
         "dynamics": len(t2),
+        "slice": z2 + 1,
+        "slices": nz2,
         "tr_ms": r(float(ds2[0].RepetitionTime), 1),
         "te_ms": r(float(ds2[0].EchoTime), 1),
         "flip_deg": r(float(ds2[0].FlipAngle), 0),
         "aif_cp": [r(v, 3) for v in tr["aif_cp"]],
-        "tissue_curve_class2": [r(v, 1) for v in arr2[:, 0][:, lab2 == 2].mean(1)],
-        "tissue_curves": {f"class{k}": [r(v, 1) for v in arr2[:, 0][:, lab2 == k].mean(1)] for k in range(len(tr["ktrans"]))},
+        "tissue_curves": {f"class{k}": [r(v, 1) for v in arr2[:, z2][:, lab2 == k].mean(1)] for k in range(len(tr["ktrans"])) if (lab2 == k).any()},
+        "rois": {k: g for k, (_, g) in rois2.items()},
+        "roi_curves": {k: [r(v, 1) for v in arr2[:, z2][:, m].mean(1)] for k, (m, _) in rois2.items()},
         "class_centres_px": class_centres_px(lab2),
         "matrix": [int(ds2[0].Rows), int(ds2[0].Columns)],
         "pixel_mm": r(float(ds2[0].PixelSpacing[0]), 2),
@@ -550,12 +614,12 @@ def dce(ph: Path, img: Path, data: dict, luts: dict[str, np.ndarray]) -> None:
 
 # ── fMRI ──────────────────────────────────────────────────────────────────────
 def fmri(ph: Path, img: Path, data: dict, luts: dict[str, np.ndarray]) -> None:
-    arr, ds = load_series(ph / "fmri_block" / "dicom")
+    arr, ds = load_series(ph / "brain_fmri_block" / "dicom")
     nz = arr.shape[1]
     n = arr.shape[0]
     tr = float(ds[0].RepetitionTime) / 1000.0
     t = np.arange(n) * tr
-    truth = np.load(ph / "fmri_block" / "truth.npz")
+    truth = np.load(ph / "brain_fmri_block" / "truth.npz")
     box = np.zeros(n)
     for o, d in zip(truth["onsets"], truth["durations"], strict=True):
         box[(t >= o) & (t < o + d)] = 1
@@ -574,13 +638,18 @@ def fmri(ph: Path, img: Path, data: dict, luts: dict[str, np.ndarray]) -> None:
     brain = truth["brain"]
     tmap = np.where(brain, tmap, 0)
     mean = arr.mean(0)
+    # T >= 3.1 and clusters of >= 10 voxels (26-connected), as the screen's thresholds state
+    lab3, ncl = ndimage.label(tmap >= 3.1, structure=np.ones((3, 3, 3)))
+    sizes = ndimage.sum(np.ones_like(tmap), lab3, range(1, ncl + 1)) if ncl else np.zeros(0)
+    keep = np.isin(lab3, 1 + np.where(sizes >= 10)[0])
+    biggest = lab3 == (1 + int(np.argmax(sizes))) if ncl else np.zeros_like(keep)
     slices = []
     for zz in range(nz):
         glo, ghi = save_gray(img / f"fmri_epi_z{zz + 1}.png", mean[zz])
-        save_overlay_on_gray(img / f"fmri_t_z{zz + 1}.png", mean[zz], glo, ghi, tmap[zz], tmap[zz] > 3.1, luts["hot"], 3.1, 12, 0.8)
+        save_overlay_on_gray(img / f"fmri_t_z{zz + 1}.png", mean[zz], glo, ghi, tmap[zz], keep[zz], luts["hot"], 3.1, 12, 0.8)
         slices.append(zz + 1)
     act = truth["active"]
-    cl = act.any(0)
+    cl = keep.any(0)
     data["fmri"] = {
         "dynamics": n,
         "tr_s": r(tr, 2),
@@ -588,24 +657,44 @@ def fmri(ph: Path, img: Path, data: dict, luts: dict[str, np.ndarray]) -> None:
         "onsets_s": [r(v, 1) for v in truth["onsets"]],
         "durations_s": [r(v, 1) for v in truth["durations"]],
         "t_threshold": [3.1, 12.0],
-        "t_max": r(tmap.max(), 1),
+        "t_max": r(tmap[keep].max() if keep.any() else 0, 1),
         "active_voxels_truth": int(act.sum()),
-        "active_voxels_t31": int((tmap > 3.1).sum()),
-        "cluster_curve": [r(v, 1) for v in arr[:, act].mean(1)] if act.any() else [],
+        "active_voxels_t31": int(keep.sum()),
+        "clusters": int((sizes >= 10).sum()),
+        "cluster_voxels": int(biggest.sum()),
+        "cluster_curve": [r(v, 1) for v in arr[:, biggest].mean(1)] if biggest.any() else [],
         "paradigm": [int(v) for v in box],
-        "cluster_slice_extent": [int(i + 1) for i in np.where(act.any((1, 2)))[0]],
+        "cluster_slice_extent": [int(i + 1) for i in np.where(biggest.any((1, 2)))[0]],
+        "slice_active_voxels": [int(keep[k].sum()) for k in range(nz)],
         "has_active": bool(cl.any()),
     }
 
 
 # ── FLAIR follow-up ───────────────────────────────────────────────────────────
 def flair(ph: Path, img: Path, data: dict, luts: dict[str, np.ndarray]) -> None:
-    base, ds = load_series(ph / "flair_baseline" / "dicom")
-    fu, _ = load_series(ph / "flair_followup" / "dicom")
+    base, ds = load_series(ph / "brain_flair_baseline" / "dicom")
+    fu, _ = load_series(ph / "brain_flair_followup" / "dicom")
     b, f = base[0], fu[0]
     nz = b.shape[0]
-    # choose the slice with the largest difference
-    z = int(np.argmax(np.abs(f - b).sum((1, 2))))
+    vox_ml = float(ds[0].PixelSpacing[0]) ** 2 * float(ds[0].SliceThickness) / 1000.0
+    lesions = match_lesions(b, f, vox_ml)
+    # lesion voxels from the phantom truth (class 4), split into lesions by the nearest matched centre
+    lb = np.load(ph / "brain_flair_baseline" / "truth.npz")["labels"] == 4
+    lf = np.load(ph / "brain_flair_followup" / "truth.npz")["labels"] == 4
+    zz, yy, xx = np.mgrid[0:nz, 0 : b.shape[1], 0 : b.shape[2]]
+    cen = np.array([les["centre_zyx"] for les in lesions])
+    near = np.argmin(sum((g[..., None] - cen[:, k]) ** 2 for k, g in enumerate((zz, yy, xx))), axis=-1)
+    # display slice: shows the most lesions at either time point; ties go to the larger lesion area
+    seen = [(len({int(v) for v in near[k][lb[k] | lf[k]]}), int((lb[k] | lf[k]).sum())) for k in range(nz)]
+    z = max(range(nz), key=lambda k: seen[k])
+    px512 = UPSAMPLE_TO / b.shape[2]
+    for i, les in enumerate(lesions):
+        for key, m in (("base", lb[z]), ("follow", lf[z])):
+            sel = m & (near[z] == i)
+            les[f"outline_{key}"] = None if sel.sum() < 2 else {
+                "cx": r((xx[z][sel].mean() + 0.5) * px512, 1), "cy": r((yy[z][sel].mean() + 0.5) * px512, 1),
+                "r": r(np.sqrt(sel.sum() / np.pi) * px512 + 4, 1),  # outline drawn just outside the lesion edge
+            }
     glo, ghi = save_gray(img / "flair_baseline.png", b[z])
     save_gray(img / "flair_followup.png", f[z], glo, ghi)
     # synthetic intermediate time points for the 4-study layout: same phantom, lesions interpolated
@@ -617,11 +706,11 @@ def flair(ph: Path, img: Path, data: dict, luts: dict[str, np.ndarray]) -> None:
     thr = 0.1 * float(hi_d - lo_d)
     save_overlay_on_gray(img / "flair_changemap.png", b[z], glo, ghi, diff, np.abs(diff) > thr, luts["blueToRed"], -rng, rng, 0.8)
     # coronal / sagittal reformats of the follow-up for reference views
-    save_gray(img / "flair_followup_cor.png", ndimage.zoom(f[:, f.shape[1] // 2, :], (f.shape[2] / nz, 1), order=1), glo, ghi)
-    save_gray(img / "flair_followup_sag.png", ndimage.zoom(f[:, :, f.shape[2] // 2], (f.shape[1] / nz, 1), order=1), glo, ghi)
-    tb = np.load(ph / "flair_baseline" / "truth.npz")["volumes_vox"]
-    tf = np.load(ph / "flair_followup" / "truth.npz")["volumes_vox"]
-    vox_ml = float(ds[0].PixelSpacing[0]) ** 2 * float(ds[0].SliceThickness) / 1000.0
+    # isotropic voxels: true aspect, superior at the top, padded to a square tile
+    save_gray(img / "flair_followup_cor.png", pad_square(f[::-1, f.shape[1] // 2, :]), glo, ghi)
+    save_gray(img / "flair_followup_sag.png", pad_square(f[::-1, :, f.shape[2] // 2 + 4]), glo, ghi)
+    tb = np.load(ph / "brain_flair_baseline" / "truth.npz")["volumes_vox"]
+    tf = np.load(ph / "brain_flair_followup" / "truth.npz")["volumes_vox"]
     data["flair"] = {
         "slice": z + 1,
         "slices": nz,
@@ -630,14 +719,14 @@ def flair(ph: Path, img: Path, data: dict, luts: dict[str, np.ndarray]) -> None:
         "lesion_volumes_ml_followup": [r(v * vox_ml, 2) for v in tf],
         "change_threshold": r(thr, 1),
         "change_window": [r(-rng, 1), r(rng, 1)],
-        "lesions": match_lesions(b, f, vox_ml),
+        "lesions": lesions,
         "window": [r(glo, 1), r(ghi, 1)],
     }
 
 
 # ── Echo Accumulation (multi_echo_gre phantom) ────────────────────────────────
 def echo(ph: Path, img: Path, data: dict) -> None:
-    arr, ds = load_series(ph / "multi_echo_gre" / "dicom")
+    arr, ds = load_series(ph / "brain_multi_echo_gre" / "dicom")
     te = sorted({float(d.EchoTime) for d in ds})
     z = data["flair"]["slice"] - 1  # same slice as the FLAIR screens (same head grid)
     elo, ehi = save_gray(img / "echo_e1.png", arr[0, z])
@@ -654,8 +743,8 @@ def echo(ph: Path, img: Path, data: dict) -> None:
 
 # ── FLAIR* (swi_epi phantom + baseline FLAIR) ─────────────────────────────────
 def flair_star(ph: Path, img: Path, data: dict) -> None:
-    swi = load_series(ph / "swi_epi" / "dicom")[0][0]
-    fl, ds = load_series(ph / "flair_baseline" / "dicom")
+    swi = load_series(ph / "brain_swi_epi" / "dicom")[0][0]
+    fl, ds = load_series(ph / "brain_flair_baseline" / "dicom")
     fl = fl[0]
     px = float(ds[0].PixelSpacing[0])
 
@@ -663,12 +752,21 @@ def flair_star(ph: Path, img: Path, data: dict) -> None:
         return v > 0.5 * np.median(v[v > 0.2 * v.max()])
 
     fm = mask(fl)
-    fz = (fl - fl.mean()) / fl.std()
+    l1 = next(x for x in data["flair"]["lesions"] if x["name"] == "L1")
+    cz, cy, cx = (int(round(v)) for v in l1["centre_zyx"])
+    slab = slice(max(cz - 12, 0), cz + 12)  # registration search on a slab around L1 (design preview)
+    # contrast differs (cortex is bright on FLAIR, dark on SWI): match edge strength, not intensity
+    def edges(v: np.ndarray) -> np.ndarray:
+        return np.hypot(ndimage.sobel(v, 1), ndimage.sobel(v, 2))
+
+    fz_ = edges(fl[slab])
+    fz_ = (fz_ - fz_.mean()) / fz_.std()
+    swe = edges(swi[slab])
     best = (-1.0, 0.0, 0.0)
     for dy in np.arange(-3, 3.01, 0.25):
         for dx in np.arange(-3, 3.01, 0.25):
-            m = ndimage.shift(swi, (0, dy, dx), order=1)
-            ncc = float(((m - m.mean()) / m.std() * fz).mean())  # normalised cross-correlation
+            m = ndimage.shift(swe, (0, dy, dx), order=1)
+            ncc = float(((m - m.mean()) / m.std() * fz_).mean())  # normalised cross-correlation
             if ncc > best[0]:
                 best = (ncc, dy, dx)
     _, dy, dx = best
@@ -679,15 +777,15 @@ def flair_star(ph: Path, img: Path, data: dict) -> None:
         return np.clip(v / np.percentile(v[brain], 99), 0, None)
 
     prod = norm(reg) * norm(fl) * brain
-    l1 = next(x for x in data["flair"]["lesions"] if x["name"] == "L1")
-    cz, cy, cx = (int(round(v)) for v in l1["centre_zyx"])
-    h = 16  # 32-voxel crops = zoom 200 % of the 64-voxel field
+    h = 16  # 32-voxel crops (48 mm) around L1
+    zf = fl.shape[0] - 1 - cz  # row of L1 after flipping z (superior at the top)
 
     def planes(v: np.ndarray) -> dict[str, np.ndarray]:
+        f = v[::-1]
         return {
             "ax": v[cz, cy - h : cy + h, cx - h : cx + h],
-            "cor": v[::-1, cy, cx - h : cx + h],  # superior at the top
-            "sag": v[::-1, cy - h : cy + h, cx],  # anterior on the left
+            "cor": f[zf - h : zf + h, cy, cx - h : cx + h],
+            "sag": f[zf - h : zf + h, cy - h : cy + h, cx],  # anterior on the left
         }
 
     windows = {}
@@ -709,6 +807,8 @@ def flair_star(ph: Path, img: Path, data: dict) -> None:
         "min_diameter_mm": r(min_diam_mm, 1),
         "centre_slice": {"ax": cz + 1, "cor": cy + 1, "sag": cx + 1},
         "slices": {"ax": nz, "cor": fl.shape[1], "sag": fl.shape[2]},
+        "crop_vox": 2 * h,
+        "zoom_pct": int(round(100 * fl.shape[2] / (2 * h))),
         "shift_mm": [r(-dy * px, 1), r(-dx * px, 1)],  # SWI/EPI displacement (y, x) found by the search
         "ncc": r(best[0], 3),
         "windows": windows,
@@ -739,8 +839,8 @@ def match_lesions(b: np.ndarray, f: np.ndarray, vox_ml: float) -> list[dict]:
 
 # ── Co-registration review (design-only residual offset, see module docstring) ─
 def coreg(ph: Path, img: Path, data: dict, luts: dict[str, np.ndarray]) -> None:
-    ref, ds = load_series(ph / "flair_baseline" / "dicom")
-    mov, _ = load_series(ph / "flair_followup" / "dicom")
+    ref, ds = load_series(ph / "brain_flair_baseline" / "dicom")
+    mov, _ = load_series(ph / "brain_flair_followup" / "dicom")
     ref, mov = ref[0], mov[0]  # (z, y, x), 1 mm isotropic
     px = float(ds[0].PixelSpacing[0])
     moved = ndimage.rotate(mov, COREG_RESIDUAL_ROT_DEG, axes=(1, 2), reshape=False, order=1)
@@ -861,14 +961,17 @@ def track(e1: np.ndarray, fa: np.ndarray, seeds: np.ndarray, px: float) -> list[
 
 def tractography(ph: Path, img: Path, data: dict) -> None:
     c = DTI_CACHE
-    e1, fa, adc, px = c["e1"], c["fa"], c["adc_e6"], c["px"]
+    e1, fa, adc, px, z_trk = c["e1"], c["fa"], c["adc_e6"], c["px"], c["z_mm"]
     ny, nx = fa.shape
-    yy, xx = np.mgrid[0:ny, 0:nx]
+
+    def roi_at(x_mm: float, y_mm: float) -> np.ndarray:
+        yy, xx = np.mgrid[0:ny, 0:nx]
+        cx, cy = (nx - 1) / 2 + x_mm / px, (ny - 1) / 2 + y_mm / px
+        return ((xx - cx) / 2.5) ** 2 + ((yy - cy) / 3.5) ** 2 <= 1
+
     bundles = []
-    centres = data["dti"]["class_centres_px"]
-    for name, cls in (("A–P band", "class3"), ("R–L band", "class2")):
-        cx = centres[cls][0] / UPSAMPLE_TO * nx
-        roi = ((xx + 0.5 - cx) / 2.5) ** 2 + ((yy + 0.5 - ny / 2) / 3.5) ** 2 <= 1
+    for name, (x_mm, y_mm) in (("Corpus callosum", (0.0, 0.0)), ("Left posterior A–P", (24.0, 30.0))):
+        roi = roi_at(x_mm, y_mm)
         fibers = track(e1, fa, np.argwhere(roi), px)
         lens = [(len(f) - 1) * 0.5 * px for f in fibers]
         vox = np.concatenate([f.astype(int) for f in fibers]) if fibers else np.zeros((0, 2), int)
@@ -883,48 +986,55 @@ def tractography(ph: Path, img: Path, data: dict) -> None:
             "mean_length_mm": r(np.mean(lens) if lens else 0, 1),
             "fa_mean": r(fav.mean(), 3), "fa_sd": r(fav.std(), 3),
             "adc_mean_e6": r(adv.mean(), 0), "adc_sd_e6": r(adv.std(), 0),
-            "roi_centre_mm": [r((cx - nx / 2) * px, 1), 0.0],
+            "roi_centre_mm": [x_mm, y_mm],
             "_fibers_mm": [np.stack([(f[:, 1] - nx / 2) * px, (f[:, 0] - ny / 2) * px], 1) for f in fibers],
         })
-    # seeds in the S–I band have no in-plane principal direction: report it, as the UI does
-    si = data["dti"]["class_centres_px"]["class4"][0] / UPSAMPLE_TO * nx
-    si_roi = ((xx + 0.5 - si) / 2.5) ** 2 + ((yy + 0.5 - ny / 2) / 3.5) ** 2 <= 1
-    si_fibers = len(track(e1, fa, np.argwhere(si_roi), px))
+    # seeds in the corticospinal tract run through-plane: no in-plane fibers, as the UI reports
+    si_seeds = roi_at(28.0, 1.0) & (c["labels"] == 5)  # left corticospinal tract voxels (S–I fibre class)
+    si_fibers = len(track(e1, fa, np.argwhere(si_seeds), px))
 
-    # Anatomy: 3D FLAIR baseline (64 × 64 × 32, 1 mm), centred on the DTI field of view
-    fl, _ = load_series(ph / "flair_baseline" / "dicom")
+    # Anatomy: 3D FLAIR baseline (1.5 mm isotropic); the axial plane is the DTI tracking slice
+    fl, fds = load_series(ph / "brain_flair_baseline" / "dicom")
+    ftruth = np.load(ph / "brain_flair_baseline" / "truth.npz")
     fl = fl[0]
     fz, fy, fx = fl.shape
+    fpx = float(fds[0].PixelSpacing[0])
+    zi = int(np.argmin(np.abs(ftruth["slice_z_mm"] - z_trk)))
     fg = fl[fl > 0.2 * fl.max()]
     glo, ghi = float(np.percentile(fl, 1)), float(1.6 * np.median(fg))
     gray = lambda a: np.repeat(window(a, glo, ghi)[..., None] * 255, 3, axis=-1)  # noqa: E731
     dir_rgb = np.abs(e1) * fa[..., None] * 255
-    half = fx / 2.0  # mm, FLAIR is 1 mm isotropic
+    half = 84.0  # mm, half extent of the drawn planes (the head, not the whole field of view)
+    halfz = fz * fpx / 2.0
+    zc_mm = (zi - (fz - 1) / 2) * fpx  # height of the axial plane in the volume [mm]
+    SAG_X = 6.0  # paramedian sagittal plane (the midline is the interhemispheric fissure)
+    sag_i = int(round((fx - 1) / 2 + SAG_X / fpx))
+
+    def fidx(v: np.ndarray, n: int) -> np.ndarray:
+        return np.clip(((v + n * fpx / 2) / fpx).astype(int), 0, n - 1)
 
     def axial_rgb(xm: np.ndarray, ym: np.ndarray) -> np.ndarray:
-        """FLAIR axial at the plane plus FA-direction overlay where FA >= 0.2."""
-        ix = np.clip((xm + half).astype(int), 0, fx - 1)
-        iy = np.clip((ym + half).astype(int), 0, fy - 1)
-        a = fl[fz // 2][iy, ix]
+        """FLAIR at the tracking slice plus the FA-direction overlay where FA >= 0.2."""
+        a = fl[zi][fidx(ym, fy), fidx(xm, fx)]
         g = gray(a)
         dx = np.clip((xm / px + nx / 2).astype(int), 0, nx - 1)
         dy = np.clip((ym / px + ny / 2).astype(int), 0, ny - 1)
-        # overlay inside the head only, fading in from FA 0.2 to 0.5 so isolated noise voxels stay quiet
         alpha = (np.clip((fa[dy, dx] - 0.2) / 0.3, 0, 1) * 0.65 * (a > 0.2 * fl.max()))[..., None]
         return (1 - alpha) * g + alpha * dir_rgb[dy, dx]
 
-    # 3D view: orthographic, z-buffered point splatting of the three planes and the fibers
+    # 3D view: orthographic, z-buffered point splatting of the three planes and the fibers.
+    # 3D coordinates [mm]: x, y as in the image, z up, origin on the axial plane.
     az, el = np.deg2rad(-58.0), np.deg2rad(32.0)
     cam = np.array([np.cos(el) * np.cos(az), np.cos(el) * np.sin(az), np.sin(el)])
     right = np.array([-np.sin(az), np.cos(az), 0.0])
-    up = np.cross(cam, right)
-    size, scale = 1024, 12.0
+    upv = np.cross(cam, right)
+    size, scale = 1024, 4.6
     canvas = np.zeros((size, size, 3))
     depth = np.full((size, size), -np.inf)
 
     def splat(p: np.ndarray, rgb: np.ndarray, rad: int = 0) -> None:
         sx = np.round(size / 2 + scale * (p @ right)).astype(int)
-        sy = np.round(size / 2 - scale * (p @ up)).astype(int)
+        sy = np.round(size / 2 - scale * (p @ upv)).astype(int)
         dz = p @ cam
         for oy in range(-rad, rad + 1):
             for ox in range(-rad, rad + 1):
@@ -937,52 +1047,49 @@ def tractography(ph: Path, img: Path, data: dict) -> None:
                 depth[Yo[closer], Xo[closer]] = Do[closer]
                 canvas[Yo[closer], Xo[closer]] = Co[closer]
 
-    step = 0.2
+    step = 0.5
     g1 = np.arange(-half, half, step)
-    gz = np.arange(-fz / 2, fz / 2, step)
+    gz = np.arange(-halfz, halfz, step)
     X, Y = np.meshgrid(g1, g1)
     splat(np.stack([X.ravel(), Y.ravel(), np.zeros(X.size)], 1), axial_rgb(X, Y).reshape(-1, 3), 1)
     Xc, Zc = np.meshgrid(g1, gz)
-    cor = gray(fl[np.clip((Zc + fz / 2).astype(int), 0, fz - 1), fy // 2, np.clip((Xc + half).astype(int), 0, fx - 1)])
-    splat(np.stack([Xc.ravel(), np.zeros(Xc.size), Zc.ravel()], 1), cor.reshape(-1, 3), 1)
+    zrow = fidx(Zc, fz)
+    cor = gray(fl[zrow, fy // 2, fidx(Xc, fx)])
+    splat(np.stack([Xc.ravel(), np.zeros(Xc.size), (Zc - zc_mm).ravel()], 1), cor.reshape(-1, 3), 1)
     Ys, Zs = np.meshgrid(g1, gz)
-    sag = gray(fl[np.clip((Zs + fz / 2).astype(int), 0, fz - 1), np.clip((Ys + half).astype(int), 0, fy - 1), fx // 2])
-    splat(np.stack([np.zeros(Ys.size), Ys.ravel(), Zs.ravel()], 1), sag.reshape(-1, 3), 1)
-    # plane outlines
-    t = np.arange(-half, half, 0.05)
-    tz = np.arange(-fz / 2, fz / 2, 0.05)
+    sag = gray(fl[fidx(Zs, fz), fidx(Ys, fy), sag_i])
+    splat(np.stack([np.full(Ys.size, SAG_X), Ys.ravel(), (Zs - zc_mm).ravel()], 1), sag.reshape(-1, 3), 1)
+    t = np.arange(-half, half, 0.12)
+    tz = np.arange(-halfz, halfz, 0.12) - zc_mm
+    zlo, zhi = -halfz - zc_mm, halfz - zc_mm
     lines = {
         "axial": [np.stack([t, np.full_like(t, s), np.zeros_like(t)], 1) for s in (-half, half)] + [np.stack([np.full_like(t, s), t, np.zeros_like(t)], 1) for s in (-half, half)],
-        "coronal": [np.stack([t, np.zeros_like(t), np.full_like(t, s)], 1) for s in (-fz / 2, fz / 2)] + [np.stack([np.full_like(tz, s), np.zeros_like(tz), tz], 1) for s in (-half, half)],
-        "sagittal": [np.stack([np.zeros_like(t), t, np.full_like(t, s)], 1) for s in (-fz / 2, fz / 2)] + [np.stack([np.zeros_like(tz), np.full_like(tz, s), tz], 1) for s in (-half, half)],
+        "coronal": [np.stack([t, np.zeros_like(t), np.full_like(t, s)], 1) for s in (zlo, zhi)] + [np.stack([np.full_like(tz, s), np.zeros_like(tz), tz], 1) for s in (-half, half)],
+        "sagittal": [np.stack([np.full_like(t, SAG_X), t, np.full_like(t, s)], 1) for s in (zlo, zhi)] + [np.stack([np.full_like(tz, SAG_X), np.full_like(tz, s), tz], 1) for s in (-half, half)],
     }
     for k, segs in lines.items():
         for sgm in segs:
-            splat(sgm + cam * 0.05, np.tile(PALETTE[f"plane-{k}"], (len(sgm), 1)), 1)
-    # fibers (bundle colours = ROI palette order), lifted 0.4 mm above the axial plane
-    head = fl[fz // 2] > 0.2 * fl.max()
+            splat(sgm + cam * 0.2, np.tile(PALETTE[f"plane-{k}"], (len(sgm), 1)), 1)
+    head = fl[zi] > 0.2 * fl.max()
 
     def keep(f: np.ndarray) -> np.ndarray:
-        """Fiber points inside the FLAIR head outline (the DTI phantom's field of view is larger)."""
-        ix = np.clip((f[:, 0] + half).astype(int), 0, fx - 1)
-        iy = np.clip((f[:, 1] + half).astype(int), 0, fy - 1)
-        return (np.abs(f[:, 0]) < half) & (np.abs(f[:, 1]) < half) & head[iy, ix]
+        return (np.abs(f[:, 0]) < half) & (np.abs(f[:, 1]) < half) & head[fidx(f[:, 1], fy), fidx(f[:, 0], fx)]
+
     for b, colour in zip(bundles, ROI_RGB, strict=False):
         for f in b["_fibers_mm"]:
             f = f[keep(f)]
             if len(f) < 2:
                 continue
             seg = np.concatenate([np.linspace(f[i], f[i + 1], 6) for i in range(len(f) - 1)])
-            pts = np.column_stack([seg, np.full(len(seg), 0.4)])
+            pts = np.column_stack([seg, np.full(len(seg), 1.0)])
             splat(pts, np.tile(colour, (len(pts), 1)), 1)
     Image.fromarray(canvas.astype(np.uint8), "RGB").resize((768, 768), Image.LANCZOS).save(img / "trk_3d.png")
 
-    # Reference views (2D) with fibers projected and plane lines drawn in the screens' SVG
-    ref = np.arange(0, 2 * half, 2 * half / UPSAMPLE_TO) - half + half / UPSAMPLE_TO
+    half = fx * fpx / 2.0  # reference views show the whole field of view
+    ref = (np.arange(UPSAMPLE_TO) + 0.5) / UPSAMPLE_TO * 2 * half - half
     RX, RY = np.meshgrid(ref, ref)
-    ax_img = axial_rgb(RX, RY)
     from PIL import ImageDraw
-    pil = Image.fromarray(ax_img.astype(np.uint8), "RGB")
+    pil = Image.fromarray(axial_rgb(RX, RY).astype(np.uint8), "RGB")
     dr = ImageDraw.Draw(pil)
     to_px = lambda v: (v + half) / (2 * half) * UPSAMPLE_TO  # noqa: E731
     for b, colour in zip(bundles, ROI_RGB, strict=False):
@@ -993,13 +1100,15 @@ def tractography(ph: Path, img: Path, data: dict) -> None:
     pil.save(img / "trk_ref_ax.png")
     h2 = UPSAMPLE_TO * fz // fx
     cor_img = gray(ndimage.zoom(fl[::-1, fy // 2, :], (h2 / fz, UPSAMPLE_TO / fx), order=1))
-    sag_img = gray(ndimage.zoom(fl[::-1, :, fx // 2], (h2 / fz, UPSAMPLE_TO / fy), order=1))
+    sag_img = gray(ndimage.zoom(fl[::-1, :, sag_i], (h2 / fz, UPSAMPLE_TO / fy), order=1))
     Image.fromarray(cor_img.astype(np.uint8), "RGB").save(img / "trk_ref_cor.png")
     Image.fromarray(sag_img.astype(np.uint8), "RGB").save(img / "trk_ref_sag.png")
-    Image.fromarray(gray(ndimage.zoom(fl[fz // 2], UPSAMPLE_TO / fx, order=1)).astype(np.uint8), "RGB").save(img / "mrs_ref_ax.png")
+    mrs_z = int(np.argmin(np.abs(ftruth["slice_z_mm"] - 30.0)))  # centrum semiovale, the SVS level
+    Image.fromarray(gray(ndimage.zoom(fl[mrs_z], UPSAMPLE_TO / fx, order=1)).astype(np.uint8), "RGB").save(img / "mrs_ref_ax.png")
     for b in bundles:
         b.pop("_fibers_mm")
-    data["trk"] = {"bundles": bundles, "si_band_fibers": si_fibers, "fov_mm": 2 * half, "flair_window": [r(glo, 1), r(ghi, 1)]}
+    data["trk"] = {"bundles": bundles, "si_band_fibers": si_fibers, "si_seed_voxels": int(si_seeds.sum()), "fov_mm": r(2 * half, 1), "flair_window": [r(glo, 1), r(ghi, 1)],
+                   "slice_z_mm": r(z_trk, 1), "plane_z_px": r((fz - 1 - zi + 0.5) / fz * h2, 1), "sag_x_mm": SAG_X}
 
 
 # ── Spectroscopy ──────────────────────────────────────────────────────────────

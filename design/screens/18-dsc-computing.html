@@ -117,7 +117,7 @@
     </div>
     <div class="panel__head">
       <div class="panel__head-row"><h1 class="panel__title" data-od-id="package-title">DSC Neuro Perfusion</h1><button class="ibtn ibtn--sm" aria-label="Collapse panel (Ctrl+B)"><svg class="ic ic--sm"><use href="#i-collapse"/></svg></button></div>
-      <p class="dense t2">DSC perf SNR50 · 60 dyn · TR 2.1 s · TE 30 ms</p>
+      <p class="dense t2">DSC perf SNR50 · 60 dyn · TR 1.5 s · TE 30 ms</p>
     </div>
 
     <div class="panel__body">
@@ -156,7 +156,7 @@
             </div>
             <div class="field">
               <span class="field__label">AIF <button class="link dense">Define AIF… <span class="kbd">A</span></button></span>
-              <span class="dense">Automatic · 7 × 7 vox box at (27, 56)</span>
+              <span class="dense">Automatic · 7 × 7 vox box at (86, 61)</span>
             </div>
             <div class="field" data-od-id="spatial-smoothing">
               <span class="field__label">Spatial smoothing</span>
@@ -238,32 +238,34 @@
       <div class="vp__head">
         <span class="vp__role">1 · Source</span>
         <div class="select"><span class="input__value">DSC perf SNR50</span><svg class="ic"><use href="#i-chev-down"/></svg></div>
-        <span class="stepper"><button class="ibtn ibtn--sm" aria-label="Previous dynamic (Left)"><svg class="ic ic--sm"><use href="#i-chev-left"/></svg></button>Dyn <b>9</b> / 60<button class="ibtn ibtn--sm" aria-label="Next dynamic (Right)"><svg class="ic ic--sm"><use href="#i-chev-right"/></svg></button></span>
+        <span class="stepper"><button class="ibtn ibtn--sm" aria-label="Previous dynamic (Left)"><svg class="ic ic--sm"><use href="#i-chev-left"/></svg></button>Dyn <b>14</b> / 60<button class="ibtn ibtn--sm" aria-label="Next dynamic (Right)"><svg class="ic ic--sm"><use href="#i-chev-right"/></svg></button></span>
         <span class="spacer"></span>
         <button class="ibtn ibtn--sm" aria-label="Viewport menu (right-click)"><svg class="ic ic--sm"><use href="#i-more"/></svg></button>
       </div>
       <div class="vp__body">
         <div class="vp__stage">
-          <img src="../assets/img/dsc_source_peak.png" width="512" height="512" alt="DSC source image, dynamic 9 of 60, slice 3 of 4">
-          <svg viewBox="0 0 512 512" aria-hidden="true">
-            <line class="mirror-line" x1="256" y1="12" x2="256" y2="500"/>
-            <rect class="mirror-grip" x="250" y="236" width="12" height="40" rx="2"/>
-            <ellipse class="roi roi--1" cx="132" cy="260" rx="36" ry="44"/>
-            <ellipse class="roi roi--1 roi--linked" cx="380" cy="260" rx="36" ry="44"/>
-            <ellipse class="roi roi--2" cx="252" cy="124" rx="36" ry="28"/>
-            <rect class="roi-handle" x="129" y="213" width="6" height="6"/>
-            <rect class="roi-handle" x="129" y="301" width="6" height="6"/>
-            <rect class="roi-handle" x="93" y="257" width="6" height="6"/>
-            <rect class="roi-handle" x="165" y="257" width="6" height="6"/>
-          </svg>
-          <span class="ov roi-label roi-label--1" style="left:18.75%; top:42.2%">ROI1</span>
-          <span class="ov roi-label roi-label--1" style="left:67.2%; top:42.2%">ROI1-mirror</span>
-          <span class="ov roi-label roi-label--2" style="left:57.5%; top:18.75%">ROI2</span>
+          <img src="../assets/img/dsc_source_peak.png" width="512" height="512" alt="DSC source image, dynamic 14 of 60, slice 4 of 8">
+<!-- gen:dsc-rois-source -->
+<svg viewBox="0 0 512 512" aria-hidden="true">
+<line class="mirror-line" x1="256" y1="12" x2="256" y2="500"/>
+<rect class="mirror-grip" x="250" y="236" width="12" height="40" rx="2"/>
+<ellipse class="roi roi--1" cx="164.0" cy="244.0" rx="20.0" ry="28.0"/>
+<ellipse class="roi roi--1 roi--linked" cx="344.0" cy="244.0" rx="20.0" ry="28.0"/>
+<ellipse class="roi roi--2" cx="308.0" cy="328.0" rx="24.0" ry="16.0"/>
+<rect class="roi-handle" x="161.0" y="213.0" width="6" height="6"/>
+<rect class="roi-handle" x="161.0" y="269.0" width="6" height="6"/>
+<rect class="roi-handle" x="141.0" y="241.0" width="6" height="6"/>
+<rect class="roi-handle" x="181.0" y="241.0" width="6" height="6"/>
+</svg>
+<span class="ov roi-label roi-label--1" style="left:28.1%; top:38.7%">ROI1</span>
+<span class="ov roi-label roi-label--1" style="left:63.3%; top:38.7%">ROI1-mirror</span>
+<span class="ov roi-label roi-label--2" style="left:55.5%; top:57.4%">ROI2</span>
+<!-- /gen:dsc-rois-source -->
         </div>
-        <div class="ov ov--tl">DSC perf SNR50 · Dyn 9/60 · Slice 3/4<br><span class="t2">t 16.8 s · TR 2.1 s · TE 30 ms</span></div>
+        <div class="ov ov--tl">DSC perf SNR50 · Dyn 14/60 · Slice 4/8<br><span class="t2">t 19.5 s · TR 1.5 s · TE 30 ms</span></div>
         <div class="ov ov--tr">PHANTOM^SYNTHETIC<br><span class="t2">NMR-PHANTOM-001 · 2026-01-01</span></div>
-        <div class="ov ov--bl">W 1595.2 · L 802.4 <span class="t2">a.u.</span><br><span class="t2">Mirror line x 32.0 vox</span></div>
-        <div class="ov ov--br">Zoom 100 %<br><span class="t2">2.0 × 2.0 mm · 64 × 64</span></div>
+        <div class="ov ov--bl">W 1298.6 · L 652.5 <span class="t2">a.u.</span><br><span class="t2">Mirror line x 63.5 vox</span></div>
+        <div class="ov ov--br">Zoom 100 %<br><span class="t2">1.8 × 1.8 mm · 128 × 128</span></div>
         <span class="ov orient orient--n">A</span>
         <span class="ov orient orient--s">P</span>
         <span class="ov orient orient--w">R</span>
@@ -289,15 +291,15 @@
         <div class="vp__state" data-od-id="maps-computing">
           <div class="empty">
             <span class="empty__title">Computing gamma-variate maps</span>
-            <span class="progress"><span class="progress__bar" style="--v: 45%"></span><span class="progress__pct">45 %</span><span class="t2">slice 2 of 4 · about 6 s left</span></span>
+            <span class="progress"><span class="progress__bar" style="--v: 45%"></span><span class="progress__pct">45 %</span><span class="t2">slice 4 of 8 · about 6 s left</span></span>
             <button class="btn btn--secondary btn--dense">Cancel <span class="kbd">Esc</span></button>
             <span class="field__hint">You can keep drawing ROIs; results update when the maps are ready.</span>
           </div>
         </div>
         <div class="ov ov--tl">relCBV [ml/100 g]<br><span class="t2">Gamma variate · computing</span></div>
         <div class="ov ov--tr">PHANTOM^SYNTHETIC<br><span class="t2">NMR-PHANTOM-001 · 2026-01-01</span></div>
-        <div class="ov ov--bl">Window 0–12 <span class="t2">ml/100 g</span> · applies when ready</div>
-        <div class="ov ov--br">Zoom 100 %<br><span class="t2">2.0 × 2.0 mm · 64 × 64</span></div>
+        <div class="ov ov--bl">Window 0–8 <span class="t2">ml/100 g</span> · applies when ready</div>
+        <div class="ov ov--br">Zoom 100 %<br><span class="t2">1.8 × 1.8 mm · 128 × 128</span></div>
         <span class="ov orient orient--n">A</span>
         <span class="ov orient orient--s">P</span>
         <span class="ov orient orient--w">R</span>
@@ -321,7 +323,7 @@
         <div class="tbl-head">
           <h3 data-od-id="region-parameters-title">Region parameters</h3>
           <span class="spacer"></span>
-          <span class="dense t3">Slice 3/4 · Model-free · 3 ROIs</span>
+          <span class="dense t3">Slice 4/8 · Model-free · 3 ROIs</span>
         </div>
         <table class="tbl" data-od-id="region-parameters-table">
           <colgroup><col style="width:18%"><col style="width:14%"><col style="width:19%"><col style="width:12%"><col style="width:12%"><col style="width:11%"><col style="width:14%"></colgroup>
@@ -337,18 +339,11 @@
             </tr>
           </thead>
           <tbody>
-            <tr class="is-selected" aria-selected="true">
-              <td class="strong"><span class="swatch" style="--c: var(--nm-roi-1)"></span>ROI1</td>
-              <td class="num">1.48</td><td class="num">14.0</td><td class="num">6.58</td><td class="num">29.4</td><td class="num">23.1</td><td class="num">80</td>
-            </tr>
-            <tr>
-              <td class="strong"><span class="swatch swatch--linked" style="--c: var(--nm-roi-1)"></span>ROI1-mirror</td>
-              <td class="num">3.42</td><td class="num">42.5</td><td class="num">4.40</td><td class="num">16.8</td><td class="num">14.7</td><td class="num">80</td>
-            </tr>
-            <tr>
-              <td class="strong"><span class="swatch" style="--c: var(--nm-roi-2)"></span>ROI2</td>
-              <td class="num">3.83</td><td class="num">37.8</td><td class="num">5.55</td><td class="num">16.8</td><td class="num">14.7</td><td class="num">48</td>
-            </tr>
+<!-- gen:dsc-table -->
+<tr class="is-selected" aria-selected="true"><td class="strong"><span class="swatch" style="--c: var(--nm-roi-1)"></span>ROI1</td><td class="num">2.80</td><td class="num">22.7</td><td class="num">12.14</td><td class="num">28.5</td><td class="num">22.5</td><td class="num">112</td></tr>
+<tr><td class="strong"><span class="swatch swatch--linked" style="--c: var(--nm-roi-1)"></span>ROI1-mirror</td><td class="num">3.44</td><td class="num">46.6</td><td class="num">7.14</td><td class="num">19.5</td><td class="num">15.0</td><td class="num">112</td></tr>
+<tr><td class="strong"><span class="swatch" style="--c: var(--nm-roi-2)"></span>ROI2</td><td class="num">2.68</td><td class="num">36.2</td><td class="num">7.31</td><td class="num">19.5</td><td class="num">15.0</td><td class="num">80</td></tr>
+<!-- /gen:dsc-table -->
           </tbody>
         </table>
 
@@ -368,9 +363,11 @@
             </tr>
           </thead>
           <tbody>
-            <tr><td class="strong">relCBV <span class="t3">[ml/100 g]</span></td><td class="num">1.48</td><td class="num">3.42</td><td class="num strong">0.43</td></tr>
-            <tr><td class="strong">relCBF <span class="t3">[ml/100 g/min]</span></td><td class="num">14.0</td><td class="num">42.5</td><td class="num strong">0.33</td></tr>
-            <tr><td class="strong">MTT <span class="t3">[s]</span></td><td class="num">6.58</td><td class="num">4.40</td><td class="num strong">1.50</td></tr>
+<!-- gen:dsc-ratio -->
+<tr><td class="strong">relCBV <span class="t3">[ml/100 g]</span></td><td class="num">2.80</td><td class="num">3.44</td><td class="num strong">0.81</td></tr>
+<tr><td class="strong">relCBF <span class="t3">[ml/100 g/min]</span></td><td class="num">22.7</td><td class="num">46.6</td><td class="num strong">0.49</td></tr>
+<tr><td class="strong">MTT <span class="t3">[s]</span></td><td class="num">12.14</td><td class="num">7.14</td><td class="num strong">1.70</td></tr>
+<!-- /gen:dsc-ratio -->
           </tbody>
         </table>
       </div>
@@ -385,44 +382,40 @@
           <button class="tab" role="tab">Anatomical</button>
         </div>
         <span class="spacer"></span>
-        <span class="dense t3">ΔR2* · Slice 3/4</span>
+        <span class="dense t3">ΔR2* · Slice 4/8</span>
         <button class="ibtn ibtn--sm" aria-label="Graph menu (right-click)"><svg class="ic ic--sm"><use href="#i-more"/></svg></button>
       </div>
       <div class="vp__body">
-        <svg class="graph" viewBox="0 0 640 452" preserveAspectRatio="xMidYMid meet" role="img" aria-label="ΔR2* over time for ROI1, ROI1-mirror and ROI2; ROI1-mirror peaks at 0.67 per second at 16.8 s, ROI1 stays below 0.2 per second with a delayed bolus">
-          <!-- grid -->
-          <g class="g-grid">
-            <line x1="56" y1="36" x2="620" y2="36"/><line x1="56" y1="102.9" x2="620" y2="102.9"/>
-            <line x1="56" y1="169.8" x2="620" y2="169.8"/><line x1="56" y1="236.7" x2="620" y2="236.7"/>
-            <line x1="56" y1="370.5" x2="620" y2="370.5"/>
-            <line x1="146.2" y1="36" x2="146.2" y2="404"/><line x1="236.5" y1="36" x2="236.5" y2="404"/>
-            <line x1="326.7" y1="36" x2="326.7" y2="404"/><line x1="417" y1="36" x2="417" y2="404"/>
-            <line x1="507.2" y1="36" x2="507.2" y2="404"/><line x1="597.4" y1="36" x2="597.4" y2="404"/>
-          </g>
-          <line class="g-zero" x1="56" y1="303.6" x2="620" y2="303.6"/>
-          <!-- axes -->
-          <line class="g-axis" x1="56" y1="36" x2="56" y2="404"/>
-          <line class="g-axis" x1="56" y1="404" x2="620" y2="404"/>
-          <!-- y ticks -->
-          <g class="g-tick" text-anchor="end">
-            <text x="50" y="40">0.8</text><text x="50" y="106.9">0.6</text><text x="50" y="173.8">0.4</text>
-            <text x="50" y="240.7">0.2</text><text x="50" y="307.6">0.0</text><text x="50" y="374.5">−0.2</text>
-          </g>
-          <!-- x ticks -->
-          <g class="g-tick" text-anchor="middle">
-            <text x="56" y="420">0</text><text x="146.2" y="420">20</text><text x="236.5" y="420">40</text>
-            <text x="326.7" y="420">60</text><text x="417" y="420">80</text><text x="507.2" y="420">100</text><text x="597.4" y="420">120</text>
-          </g>
-          <text class="g-title" x="338" y="442" text-anchor="middle">Time [s]</text>
-          <text class="g-title" x="16" y="220" text-anchor="middle" transform="rotate(-90 16 220)">ΔR2* [1/s]</text>
-          <!-- current dynamic marker: dyn 9, t = 16.8 s -->
-          <line class="g-marker" x1="131.8" y1="30" x2="131.8" y2="404"/>
-          <text class="g-marker-label" x="136" y="28">Dyn 9 · 16.8 s</text>
-          <!-- curves from phantom-data.json dsc.curves -->
-          <polyline class="g-curve g-curve--2" points="56.0,285.9 65.5,282.9 75.0,330.7 84.4,318.4 93.9,300.3 103.4,283.2 112.9,305.3 122.3,149.7 131.8,114.6 141.3,156.8 150.8,183.9 160.2,191.6 169.7,151.1 179.2,226.4 188.7,302.0 198.1,247.1 207.6,297.3 217.1,330.4 226.6,321.0 236.0,324.4 245.5,350.8 255.0,335.4 264.5,393.3 273.9,240.4 283.4,309.7 292.9,311.7 302.4,320.4 311.8,329.1 321.3,296.6 330.8,318.0 340.3,287.6 349.7,328.1 359.2,346.1 368.7,275.9 378.2,286.9 387.6,305.0 397.1,297.9 406.6,358.5 416.1,310.3 425.5,326.1 435.0,318.4 444.5,309.3 454.0,348.8 463.4,287.2 472.9,249.8 482.4,340.4 491.9,322.7 501.3,293.9 510.8,323.7 520.3,360.8 529.8,311.7 539.2,304.0 548.7,302.3 558.2,262.8 567.7,280.6 577.1,270.2 586.6,262.5 596.1,330.7 605.6,302.3 615.0,322.4"/>
-          <polyline class="g-curve g-curve--1 g-curve--linked" points="56.0,301.6 65.5,295.6 75.0,284.9 84.4,305.6 93.9,330.7 103.4,236.7 112.9,283.6 122.3,163.5 131.8,79.5 141.3,95.9 150.8,211.0 160.2,203.6 169.7,259.8 179.2,263.8 188.7,271.9 198.1,291.9 207.6,287.6 217.1,305.3 226.6,325.0 236.0,344.8 245.5,289.6 255.0,257.5 264.5,329.4 273.9,266.2 283.4,293.3 292.9,279.9 302.4,274.5 311.8,325.0 321.3,286.9 330.8,253.8 340.3,296.9 349.7,310.3 359.2,304.0 368.7,325.4 378.2,294.6 387.6,291.3 397.1,315.3 406.6,306.3 416.1,312.3 425.5,302.3 435.0,255.1 444.5,313.0 454.0,257.5 463.4,277.5 472.9,296.3 482.4,339.1 491.9,286.2 501.3,270.2 510.8,296.9 520.3,299.6 529.8,326.7 539.2,293.9 548.7,303.6 558.2,317.7 567.7,335.1 577.1,300.3 586.6,304.0 596.1,290.3 605.6,273.9 615.0,278.2"/>
-          <polyline class="g-curve g-curve--1" points="56.0,303.6 65.5,303.6 75.0,303.6 84.4,303.6 93.9,303.6 103.4,293.3 112.9,281.2 122.3,287.2 131.8,301.0 141.3,307.7 150.8,309.0 160.2,263.5 169.7,238.1 179.2,247.8 188.7,237.4 198.1,272.5 207.6,276.9 217.1,248.4 226.6,276.9 236.0,299.6 245.5,302.0 255.0,319.0 264.5,275.9 273.9,293.3 283.4,297.6 292.9,282.2 302.4,322.0 311.8,301.3 321.3,313.0 330.8,307.3 340.3,304.3 349.7,303.6 359.2,304.0 368.7,296.3 378.2,288.6 387.6,307.3 397.1,296.3 406.6,286.6 416.1,307.3 425.5,304.6 435.0,299.3 444.5,291.3 454.0,296.9 463.4,285.6 472.9,293.9 482.4,302.0 491.9,308.0 501.3,289.6 510.8,288.6 520.3,311.7 529.8,307.7 539.2,304.3 548.7,291.3 558.2,328.7 567.7,292.9 577.1,286.2 586.6,297.3 596.1,315.3 605.6,292.3 615.0,307.3"/>
-        </svg>
+        <!-- gen:dsc-graph -->
+<svg class="graph" viewBox="0 0 640 452" preserveAspectRatio="xMidYMid meet" role="img" aria-label="ΔR2* over time for ROI1, ROI1-mirror and ROI2; ROI1-mirror peaks at 7.0 per second at 19.5 s, ROI1 has a lower, delayed and wider bolus">
+<g class="g-grid">
+<line x1="56.0" y1="404.0" x2="620.0" y2="404.0"/>
+<line x1="56.0" y1="330.4" x2="620.0" y2="330.4"/>
+<line x1="56.0" y1="256.8" x2="620.0" y2="256.8"/>
+<line x1="56.0" y1="183.2" x2="620.0" y2="183.2"/>
+<line x1="56.0" y1="109.6" x2="620.0" y2="109.6"/>
+<line x1="56.0" y1="36.0" x2="620.0" y2="36.0"/>
+<line x1="56.0" y1="36.0" x2="56.0" y2="404.0"/>
+<line x1="168.8" y1="36.0" x2="168.8" y2="404.0"/>
+<line x1="281.6" y1="36.0" x2="281.6" y2="404.0"/>
+<line x1="394.4" y1="36.0" x2="394.4" y2="404.0"/>
+<line x1="507.2" y1="36.0" x2="507.2" y2="404.0"/>
+<line x1="620.0" y1="36.0" x2="620.0" y2="404.0"/>
+</g>
+<line class="g-zero" x1="56.0" y1="330.4" x2="620.0" y2="330.4"/>
+<line class="g-axis" x1="56.0" y1="36.0" x2="56.0" y2="404.0"/>
+<line class="g-axis" x1="56.0" y1="404.0" x2="620.0" y2="404.0"/>
+<g class="g-tick" text-anchor="end"><text x="50.0" y="408.0">−2</text><text x="50.0" y="334.4">0</text><text x="50.0" y="260.8">2</text><text x="50.0" y="187.2">4</text><text x="50.0" y="113.6">6</text><text x="50.0" y="40.0">8</text></g>
+<g class="g-tick" text-anchor="middle"><text x="56.0" y="420.0">0</text><text x="168.8" y="420.0">20</text><text x="281.6" y="420.0">40</text><text x="394.4" y="420.0">60</text><text x="507.2" y="420.0">80</text><text x="620.0" y="420.0">100</text></g>
+<text class="g-title" x="338.0" y="442.0" text-anchor="middle">Time [s]</text>
+<text class="g-title" x="16" y="220.0" text-anchor="middle" transform="rotate(-90 16 220.0)">ΔR2* [1/s]</text>
+<line class="g-marker" x1="166.0" y1="30" x2="166.0" y2="404.0"/>
+<text class="g-marker-label" x="170.0" y="28">Dyn 14 · 19.5 s</text>
+<polyline class="g-curve g-curve--2" points="56.0,330.9 64.5,327.4 72.9,331.7 81.4,326.7 89.8,335.3 98.3,332.0 106.8,334.0 115.2,331.7 123.7,327.0 132.1,318.5 140.6,272.6 149.1,206.3 157.5,151.4 166.0,130.4 174.4,132.5 182.9,155.2 191.4,182.7 199.8,203.6 208.3,235.9 216.7,258.9 225.2,273.7 233.7,286.3 242.1,299.9 250.6,306.4 259.0,305.9 267.5,318.6 276.0,316.3 284.4,324.4 292.9,325.7 301.3,323.9 309.8,325.9 318.3,329.6 326.7,326.1 335.2,331.5 343.6,333.3 352.1,333.4 360.6,330.1 369.0,331.2 377.5,330.7 385.9,330.8 394.4,327.9 402.9,332.6 411.3,331.9 419.8,334.8 428.2,326.8 436.7,329.8 445.2,333.2 453.6,335.7 462.1,330.7 470.5,327.5 479.0,328.5 487.5,328.8 495.9,331.8 504.4,329.7 512.8,332.3 521.3,334.2 529.8,332.6 538.2,328.7 546.7,330.6 555.1,333.4"/>
+<polyline class="g-curve g-curve--1 g-curve--linked" points="56.0,328.7 64.5,328.8 72.9,331.7 81.4,331.9 89.8,330.8 98.3,330.6 106.8,329.8 115.2,328.5 123.7,332.5 132.1,313.5 140.6,240.2 149.1,158.5 157.5,92.9 166.0,71.2 174.4,82.3 182.9,110.1 191.4,147.7 199.8,181.7 208.3,212.6 216.7,238.6 225.2,260.4 233.7,280.7 242.1,287.2 250.6,297.5 259.0,303.4 267.5,311.0 276.0,315.4 284.4,320.7 292.9,327.2 301.3,320.2 309.8,324.7 318.3,326.9 326.7,327.9 335.2,323.9 343.6,330.6 352.1,327.6 360.6,326.5 369.0,332.7 377.5,336.7 385.9,331.2 394.4,333.0 402.9,327.9 411.3,323.0 419.8,331.7 428.2,333.6 436.7,327.0 445.2,328.7 453.6,327.6 462.1,334.2 470.5,326.4 479.0,331.7 487.5,331.7 495.9,329.8 504.4,328.5 512.8,328.4 521.3,326.4 529.8,328.0 538.2,327.3 546.7,325.4 555.1,328.4"/>
+<polyline class="g-curve g-curve--1" points="56.0,332.5 64.5,329.1 72.9,330.8 81.4,329.7 89.8,329.9 98.3,329.5 106.8,334.9 115.2,330.7 123.7,332.3 132.1,330.3 140.6,326.9 149.1,329.9 157.5,331.2 166.0,328.9 174.4,319.0 182.9,292.9 191.4,255.0 199.8,220.3 208.3,201.2 216.7,198.5 225.2,200.3 233.7,213.6 242.1,218.6 250.6,231.4 259.0,242.1 267.5,253.7 276.0,261.8 284.4,270.0 292.9,275.6 301.3,282.3 309.8,284.3 318.3,295.1 326.7,298.7 335.2,300.1 343.6,306.4 352.1,309.2 360.6,307.0 369.0,310.3 377.5,312.5 385.9,315.2 394.4,315.3 402.9,324.0 411.3,319.7 419.8,315.8 428.2,327.8 436.7,329.3 445.2,321.5 453.6,323.9 462.1,328.2 470.5,326.4 479.0,330.2 487.5,324.8 495.9,324.7 504.4,330.6 512.8,329.9 521.3,327.6 529.8,329.1 538.2,327.3 546.7,329.3 555.1,333.0"/>
+</svg>
+<!-- /gen:dsc-graph -->
         <div class="legend" style="top: var(--nm-space-12); right: var(--nm-space-6)" aria-label="Curves" data-od-id="graph-legend">
           <label class="check is-checked"><span class="check__box"><svg class="ic"><use href="#i-check"/></svg></span><span class="legend__line" style="--c: var(--nm-roi-1)"></span>ROI1</label>
           <label class="check is-checked"><span class="check__box"><svg class="ic"><use href="#i-check"/></svg></span><span class="legend__line legend__line--linked" style="--c: var(--nm-roi-1)"></span>ROI1-mirror</label>
@@ -437,7 +430,7 @@
     <div class="inspector__head">
       <span class="swatch" style="--c: var(--nm-roi-1); margin-right: 0"></span>
       <h2 class="panel__title">ROI1</h2>
-      <span class="dense t3">Ellipse · Slice 3/4</span>
+      <span class="dense t3">Ellipse · Slice 4/8</span>
       <span class="spacer"></span>
       <button class="ibtn" aria-label="Close inspector (I)"><svg class="ic"><use href="#i-close"/></svg></button>
     </div>
@@ -451,18 +444,18 @@
       <dl>
         <div class="kv"><dt>Colour</dt><dd><span class="swatch" style="--c: var(--nm-roi-1)"></span>ROI 1</dd></div>
         <div class="kv"><dt>Shape</dt><dd>Ellipse</dd></div>
-        <div class="kv"><dt>Bounding box</dt><dd>18 × 22<span class="u">mm</span></dd></div>
-        <div class="kv"><dt>Voxels</dt><dd>80<span class="u">vox</span></dd></div>
-        <div class="kv"><dt>Area</dt><dd>320<span class="u">mm²</span></dd></div>
+        <div class="kv"><dt>Bounding box</dt><dd>18 × 25<span class="u">mm</span></dd></div>
+        <div class="kv"><dt>Voxels</dt><dd>112<span class="u">vox</span></dd></div>
+        <div class="kv"><dt>Area</dt><dd>363<span class="u">mm²</span></dd></div>
       </dl>
-      <p class="field__hint">80 vox × 2.0 mm × 2.0 mm</p>
+      <p class="field__hint">112 vox × 1.8 mm × 1.8 mm</p>
     </div>
 
     <div class="section" data-od-id="roi-mirror">
       <span class="eyebrow">Mirror</span>
       <dl>
         <div class="kv"><dt>Linked mirror</dt><dd><svg class="ic ic--sm" style="vertical-align: middle; color: var(--nm-color-text-secondary)"><use href="#i-link"/></svg> Yes · ROI1-mirror</dd></div>
-        <div class="kv"><dt>Mirror line</dt><dd>x 32.0<span class="u">vox</span></dd></div>
+        <div class="kv"><dt>Mirror line</dt><dd>x 63.5<span class="u">vox</span></dd></div>
       </dl>
       <div class="field--row field">
         <span class="field__label">Reference ROI</span>

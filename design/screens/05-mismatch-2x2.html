@@ -149,8 +149,8 @@
             <div class="field" data-od-id="mm-seeds">
               <span class="field__label">Seeds</span>
               <dl>
-                <div class="kv"><dt><span class="swatch" style="--c: var(--nm-mismatch-core)"></span>Core · ADC</dt><dd class="mono">sl 2 · x 5 · y 20</dd></div>
-                <div class="kv"><dt><span class="swatch" style="--c: var(--nm-mismatch-deficit)"></span>Deficit · Tmax</dt><dd class="mono">sl 3 · x 16 · y 32</dd></div>
+                <div class="kv"><dt><span class="swatch" style="--c: var(--nm-mismatch-core)"></span>Core · ADC</dt><dd class="mono">sl 4 · x 47 · y 63</dd></div>
+                <div class="kv"><dt><span class="swatch" style="--c: var(--nm-mismatch-deficit)"></span>Deficit · Tmax</dt><dd class="mono">sl 4 · x 42 · y 62</dd></div>
               </dl>
             </div>
             <div class="field" data-od-id="mm-thresholds">
@@ -232,17 +232,19 @@
       </div>
       <div class="vp__body vp__body--fit">
         <div class="vp__stage">
-          <img src="../assets/img/mismatch_core_on_adc.png" width="512" height="512" alt="ADC map, slice 2 of 2, with the segmented diffusion core outlined">
-          <svg viewBox="0 0 512 512" aria-hidden="true">
-            <line class="seed-cross seed-cross--core" x1="51" y1="256" x2="59" y2="256"/><line class="seed-cross seed-cross--core" x1="71" y1="256" x2="79" y2="256"/>
-            <line class="seed-cross seed-cross--core" x1="65" y1="242" x2="65" y2="250"/><line class="seed-cross seed-cross--core" x1="65" y1="262" x2="65" y2="270"/>
-            <circle class="seed seed--core" cx="65.1" cy="256" r="4"/>
-          </svg>
+          <img src="../assets/img/mismatch_core_on_adc.png" width="512" height="512" alt="ADC map, slice 4 of 8, with the segmented diffusion core outlined">
+<!-- gen:mm-seed-core -->
+<svg viewBox="0 0 512 512" aria-hidden="true">
+<line class="seed-cross seed-cross--core" x1="175.7" y1="252.0" x2="183.7" y2="252.0"/><line class="seed-cross seed-cross--core" x1="195.7" y1="252.0" x2="203.7" y2="252.0"/>
+<line class="seed-cross seed-cross--core" x1="189.7" y1="238.0" x2="189.7" y2="246.0"/><line class="seed-cross seed-cross--core" x1="189.7" y1="258.0" x2="189.7" y2="266.0"/>
+<circle class="seed seed--core" cx="189.7" cy="252.0" r="4"/>
+</svg>
+<!-- /gen:mm-seed-core -->
         </div>
-        <div class="ov ov--tl">ADC [×10⁻⁶ mm²/s]<br><span class="t2">DTI 32dir · b 0/1000 · Slice 2/2</span></div>
+        <div class="ov ov--tl">ADC [×10⁻⁶ mm²/s]<br><span class="t2">DTI 32dir · b 0/1000 · Slice 4/8</span></div>
         <div class="ov ov--tr">PHANTOM^SYNTHETIC<br><span class="t2">NMR-PHANTOM-001 · 2026-01-01</span></div>
-        <div class="ov ov--bl">Core <span class="t2">ADC &lt; 620 ×10⁻⁶ mm²/s</span> · 2.32 cm²<br><span class="t2">Segmentation opacity 65 %</span></div>
-        <div class="ov ov--br">Zoom 160 %<br><span class="t2">2.0 × 2.0 mm · 40 × 40</span></div>
+        <div class="ov ov--bl">Core <span class="t2">ADC &lt; 620 ×10⁻⁶ mm²/s</span> · 5.25 cm²<br><span class="t2">Segmentation opacity 65 %</span></div>
+        <div class="ov ov--br">Zoom 100 %<br><span class="t2">1.8 × 1.8 mm · 128 × 128</span></div>
         <div class="cbar" style="--lut: var(--nm-lut-gray)">
           <span>3000</span><span class="cbar__ramp"></span><span>0</span>
           <span class="cbar__meta">×10⁻⁶ mm²/s<br>W 0–3000</span>
@@ -268,17 +270,19 @@
       </div>
       <div class="vp__body vp__body--fit">
         <div class="vp__stage">
-          <img src="../assets/img/mismatch_deficit_on_tmax.png" width="512" height="512" alt="Tmax map, slice 3 of 4, with the segmented perfusion deficit outlined">
-          <svg viewBox="0 0 512 512" aria-hidden="true">
-            <line class="seed-cross seed-cross--deficit" x1="114" y1="258" x2="122" y2="258"/><line class="seed-cross seed-cross--deficit" x1="135" y1="258" x2="143" y2="258"/>
-            <line class="seed-cross seed-cross--deficit" x1="128.5" y1="244" x2="128.5" y2="252"/><line class="seed-cross seed-cross--deficit" x1="128.5" y1="265" x2="128.5" y2="273"/>
-            <circle class="seed seed--deficit" cx="128.5" cy="258.4" r="4"/>
-          </svg>
+          <img src="../assets/img/mismatch_deficit_on_tmax.png" width="512" height="512" alt="Tmax map, slice 4 of 8, with the segmented perfusion deficit outlined">
+<!-- gen:mm-seed-deficit -->
+<svg viewBox="0 0 512 512" aria-hidden="true">
+<line class="seed-cross seed-cross--deficit" x1="154.6" y1="247.4" x2="162.6" y2="247.4"/><line class="seed-cross seed-cross--deficit" x1="174.6" y1="247.4" x2="182.6" y2="247.4"/>
+<line class="seed-cross seed-cross--deficit" x1="168.6" y1="233.4" x2="168.6" y2="241.4"/><line class="seed-cross seed-cross--deficit" x1="168.6" y1="253.4" x2="168.6" y2="261.4"/>
+<circle class="seed seed--deficit" cx="168.6" cy="247.4" r="4"/>
+</svg>
+<!-- /gen:mm-seed-deficit -->
         </div>
-        <div class="ov ov--tl">Tmax [s]<br><span class="t2">Deconvolution · Gray · Slice 3/4</span></div>
+        <div class="ov ov--tl">Tmax [s]<br><span class="t2">Deconvolution · Gray · Slice 4/8</span></div>
         <div class="ov ov--tr">PHANTOM^SYNTHETIC<br><span class="t2">NMR-PHANTOM-001 · 2026-01-01</span></div>
         <div class="ov ov--bl">Deficit <span class="t2">Tmax &gt; 6.0 s</span><br><span class="t2">Segmentation opacity 65 %</span></div>
-        <div class="ov ov--br">Zoom 100 %<br><span class="t2">2.0 × 2.0 mm · 64 × 64</span></div>
+        <div class="ov ov--br">Zoom 100 %<br><span class="t2">1.8 × 1.8 mm · 128 × 128</span></div>
         <div class="cbar" style="--lut: var(--nm-lut-gray)">
           <span>12</span><span class="cbar__ramp"></span><span>0</span>
           <span class="cbar__meta">s<br>W 0–12</span>
@@ -305,23 +309,17 @@
           <span class="spacer"></span>
           <span class="dense t3">Click a slice column to jump to it</span>
         </div>
-        <table class="tbl" data-od-id="mm-table-regions">
-          <colgroup><col style="width:24%"><col><col><col><col style="width:24%"></colgroup>
-          <thead>
-            <tr>
-              <th>Region</th>
-              <th class="num">Slice 1<span class="unit">[cm²]</span></th>
-              <th class="num is-current">Slice 2<span class="unit">[cm²]</span></th>
-              <th class="num">Volume<span class="unit">[ml]</span></th>
-              <th class="num">Mean ADC<span class="unit">[×10⁻⁶ mm²/s]</span></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td class="strong"><span class="swatch" style="--c: var(--nm-mismatch-core)"></span>Core 1</td><td class="num">2.32</td><td class="num">2.32</td><td class="num">1.9</td><td class="num">356</td></tr>
-            <tr><td class="strong"><span class="swatch swatch--linked" style="--c: var(--nm-mismatch-deficit)"></span>Deficit 1</td><td class="num">8.32</td><td class="num">8.32</td><td class="num">6.7</td><td class="num">1623</td></tr>
-            <tr class="is-selected" aria-selected="true"><td class="strong"><span class="swatch swatch--hatch" style="--c: var(--nm-mismatch-penumbra)"></span>Penumbra</td><td class="num">6.00</td><td class="num">6.00</td><td class="num">4.8</td><td class="num">2113</td></tr>
-          </tbody>
-        </table>
+<!-- gen:mm-regions -->
+<table class="tbl" data-od-id="mm-table-regions">
+<colgroup><col style="width:24%"><col><col><col><col><col style="width:24%"></colgroup>
+<thead><tr><th>Region</th><th class="num">Slice 3<span class="unit">[cm²]</span></th><th class="num is-current">Slice 4<span class="unit">[cm²]</span></th><th class="num">Slice 5<span class="unit">[cm²]</span></th><th class="num">Volume<span class="unit">[ml]</span></th><th class="num">Mean ADC<span class="unit">[×10⁻⁶ mm²/s]</span></th></tr></thead>
+<tbody>
+<tr><td class="strong"><span class="swatch" style="--c: var(--nm-mismatch-core)"></span>Core 1</td><td class="num">5.57</td><td class="num">5.25</td><td class="num">3.14</td><td class="num">9.4</td><td class="num">468</td></tr>
+<tr><td class="strong"><span class="swatch swatch--linked" style="--c: var(--nm-mismatch-deficit)"></span>Deficit 1</td><td class="num">23.39</td><td class="num">23.39</td><td class="num">23.20</td><td class="num">76.8</td><td class="num">806</td></tr>
+<tr class="is-selected" aria-selected="true"><td class="strong"><span class="swatch swatch--hatch" style="--c: var(--nm-mismatch-penumbra)"></span>Penumbra</td><td class="num">17.82</td><td class="num">18.14</td><td class="num">20.06</td><td class="num">67.4</td><td class="num">853</td></tr>
+</tbody>
+</table>
+<!-- /gen:mm-regions -->
 <!-- /tbl:regions -->
 <!-- tbl:volumes -->
         <div class="tbl-head" style="margin-top: var(--nm-space-4)">
@@ -333,10 +331,12 @@
           <colgroup><col style="width:46%"><col><col style="width:30%"></colgroup>
           <thead><tr><th>Measure</th><th class="num">Value</th><th>Unit</th></tr></thead>
           <tbody>
-            <tr><td class="strong">Perfusion volume <span class="t3">Tmax &gt; 6.0 s</span></td><td class="num">6.7</td><td>ml</td></tr>
-            <tr><td class="strong">Diffusion volume <span class="t3">ADC &lt; 620</span></td><td class="num">1.9</td><td>ml</td></tr>
-            <tr><td class="strong">Mismatch volume</td><td class="num">4.8</td><td>ml</td></tr>
-            <tr class="is-total"><td>Mismatch ratio <span class="t3">(perf − diff) / perf</span></td><td class="num">72.1</td><td>%</td></tr>
+<!-- gen:mm-volumes -->
+<tr><td class="strong">Perfusion volume <span class="t3">Tmax &gt; 6.0 s</span></td><td class="num">76.8</td><td>ml</td></tr>
+<tr><td class="strong">Diffusion volume <span class="t3">ADC &lt; 620</span></td><td class="num">9.4</td><td>ml</td></tr>
+<tr><td class="strong">Mismatch volume</td><td class="num">67.4</td><td>ml</td></tr>
+<tr class="is-total"><td>Mismatch ratio <span class="t3">(perf − diff) / perf</span></td><td class="num">87.8</td><td>%</td></tr>
+<!-- /gen:mm-volumes -->
           </tbody>
         </table>
 <!-- /tbl:volumes -->
@@ -357,15 +357,15 @@
       </div>
       <div class="vp__body vp__body--fit">
         <div class="vp__stage">
-          <img src="../assets/img/mismatch_penumbra_on_b0.png" width="512" height="512" alt="DWI b0 with the diffusion core filled and the penumbra hatched, slice 2 of 2">
+          <img src="../assets/img/mismatch_penumbra_on_b0.png" width="512" height="512" alt="DWI b0 with the diffusion core filled and the penumbra hatched, slice 4 of 8">
         </div>
-        <div class="ov ov--tl">DWI b0 · Slice 2/2<br><span class="t2">Registered to perfusion · scroll linked</span></div>
+        <div class="ov ov--tl">DWI b0 · Slice 4/8<br><span class="t2">Registered to perfusion · scroll linked</span></div>
         <div class="ov ov--tr">PHANTOM^SYNTHETIC<br><span class="t2">NMR-PHANTOM-001 · 2026-01-01</span></div>
-        <div class="ov ov--bl">W 1595.6 · L 804.6 <span class="t2">a.u.</span><br><span class="t2">Segmentation opacity 65 %</span></div>
-        <div class="ov ov--br">Zoom 160 %<br><span class="t2">2.0 × 2.0 mm · 40 × 40</span></div>
+        <div class="ov ov--bl">W 2183.6 · L 1097.9 <span class="t2">a.u.</span><br><span class="t2">Segmentation opacity 65 %</span></div>
+        <div class="ov ov--br">Zoom 100 %<br><span class="t2">1.8 × 1.8 mm · 128 × 128</span></div>
         <div class="legend" style="top: var(--nm-space-12); right: var(--nm-space-4)" aria-label="Segmentation">
-          <span class="check"><span class="swatch" style="--c: var(--nm-mismatch-core)"></span>Core 1.9 ml</span>
-          <span class="check"><span class="swatch swatch--hatch" style="--c: var(--nm-mismatch-penumbra)"></span>Penumbra 4.8 ml</span>
+          <span class="check"><span class="swatch" style="--c: var(--nm-mismatch-core)"></span>Core 9.4 ml</span>
+          <span class="check"><span class="swatch swatch--hatch" style="--c: var(--nm-mismatch-penumbra)"></span>Penumbra 67.4 ml</span>
         </div>
         <span class="ov orient orient--n">A</span><span class="ov orient orient--s">P</span><span class="ov orient orient--w">R</span><span class="ov orient orient--e">L</span>
       </div>

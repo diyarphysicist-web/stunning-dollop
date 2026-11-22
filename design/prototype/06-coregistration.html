@@ -123,7 +123,7 @@
         <dl>
           <div class="kv"><dt>Input (moves)</dt><dd>3D FLAIR · 2026-07-01</dd></div>
           <div class="kv"><dt>Reference (fixed)</dt><dd>3D FLAIR · 2026-01-01</dd></div>
-          <div class="kv"><dt>Geometry</dt><dd>64 × 64 × 32 · 1.0<span class="u">mm</span></dd></div>
+          <div class="kv"><dt>Geometry</dt><dd>128 × 128 × 96 · 1.5<span class="u">mm</span></dd></div>
         </dl>
       </section>
 
@@ -147,7 +147,7 @@
           <button class="seg__item is-selected" role="radio" aria-checked="true">Checkerboard</button>
           <button class="seg__item" role="radio">Blend</button>
         </div>
-        <dl><div class="kv"><dt>Tile size</dt><dd>8<span class="u">mm</span></dd></div></dl>
+        <dl><div class="kv"><dt>Tile size</dt><dd>24<span class="u">mm</span></dd></div></dl>
       </section>
 
       <section class="psec" data-od-id="reg-nudge">
@@ -230,7 +230,7 @@
       <button class="seg__item" role="radio">Sagittal</button>
     </div>
     <span class="spacer"></span>
-    <span class="dense t3">Cursor x 32 · y 32 · z 21 vox</span>
+    <span class="dense t3">Cursor x 80 · y 49 · z 59 vox</span>
   </div>
 
   <!-- ============ Viewports: main fused view + three orthogonal references ============ -->
@@ -245,16 +245,16 @@
       </div>
       <div class="vp__body vp__body--fit">
         <div class="vp__stage">
-          <img src="../assets/img/coreg_ax_checker.png" width="512" height="512" alt="Axial checkerboard fusion of the follow-up FLAIR on the baseline FLAIR, slice 22 of 32; edges step between tiles where alignment is off">
+          <img src="../assets/img/coreg_ax_checker.png" width="512" height="512" alt="Axial checkerboard fusion of the follow-up FLAIR on the baseline FLAIR, slice 60 of 96; edges step between tiles where alignment is off">
           <svg viewBox="0 0 512 512" aria-hidden="true">
-            <line class="xhair" x1="260" y1="0" x2="260" y2="244"/><line class="xhair" x1="260" y1="276" x2="260" y2="512"/>
-            <line class="xhair" x1="0" y1="260" x2="244" y2="260"/><line class="xhair" x1="276" y1="260" x2="512" y2="260"/>
+            <line class="xhair" x1="322" y1="0" x2="322" y2="182"/><line class="xhair" x1="322" y1="214" x2="322" y2="512"/>
+            <line class="xhair" x1="0" y1="198" x2="306" y2="198"/><line class="xhair" x1="338" y1="198" x2="512" y2="198"/>
           </svg>
         </div>
-        <div class="ov ov--tl">3D FLAIR fusion · Checkerboard 8 mm<br><span class="t2">Slice 22/32 · z 21.0 mm</span></div>
+        <div class="ov ov--tl">3D FLAIR fusion · Checkerboard 24 mm<br><span class="t2">Slice 60/96 · z 17.3 mm</span></div>
         <div class="ov ov--tr">PHANTOM^SYNTHETIC<br><span class="t2">NMR-PHANTOM-001 · 2026-01-01 · 2026-07-01</span></div>
-        <div class="ov ov--bl">W 478.9 · L 240.9 <span class="t2">a.u.</span><br><span class="t2">Edit +2.5 / −1.5 / 0.0 mm · Rz +2.0°</span></div>
-        <div class="ov ov--br">Zoom 100 %<br><span class="t2">1.0 × 1.0 mm · 64 × 64</span></div>
+        <div class="ov ov--bl">W 437.9 · L 220.2 <span class="t2">a.u.</span><br><span class="t2">Edit +2.5 / −1.5 / 0.0 mm · Rz +2.0°</span></div>
+        <div class="ov ov--br">Zoom 100 %<br><span class="t2">1.5 × 1.5 mm · 128 × 128</span></div>
         <span class="ov orient orient--n">A</span><span class="ov orient orient--s">P</span><span class="ov orient orient--w">R</span><span class="ov orient orient--e">L</span>
       </div>
     </section>
@@ -263,13 +263,13 @@
       <div class="vp__head"><span class="vp__role">Axial</span><span class="spacer"></span><button class="ibtn ibtn--sm" aria-label="Viewport menu (right-click)"><svg class="ic ic--sm"><use href="#i-more"/></svg></button></div>
       <div class="vp__body vp__body--fit">
         <div class="vp__stage">
-          <img src="../assets/img/coreg_ax_checker.png" width="512" height="512" alt="Axial checkerboard fusion, slice 22 of 32">
+          <img src="../assets/img/coreg_ax_checker.png" width="512" height="512" alt="Axial checkerboard fusion, slice 60 of 96">
           <svg viewBox="0 0 512 512" aria-hidden="true">
-            <line class="xhair" x1="260" y1="0" x2="260" y2="236"/><line class="xhair" x1="260" y1="284" x2="260" y2="512"/>
-            <line class="xhair" x1="0" y1="260" x2="236" y2="260"/><line class="xhair" x1="284" y1="260" x2="512" y2="260"/>
+            <line class="xhair" x1="322" y1="0" x2="322" y2="174"/><line class="xhair" x1="322" y1="222" x2="322" y2="512"/>
+            <line class="xhair" x1="0" y1="198" x2="298" y2="198"/><line class="xhair" x1="346" y1="198" x2="512" y2="198"/>
           </svg>
         </div>
-        <div class="ov ov--tl">Slice 22/32</div>
+        <div class="ov ov--tl">Slice 60/96</div>
         <span class="ov orient orient--w">R</span><span class="ov orient orient--e">L</span>
       </div>
     </section>
@@ -278,13 +278,13 @@
       <div class="vp__head"><span class="vp__role">Coronal</span><span class="spacer"></span><button class="ibtn ibtn--sm" aria-label="Viewport menu (right-click)"><svg class="ic ic--sm"><use href="#i-more"/></svg></button></div>
       <div class="vp__body vp__body--fit">
         <div class="vp__stage vp__stage--wide">
-          <img src="../assets/img/coreg_cor_checker.png" width="512" height="256" alt="Coronal checkerboard fusion through y 32">
-          <svg viewBox="0 0 512 256" aria-hidden="true">
-            <line class="xhair" x1="260" y1="0" x2="260" y2="68"/><line class="xhair" x1="260" y1="100" x2="260" y2="256"/>
-            <line class="xhair" x1="0" y1="84" x2="244" y2="84"/><line class="xhair" x1="276" y1="84" x2="512" y2="84"/>
+          <img src="../assets/img/coreg_cor_checker.png" width="512" height="384" alt="Coronal checkerboard fusion through y −21.8 mm">
+          <svg viewBox="0 0 512 384" aria-hidden="true">
+            <line class="xhair" x1="322" y1="0" x2="322" y2="130"/><line class="xhair" x1="322" y1="162" x2="322" y2="384"/>
+            <line class="xhair" x1="0" y1="146" x2="306" y2="146"/><line class="xhair" x1="338" y1="146" x2="512" y2="146"/>
           </svg>
         </div>
-        <div class="ov ov--tl">y 32.0 mm</div>
+        <div class="ov ov--tl">y −21.8 mm</div>
         <span class="ov orient orient--n">S</span><span class="ov orient orient--s">I</span><span class="ov orient orient--w">R</span><span class="ov orient orient--e">L</span>
       </div>
     </section>
@@ -293,13 +293,13 @@
       <div class="vp__head"><span class="vp__role">Sagittal</span><span class="spacer"></span><button class="ibtn ibtn--sm" aria-label="Viewport menu (right-click)"><svg class="ic ic--sm"><use href="#i-more"/></svg></button></div>
       <div class="vp__body vp__body--fit">
         <div class="vp__stage vp__stage--wide">
-          <img src="../assets/img/coreg_sag_checker.png" width="512" height="256" alt="Sagittal checkerboard fusion through x 32">
-          <svg viewBox="0 0 512 256" aria-hidden="true">
-            <line class="xhair" x1="260" y1="0" x2="260" y2="68"/><line class="xhair" x1="260" y1="100" x2="260" y2="256"/>
-            <line class="xhair" x1="0" y1="84" x2="244" y2="84"/><line class="xhair" x1="276" y1="84" x2="512" y2="84"/>
+          <img src="../assets/img/coreg_sag_checker.png" width="512" height="384" alt="Sagittal checkerboard fusion through x 24.8 mm">
+          <svg viewBox="0 0 512 384" aria-hidden="true">
+            <line class="xhair" x1="198" y1="0" x2="198" y2="130"/><line class="xhair" x1="198" y1="162" x2="198" y2="384"/>
+            <line class="xhair" x1="0" y1="146" x2="182" y2="146"/><line class="xhair" x1="214" y1="146" x2="512" y2="146"/>
           </svg>
         </div>
-        <div class="ov ov--tl">x 32.0 mm</div>
+        <div class="ov ov--tl">x 24.8 mm</div>
         <span class="ov orient orient--n">S</span><span class="ov orient orient--s">I</span><span class="ov orient orient--w">A</span><span class="ov orient orient--e">P</span>
       </div>
     </section>

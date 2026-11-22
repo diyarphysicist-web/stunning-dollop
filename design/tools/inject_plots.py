@@ -58,6 +58,198 @@ def poly(cls: str, xs: list[float], ys: list[float], sx, sy) -> str:
     return f'<polyline class="{cls}" points="{pts}"/>'
 
 
+def nice_ticks(lo: float, hi: float, max_n: int = 6) -> list[float]:
+    """Round tick values covering lo…hi with at most max_n + 1 ticks."""
+    span = max(hi - lo, 1e-9)
+    step = next(m * 10**e for e in range(-3, 6) for m in (1, 2, 5) if span / (m * 10**e) <= max_n)
+    a = step * int(lo // step) if lo >= 0 else -step * int(-lo // step + (1 if -lo % step else 0))
+    out, v = [], a
+    while v < hi + step * 0.999:
+        out.append(round(v, 6))
+        v += step
+    return out
+
+
+# ── DSC (03 and the screens composed from it) ─────────────────────────────────
+DSC_ROWS = (("roi1", "ROI1", "swatch", "--nm-roi-1"), ("roi1_mirror", "ROI1-mirror", "swatch swatch--linked", "--nm-roi-1"), ("roi2", "ROI2", "swatch", "--nm-roi-2"))
+
+
+def dsc_graph() -> str:
+    d = DATA["dsc"]
+    t, c = d["curves"]["times_s"], d["curves"]
+    k = d["peak_dynamic"] - 1
+    ys = c["roi1"] + c["roi1_mirror"] + c["roi2"]
+    yt = nice_ticks(min(ys), max(ys), 5)
+    xt = nice_ticks(0, t[-1], 6)
+    m = max(range(len(t)), key=lambda i: c["roi1_mirror"][i])
+    label = (f"ΔR2* over time for ROI1, ROI1-mirror and ROI2; ROI1-mirror peaks at {c['roi1_mirror'][m]:.1f} per second at {t[m]:.1f} s, "
+             f"ROI1 has a lower, delayed and wider bolus")
+    out = [f'<svg class="graph" viewBox="0 0 640 452" preserveAspectRatio="xMidYMid meet" role="img" aria-label="{label}">']
+    frame, sx, sy = axes(xt, yt, (0, xt[-1]), (yt[0], yt[-1]), "Time [s]", "ΔR2* [1/s]")
+    out += frame
+    out.append(f'<line class="g-marker" x1="{f1(sx(t[k]))}" y1="30" x2="{f1(sx(t[k]))}" y2="{f1(Y1)}"/>')
+    out.append(f'<text class="g-marker-label" x="{f1(sx(t[k]) + 4)}" y="28">Dyn {k + 1} · {t[k]:.1f} s</text>')
+    out.append(poly("g-curve g-curve--2", t, c["roi2"], sx, sy))
+    out.append(poly("g-curve g-curve--1 g-curve--linked", t, c["roi1_mirror"], sx, sy))
+    out.append(poly("g-curve g-curve--1", t, c["roi1"], sx, sy))
+    out.append("</svg>")
+    return NL.join(out)
+
+
+def dsc_table() -> str:
+    tb = DATA["dsc"]["table"]
+    out = []
+    for key, name, sw, var in DSC_ROWS:
+        r = tb[key]
+        sel = ' class="is-selected" aria-selected="true"' if key == "roi1" else ""
+        cells = "".join(f'<td class="num">{v}</td>' for v in (f"{r['relCBV']:.2f}", f"{r['relCBF']:.1f}", f"{r['MTT']:.2f}", f"{r['TTP']:.1f}", f"{r['T0']:.1f}", f"{r['voxels']:,}"))
+        out.append(f'<tr{sel}><td class="strong"><span class="{sw}" style="--c: var({var})"></span>{name}</td>{cells}</tr>')
+    return NL.join(out)
+
+
+def dsc_ratio() -> str:
+    a, b = DATA["dsc"]["table"]["roi1"], DATA["dsc"]["table"]["roi1_mirror"]
+    rows = (("relCBV", "ml/100 g", "relCBV", 2), ("relCBF", "ml/100 g/min", "relCBF", 1), ("MTT", "s", "MTT", 2))
+    return NL.join(
+        f'<tr><td class="strong">{n} <span class="t3">[{u}]</span></td><td class="num">{a[k]:.{nd}f}</td><td class="num">{b[k]:.{nd}f}</td>'
+        f'<td class="num strong">{a[k] / b[k]:.2f}</td></tr>'
+        for n, u, k, nd in rows
+    )
+
+
+VOX = 512 / 128  # overlay px per voxel on the 512 px DSC stage
+
+
+def _ellipses(handles: bool) -> list[str]:
+    b = DATA["dsc"]["roi_boxes_vox"]
+    out = []
+    for key, cls in (("roi1", "roi roi--1"), ("roi1_mirror", "roi roi--1 roi--linked"), ("roi2", "roi roi--2")):
+        y0, y1, x0, x1 = b[key]
+        out.append(f'<ellipse class="{cls}" cx="{f1((x0 + x1) / 2 * VOX)}" cy="{f1((y0 + y1) / 2 * VOX)}" rx="{f1((x1 - x0) / 2 * VOX)}" ry="{f1((y1 - y0) / 2 * VOX)}"/>')
+    if handles:
+        y0, y1, x0, x1 = b["roi1"]
+        cx, cy = (x0 + x1) / 2 * VOX, (y0 + y1) / 2 * VOX
+        for hx, hy in ((cx, y0 * VOX), (cx, y1 * VOX), (x0 * VOX, cy), (x1 * VOX, cy)):
+            out.append(f'<rect class="roi-handle" x="{f1(hx - 3)}" y="{f1(hy - 3)}" width="6" height="6"/>')
+    return out
+
+
+def dsc_rois_source() -> str:
+    """ROIs, mirror line and labels over the DSC source image (03)."""
+    b = DATA["dsc"]["roi_boxes_vox"]
+    out = ['<svg viewBox="0 0 512 512" aria-hidden="true">', '<line class="mirror-line" x1="256" y1="12" x2="256" y2="500"/>',
+           '<rect class="mirror-grip" x="250" y="236" width="12" height="40" rx="2"/>'] + _ellipses(True) + ["</svg>"]
+    for key, name, n in (("roi1", "ROI1", 1), ("roi1_mirror", "ROI1-mirror", 1), ("roi2", "ROI2", 2)):
+        y0, _, x0, _ = b[key]
+        out.append(f'<span class="ov roi-label roi-label--{n}" style="left:{100 * x0 * VOX / 512:.1f}%; top:{100 * (y0 * VOX - 18) / 512:.1f}%">{name}</span>')
+    return NL.join(out)
+
+
+def dsc_rois() -> str:
+    return NL.join(['<svg viewBox="0 0 512 512" aria-hidden="true">'] + _ellipses(False) + ["</svg>"])
+
+
+def aif_overlay() -> str:
+    """7 × 7 AIF box with its selected voxels over the DSC source image (04)."""
+    box = DATA["dsc"]["aif_box"]
+    cy, cx = box["center_yx"]
+    x0, y0 = (cx - 3) * VOX, (cy - 3) * VOX
+    side = 7 * VOX
+    out = ['<svg viewBox="0 0 512 512" aria-hidden="true">']
+    out += [f'<rect class="aif-vox" x="{f1(x0 + (i % 7) * VOX)}" y="{f1(y0 + (i // 7) * VOX)}" width="{f1(VOX)}" height="{f1(VOX)}"/>' for i in box["selected"]]
+    out.append('<g class="aif-box-grid">' + "".join(f'<line x1="{f1(x0 + k * VOX)}" y1="{f1(y0)}" x2="{f1(x0 + k * VOX)}" y2="{f1(y0 + side)}"/>' for k in range(1, 7))
+               + "".join(f'<line x1="{f1(x0)}" y1="{f1(y0 + k * VOX)}" x2="{f1(x0 + side)}" y2="{f1(y0 + k * VOX)}"/>' for k in range(1, 7)) + "</g>")
+    out.append(f'<rect class="aif-box" x="{f1(x0)}" y="{f1(y0)}" width="{f1(side)}" height="{f1(side)}"/>')
+    out += [f'<rect class="roi-handle" x="{f1(hx - 3)}" y="{f1(hy - 3)}" width="6" height="6"/>' for hx in (x0, x0 + side) for hy in (y0, y0 + side)]
+    out.append("</svg>")
+    out.append(f'<span class="ov" style="left: {100 * x0 / 512:.1f}%; top: {100 * (y0 - 4) / 512:.1f}%; transform: translateY(-100%); padding-bottom: var(--nm-space-1); '
+               f'color: var(--nm-color-accent)">AIF box 7 × 7</span>')
+    return NL.join(out)
+
+
+# ── Mismatch tables and seeds (05) ────────────────────────────────────────────
+MM_REGIONS = (("core", "Core 1", "swatch", "--nm-mismatch-core", ""),
+              ("deficit", "Deficit 1", "swatch swatch--linked", "--nm-mismatch-deficit", ""),
+              ("penumbra", "Penumbra", "swatch swatch--hatch", "--nm-mismatch-penumbra", ' class="is-selected" aria-selected="true"'))
+
+
+def mm_regions() -> str:
+    d = DATA["dti"]
+    mm, cur = d["mismatch"]["regions"], d["slice"]
+    cols = [k for k in (cur - 1, cur, cur + 1) if 1 <= k <= d["slices"]]
+    out = ['<table class="tbl" data-od-id="mm-table-regions">', '<colgroup><col style="width:24%">' + "<col>" * (len(cols) + 1) + '<col style="width:24%"></colgroup>',
+           "<thead><tr><th>Region</th>" + "".join(f'<th class="num{" is-current" if k == cur else ""}">Slice {k}<span class="unit">[cm²]</span></th>' for k in cols)
+           + '<th class="num">Volume<span class="unit">[ml]</span></th><th class="num">Mean ADC<span class="unit">[×10⁻⁶ mm²/s]</span></th></tr></thead>', "<tbody>"]
+    for key, name, sw, var, sel in MM_REGIONS:
+        r = mm[key]
+        out.append(f'<tr{sel}><td class="strong"><span class="{sw}" style="--c: var({var})"></span>{name}</td>'
+                   + "".join(f'<td class="num">{r["slice_cm2"][k - 1]:.2f}</td>' for k in cols)
+                   + f'<td class="num">{r["ml"]:.1f}</td><td class="num">{r["mean_adc_e6"]:,.0f}</td></tr>')
+    out += ["</tbody>", "</table>"]
+    return NL.join(out)
+
+
+def mm_volumes() -> str:
+    m = DATA["dti"]["mismatch"]
+    return NL.join([
+        f'<tr><td class="strong">Perfusion volume <span class="t3">Tmax &gt; 6.0 s</span></td><td class="num">{m["perfusion_ml"]:.1f}</td><td>ml</td></tr>',
+        f'<tr><td class="strong">Diffusion volume <span class="t3">ADC &lt; 620</span></td><td class="num">{m["diffusion_ml"]:.1f}</td><td>ml</td></tr>',
+        f'<tr><td class="strong">Mismatch volume</td><td class="num">{m["mismatch_ml"]:.1f}</td><td>ml</td></tr>',
+        f'<tr class="is-total"><td>Mismatch ratio <span class="t3">(perf − diff) / perf</span></td><td class="num">{m["ratio_pct"]:.1f}</td><td>%</td></tr>',
+    ])
+
+
+def _seed(kind: str, xy: list[float]) -> str:
+    x, y = xy
+    c = f"seed-cross seed-cross--{kind}"
+    return NL.join([
+        '<svg viewBox="0 0 512 512" aria-hidden="true">',
+        f'<line class="{c}" x1="{f1(x - 14)}" y1="{f1(y)}" x2="{f1(x - 6)}" y2="{f1(y)}"/><line class="{c}" x1="{f1(x + 6)}" y1="{f1(y)}" x2="{f1(x + 14)}" y2="{f1(y)}"/>',
+        f'<line class="{c}" x1="{f1(x)}" y1="{f1(y - 14)}" x2="{f1(x)}" y2="{f1(y - 6)}"/><line class="{c}" x1="{f1(x)}" y1="{f1(y + 6)}" x2="{f1(x)}" y2="{f1(y + 14)}"/>',
+        f'<circle class="seed seed--{kind}" cx="{f1(x)}" cy="{f1(y)}" r="4"/>',
+        "</svg>",
+    ])
+
+
+def _dce_ellipses(key: str) -> list[str]:
+    return [f'<ellipse class="roi roi--{i}" cx="{g["cx"]}" cy="{g["cy"]}" rx="{g["rx"]}" ry="{g["ry"]}"/>' for i, g in enumerate(DATA[key]["rois"].values(), start=1)]
+
+
+def roi_overlay(key: str, labels: bool) -> str:
+    """Elliptical ROIs over a DCE or permeability image (512 px stage), with labels on the source image."""
+    out = ['<svg viewBox="0 0 512 512" aria-hidden="true">'] + _dce_ellipses(key)
+    if labels and key == "dce":  # ROI1 selected: resize handles
+        g = DATA[key]["rois"]["roi1"]
+        out += [f'<rect class="roi-handle" x="{f1(hx - 3)}" y="{f1(hy - 3)}" width="6" height="6"/>'
+                for hx, hy in ((g["cx"], g["cy"] - g["ry"]), (g["cx"], g["cy"] + g["ry"]), (g["cx"] - g["rx"], g["cy"]), (g["cx"] + g["rx"], g["cy"]))]
+    out.append("</svg>")
+    if labels:
+        for i, g in enumerate(DATA[key]["rois"].values(), start=1):
+            left = g["cx"] + g["rx"] + 4 if i != 2 else g["cx"] - g["rx"] - 40  # ROI2 (necrosis) labelled on its left
+            out.append(f'<span class="ov roi-label roi-label--{i}" style="left: {100 * left / 512:.1f}%; top: {100 * (g["cy"] - 8) / 512:.1f}%">ROI{i}</span>')
+    return NL.join(out)
+
+
+# ── Longitudinal: lesion outlines on the displayed FLAIR slice (13) ───────────
+def lba_stage(when: str) -> str:
+    fl = DATA["flair"]
+    shown = [(i, les) for i, les in enumerate(fl["lesions"], start=1) if les[f"outline_{when}"]]
+    names = [les["name"] for _, les in shown]
+    listed = " and ".join(names) if len(names) < 3 else ", ".join(names[:-1]) + " and " + names[-1]
+    what = ("Baseline FLAIR" if when == "base" else "Follow-up FLAIR")
+    src = "flair_baseline.png" if when == "base" else "flair_followup.png"
+    alt = f"{what}, slice {fl['slice']} of {fl['slices']}" + (f", with {'lesion' if len(names) == 1 else 'lesions'} {listed} outlined" if names else "")
+    out = [f'<img src="../assets/img/{src}" width="512" height="512" alt="{alt}">', '<svg viewBox="0 0 512 512" aria-hidden="true">']
+    for i, les in shown:
+        o = les[f"outline_{when}"]
+        out.append(f'<circle class="roi roi--{min(i, 3)}" cx="{o["cx"]}" cy="{o["cy"]}" r="{o["r"]}"/>')
+    out.append("</svg>")
+    for i, les in shown:
+        o = les[f"outline_{when}"]
+        out.append(f'<span class="ov roi-label roi-label--{min(i, 3)}" style="left: {100 * (o["cx"] + 0.7 * o["r"]) / 512:.1f}%; top: {100 * (o["cy"] - o["r"] - 18) / 512:.1f}%">{les["name"]}</span>')
+    return NL.join(out)
+
+
 # ── Define AIF ────────────────────────────────────────────────────────────────
 def aif_grid() -> str:
     """7 × 7 per-voxel curve grid; selected voxels highlighted. viewBox 700 × 700."""
@@ -85,10 +277,9 @@ def aif_average() -> str:
     d = DATA["dsc"]
     t = d["curves"]["times_s"]
     avg = d["aif_box"]["average"]
-    hi = max(avg)
-    top = 2.0 if hi <= 2.0 else float(int(hi) + 1)
-    yt = [v / 2 for v in range(-1, int(top * 2) + 1)] if top <= 3 else list(range(0, int(top) + 1))
-    out, sx, sy = axes([0, 20, 40, 60, 80, 100, 120], yt, (0, 126), (yt[0], yt[-1]), "Time [s]", "ΔR2* [1/s]")
+    yt = nice_ticks(min(min(avg), 0), max(avg), 6)
+    xt = nice_ticks(0, t[-1], 6)
+    out, sx, sy = axes(xt, yt, (0, xt[-1]), (yt[0], yt[-1]), "Time [s]", "ΔR2* [1/s]")
     k = max(range(len(avg)), key=lambda i: avg[i])
     out.append(f'<line class="g-marker" x1="{f1(sx(t[k]))}" y1="{f1(Y0 - 6)}" x2="{f1(sx(t[k]))}" y2="{f1(Y1)}"/>')
     out.append(f'<text class="g-marker-label" x="{f1(sx(t[k]) + 4)}" y="{f1(Y0 - 8)}">Peak {avg[k]:.2f} 1/s · {t[k]:.1f} s</text>')
@@ -183,7 +374,7 @@ STATUS = {
     "echo": '<span class="dot dot--success"></span><b>Σ echoes 1–4</b> · live preview',
     "lba": '<span class="dot dot--success"></span><b>Registered</b> · 5 findings · 2 time points',
     "fstar": '<span class="dot dot--success"></span><b>FLAIR* up to date</b> · central-vein review 3 of 4',
-    "trk": '<span class="dot dot--success"></span><b>2 bundles · 50 fibers</b> · tracking rules FA 0.20 / 45° / 10 mm',
+    "trk": '<span class="dot dot--success"></span><b>2 bundles · 52 fibers</b> · tracking rules FA 0.20 / 45° / 10 mm',
     "fmri": '<span class="dot dot--success"></span><b>SPMs up to date</b> · Block · 1 task',
     "mrs": '<span class="dot dot--success"></span><b>Processed</b> · voxel quality good',
     "preview": '<span class="dot dot--success"></span><b>Live preview</b> · ADC, eADC and DWI-iso compute on Generate',
@@ -196,7 +387,7 @@ def sprite() -> str:
 
 
 # ── DCE / T1 Perfusion (semi-quantitative preview, DCE-005/006) ───────────────
-DCE_ROIS = {"ROI1": "class2", "ROI2": "class1", "ROI3": "class3"}
+DCE_ROIS = {"ROI1": "roi1", "ROI2": "roi2", "ROI3": "roi3"}  # enhancing rim, necrosis, contralateral white matter
 
 
 def _line(ts: list[float], ys: list[float]) -> tuple[float, float, float]:
@@ -211,21 +402,23 @@ def _line(ts: list[float], ys: list[float]) -> tuple[float, float, float]:
 
 def dce_params(c: list[float], t: list[float], cur: int) -> dict[str, float]:
     s0 = (c[0] + c[1]) / 2
-    i0 = next(i for i, v in enumerate(c) if v >= 1.2 * s0)
     ip = max(range(len(c)), key=lambda i: c[i])
-    a = max(i0 - 1, 0)
     n = len(c)
+    area = sum((max(c[i] - s0, 0) + max(c[i + 1] - s0, 0)) / 2 * (t[i + 1] - t[i]) for i in range(n - 1))
+    base = {"S0": s0, "TTP": t[ip], "MAXENH": c[ip] - s0, "MAXRELENH": 100 * (c[ip] - s0) / s0,
+            "RELENH": 100 * (c[cur - 1] / c[0] - 1), "AREACURV": area}
+    i0 = next((i for i, v in enumerate(c) if v >= 1.2 * s0), None)
+    if i0 is None:  # no 20 % rise: T0 and the fitted parameters are undefined (ALGORITHMS §0.1)
+        return base | {"T0": None, "WASHIN": None, "WASHOUT": None, "BREVENH": None}
+    a = max(i0 - 1, 0)
     best = None
     for k in range(a + 2, n - 1):  # bilinear fit: wash-in a..k, wash-out k..n-1, best knee by SSE (> 8 dynamics)
         l1, l2 = _line(t[a : k + 1], c[a : k + 1]), _line(t[k:], c[k:])
         if best is None or l1[2] + l2[2] < best[0]:
             best = (l1[2] + l2[2], k, l1, l2)
     _, k, l1, l2 = best
-    area = sum((max(c[i] - s0, 0) + max(c[i + 1] - s0, 0)) / 2 * (t[i + 1] - t[i]) for i in range(n - 1))
-    return {
-        "S0": s0, "T0": t[i0], "TTP": t[ip], "MAXENH": c[ip] - s0, "MAXRELENH": 100 * (c[ip] - s0) / s0,
-        "RELENH": 100 * (c[cur - 1] / c[0] - 1), "WASHIN": l1[1], "WASHOUT": l2[1],
-        "BREVENH": (t[k] + t[-1]) / 2 - (t[a] + t[k]) / 2, "AREACURV": area,
+    return base | {
+        "T0": t[i0], "WASHIN": l1[1], "WASHOUT": l2[1], "BREVENH": (t[k] + t[-1]) / 2 - (t[a] + t[k]) / 2,
         "_fit": (t[a], t[k], t[-1], l1, l2),
     }
 
@@ -233,7 +426,7 @@ def dce_params(c: list[float], t: list[float], cur: int) -> dict[str, float]:
 def _dce_all() -> tuple[list[float], dict[str, dict[str, float]], int]:
     d = DATA["dce"]
     cur = d["source_dynamic"]
-    return d["times_s"], {r: dce_params(d["curves"][c], d["times_s"], cur) for r, c in DCE_ROIS.items()}, cur
+    return d["times_s"], {r: dce_params(d["roi_curves"][c], d["times_s"], cur) for r, c in DCE_ROIS.items()}, cur
 
 
 def dce_graph() -> str:
@@ -244,7 +437,7 @@ def dce_graph() -> str:
         out.append(f'<line class="g-marker" x1="{f1(sx(x))}" y1="{f1(Y0 - 6)}" x2="{f1(sx(x))}" y2="{f1(Y1)}"/>')
         out.append(f'<text class="g-marker-label" x="{f1(sx(x) + 4)}" y="{f1(Y0 - 8)}">{lab}</text>')
     for i, (roi, cls) in enumerate(DCE_ROIS.items(), start=1):
-        out.append(poly(f"g-curve g-curve--{i}", t, d["curves"][cls], sx, sy))
+        out.append(poly(f"g-curve g-curve--{i}", t, d["roi_curves"][cls], sx, sy))
     ta, tk, te, l1, l2 = ps["ROI1"]["_fit"]
     out.append(f'<polyline class="g-fit" points="{f1(sx(ta))},{f1(sy(l1[0] + l1[1] * ta))} {f1(sx(tk))},{f1(sy(l1[0] + l1[1] * tk))}"/>')
     out.append(f'<polyline class="g-fit" points="{f1(sx(tk))},{f1(sy(l2[0] + l2[1] * tk))} {f1(sx(te))},{f1(sy(l2[0] + l2[1] * te))}"/>')
@@ -260,22 +453,29 @@ def dce_table() -> str:
     ]
     out = []
     for key, note, unit, nd in rows:
-        cells = "".join(f'<td class="num">{tick_label(round(ps[r][key], nd)) if nd else f"{ps[r][key]:,.0f}".replace(",", " ")}</td>' for r in DCE_ROIS)
+        cells = "".join(
+            '<td class="num t3">—</td>' if ps[r][key] is None
+            else f'<td class="num">{tick_label(round(ps[r][key], nd)) if nd else f"{ps[r][key]:,.0f}".replace(",", " ")}</td>'
+            for r in DCE_ROIS
+        )
         n = f' <span class="t3">{note}</span>' if note else ""
         out.append(f'<tr><td class="strong">{key}{n}</td>{cells}<td class="t2">{unit}</td></tr>')
     return NL.join(out)
 
 
 # ── Permeability (phantom tissue classes; maps from ground truth, see renderer) ─
-PERM_ROIS = {"ROI1": "class2", "ROI2": "class1", "ROI3": "class3"}
+PERM_ROIS = {"ROI1": "class4", "ROI2": "class5", "ROI3": "class3"}  # enhancing rim, necrosis, white matter
 
 
 def perm_graph() -> str:
     d = DATA["perm"]
     t = d["times_s"]
-    out, sx, sy = axes([0, 40, 80, 120, 160, 200, 240], [0, 50, 100, 150, 200], (0, 240), (0, 200), "Time [s]", "Signal [a.u.]")
-    for i, cls in enumerate(PERM_ROIS.values(), start=1):
-        out.append(poly(f"g-curve g-curve--{i}", t, d["tissue_curves"][cls], sx, sy))
+    curves = [d["roi_curves"][f"roi{i}"] for i in (1, 2, 3)]
+    yt = nice_ticks(0, max(max(c) for c in curves), 5)
+    xt = nice_ticks(0, t[-1], 6)
+    out, sx, sy = axes(xt, yt, (0, xt[-1]), (0, yt[-1]), "Time [s]", "Signal [a.u.]")
+    for i, c in enumerate(curves, start=1):
+        out.append(poly(f"g-curve g-curve--{i}", t, c, sx, sy))
     return NL.join(out)
 
 
@@ -372,7 +572,8 @@ def lba_table() -> str:
 def lba_trend() -> str:
     les = DATA["flair"]["lesions"]
     tot = [sum(x["ml_base"] for x in les), sum(x["ml_follow"] for x in les)]
-    out, sx, sy = axes([0, 1], [0, 0.2, 0.4, 0.6, 0.8], (-0.25, 1.25), (0, 0.8), "Study date", "Volume [ml]")
+    yt = nice_ticks(0, max(tot) * 1.05, 5)
+    out, sx, sy = axes([0, 1], yt, (-0.25, 1.25), (0, yt[-1]), "Study date", "Volume [ml]")
     out = [o for o in out if 'text-anchor="middle"><text' not in o]  # replace numeric x ticks with dates
     out.append('<g class="g-tick" text-anchor="middle">' + "".join(f'<text x="{f1(sx(i))}" y="{f1(Y1 + 16)}">{d}</text>' for i, d in enumerate(LBA_DATES)) + "</g>")
     for i, x in enumerate(les, start=1):
@@ -431,7 +632,7 @@ def adv_table() -> str:
     )
 
 
-GENERATORS = {"topbar-none": lambda: topbar_none(), "topbar-2": lambda: topbar('<span class="bf"><span class="bf__k">Studies</span><span class="bf__v">2026-01-01 · 2026-07-01</span></span>'), "lba-table": lba_table, "lba-trend": lba_trend, "adv-graph": adv_graph, "adv-table": adv_table, "fmri-curve": fmri_curve, "mrs-spectrum": mrs_spectrum, "mrs-table": mrs_table, "topbar": topbar, "statusbar": statusbar, "dce-graph": dce_graph, "dce-table": dce_table, "perm-graph": perm_graph, "perm-table": perm_table, "mrs-thumb": mrs_thumb, "sprite": sprite, "aif-grid": aif_grid, "aif-average": aif_average, "mm-signal": mm_signal}
+GENERATORS = {"lba-stage-base": lambda: lba_stage("base"), "lba-stage-follow": lambda: lba_stage("follow"), "dce-rois-source": lambda: roi_overlay("dce", True), "dce-rois": lambda: roi_overlay("dce", False), "perm-rois-source": lambda: roi_overlay("perm", True), "perm-rois": lambda: roi_overlay("perm", False), "mm-regions": mm_regions, "mm-volumes": mm_volumes, "mm-seed-core": lambda: _seed("core", DATA["dti"]["mismatch"]["core_seed_px"]), "mm-seed-deficit": lambda: _seed("deficit", DATA["dsc"]["mismatch"]["deficit_seed_px"]), "dsc-rois-source": dsc_rois_source, "dsc-rois": dsc_rois, "aif-overlay": aif_overlay, "dsc-graph": dsc_graph, "dsc-table": dsc_table, "dsc-ratio": dsc_ratio, "topbar-none": lambda: topbar_none(), "topbar-2": lambda: topbar('<span class="bf"><span class="bf__k">Studies</span><span class="bf__v">2026-01-01 · 2026-07-01</span></span>'), "lba-table": lba_table, "lba-trend": lba_trend, "adv-graph": adv_graph, "adv-table": adv_table, "fmri-curve": fmri_curve, "mrs-spectrum": mrs_spectrum, "mrs-table": mrs_table, "topbar": topbar, "statusbar": statusbar, "dce-graph": dce_graph, "dce-table": dce_table, "perm-graph": perm_graph, "perm-table": perm_table, "mrs-thumb": mrs_thumb, "sprite": sprite, "aif-grid": aif_grid, "aif-average": aif_average, "mm-signal": mm_signal}
 
 
 def main() -> None:

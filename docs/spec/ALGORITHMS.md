@@ -11,7 +11,7 @@ Notation: t time [s]; S(t) signal; S₀ baseline signal; Δt temporal resolution
 ### 0.1 Baseline and arrival
 - Baseline window: dynamics before arrival, excluding skipped dynamics (DSC-003). S₀ = mean over the window.
 - Arrival T0 (DSC): first dynamic where ΔR2* exceeds `baseline_mean + 3·baseline_SD` for two consecutive dynamics; sub-dynamic refinement by linear interpolation of the crossing *(NMR default)*.
-- Arrival T0 (DCE, DCE-005): first time S(t) ≥ 1.2·S₀ (20 % rise), linearly interpolated between dynamics.
+- Arrival T0 (DCE, DCE-005): first time S(t) ≥ 1.2·S₀ (20 % rise), linearly interpolated between dynamics. If S(t) never reaches 1.2·S₀ (no enhancement, e.g. white matter behind an intact barrier), T0, WASHIN, WASHOUT and BREVENH are undefined and shown as “—”; the other parameters are still reported.
 
 ### 0.2 Smoothing (GEN-060/061)
 - Spatial: separable uniform (box) filter of width k ∈ {1, 3, 5, 7} in-plane, `mode='nearest'`, applied to the source before fitting and to the maps for display.

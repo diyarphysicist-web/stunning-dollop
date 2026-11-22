@@ -147,8 +147,8 @@
               <div class="field"><span class="field__label">Sign</span><div class="seg"><button class="seg__item is-selected">+T</button><button class="seg__item">±T</button></div></div>
             </div>
             <dl>
-              <div class="kv"><dt>Active voxels at T ≥ 3.1</dt><dd>356<span class="u">vox</span></dd></div>
-              <div class="kv"><dt>Peak T</dt><dd>18.7</dd></div>
+              <div class="kv"><dt>Active voxels at T ≥ 3.1</dt><dd>49<span class="u">vox</span></dd></div>
+              <div class="kv"><dt>Peak T</dt><dd>14.2</dd></div>
             </dl>
             <div class="notice notice--warning" role="note" data-od-id="fmri-013">
               <svg class="ic"><use href="#i-warn"/></svg>
@@ -200,9 +200,9 @@
       <div class="tiles">
         <div class="vp__body vp__body--fit"><div class="vp__stage"><img src="../assets/img/fmri_t_z1.png" width="512" height="512" alt="T map slice 1"></div><div class="ov ov--tl">z 1/6</div></div>
         <div class="vp__body vp__body--fit"><div class="vp__stage"><img src="../assets/img/fmri_t_z2.png" width="512" height="512" alt="T map slice 2"></div><div class="ov ov--tl">z 2/6</div></div>
-        <div class="vp__body vp__body--fit tile-sel"><div class="vp__stage"><img src="../assets/img/fmri_t_z3.png" width="512" height="512" alt="T map slice 3, selected"></div><div class="ov ov--tl">z 3/6</div></div>
+        <div class="vp__body vp__body--fit"><div class="vp__stage"><img src="../assets/img/fmri_t_z3.png" width="512" height="512" alt="T map slice 3"></div><div class="ov ov--tl">z 3/6</div></div>
         <div class="vp__body vp__body--fit"><div class="vp__stage"><img src="../assets/img/fmri_t_z4.png" width="512" height="512" alt="T map slice 4"></div><div class="ov ov--tl">z 4/6</div></div>
-        <div class="vp__body vp__body--fit"><div class="vp__stage"><img src="../assets/img/fmri_t_z5.png" width="512" height="512" alt="T map slice 5"></div><div class="ov ov--tl">z 5/6</div></div>
+        <div class="vp__body vp__body--fit tile-sel"><div class="vp__stage"><img src="../assets/img/fmri_t_z5.png" width="512" height="512" alt="T map slice 5, selected"></div><div class="ov ov--tl">z 5/6</div></div>
         <div class="vp__body vp__body--fit"><div class="vp__stage"><img src="../assets/img/fmri_t_z6.png" width="512" height="512" alt="T map slice 6"></div><div class="ov ov--tl">z 6/6</div>
           <div class="cbar" style="--lut: var(--nm-lut-hot); top: var(--nm-space-6); right: var(--nm-space-2)"><span>12.0</span><span class="cbar__ramp" style="height: calc(var(--nm-space-12) * 2)"></span><span>3.1</span><span class="cbar__meta">T-score</span></div>
         </div>
@@ -217,11 +217,11 @@
         <button class="ibtn ibtn--sm" aria-label="Viewport menu (right-click)"><svg class="ic ic--sm"><use href="#i-more"/></svg></button>
       </div>
       <div class="vp__body vp__body--fit">
-        <div class="vp__stage"><img src="../assets/img/fmri_t_z3.png" width="512" height="512" alt="T map slice 3 of 6 on the mean BOLD"></div>
-        <div class="ov ov--tl">T-score · Task &gt; Rest · z 3/6<br><span class="t2">Hot · blending 60 %</span></div>
+        <div class="vp__stage"><img src="../assets/img/fmri_t_z5.png" width="512" height="512" alt="T map slice 5 of 6 on the mean BOLD"></div>
+        <div class="ov ov--tl">T-score · Task &gt; Rest · z 5/6<br><span class="t2">Hot · blending 60 %</span></div>
         <div class="ov ov--tr">PHANTOM^SYNTHETIC<br><span class="t2">NMR-PHANTOM-001 · 2026-01-01</span></div>
         <div class="ov ov--bl">T 3.1–12.0 · cluster ≥ 10 vox<br><span class="t2">Underlay mean BOLD · window auto</span></div>
-        <div class="ov ov--br">Zoom 100 %<br><span class="t2">3.0 × 3.0 mm · 48 × 48</span></div>
+        <div class="ov ov--br">Zoom 100 %<br><span class="t2">3.0 × 3.0 mm · 64 × 64</span></div>
         <div class="cbar" style="--lut: var(--nm-lut-hot)"><span>12.0</span><span class="cbar__ramp"></span><span>3.1</span><span class="cbar__meta">T-score<br>W 3.1–12.0</span></div>
         <span class="ov orient orient--n">A</span><span class="ov orient orient--s">P</span><span class="ov orient orient--w">R</span><span class="ov orient orient--e">L</span>
       </div>
@@ -230,7 +230,7 @@
     <section class="vp" aria-label="Cluster time-intensity curve with paradigm" data-od-id="vp-cluster">
       <div class="vp__head">
         <span class="vp__role">3 · Cluster</span>
-        <span class="dense t2">Whole 3D cluster · 356 vox</span>
+        <span class="dense t2">Largest 3D cluster · 27 vox</span>
         <span class="spacer"></span>
         <button class="ibtn ibtn--sm" aria-label="Graph menu (right-click)"><svg class="ic ic--sm"><use href="#i-more"/></svg></button>
       </div>
@@ -244,10 +244,11 @@
 <rect class="g-paradigm" x="450.8" y="36.0" width="56.4" height="368.0"/>
 <rect class="g-paradigm" x="563.6" y="36.0" width="56.4" height="368.0"/>
 <line x1="56.0" y1="404.0" x2="620.0" y2="404.0"/>
-<line x1="56.0" y1="330.4" x2="620.0" y2="330.4"/>
-<line x1="56.0" y1="256.8" x2="620.0" y2="256.8"/>
-<line x1="56.0" y1="183.2" x2="620.0" y2="183.2"/>
-<line x1="56.0" y1="109.6" x2="620.0" y2="109.6"/>
+<line x1="56.0" y1="342.7" x2="620.0" y2="342.7"/>
+<line x1="56.0" y1="281.3" x2="620.0" y2="281.3"/>
+<line x1="56.0" y1="220.0" x2="620.0" y2="220.0"/>
+<line x1="56.0" y1="158.7" x2="620.0" y2="158.7"/>
+<line x1="56.0" y1="97.3" x2="620.0" y2="97.3"/>
 <line x1="56.0" y1="36.0" x2="620.0" y2="36.0"/>
 <line x1="56.0" y1="36.0" x2="56.0" y2="404.0"/>
 <line x1="168.8" y1="36.0" x2="168.8" y2="404.0"/>
@@ -258,11 +259,11 @@
 </g>
 <line class="g-axis" x1="56.0" y1="36.0" x2="56.0" y2="404.0"/>
 <line class="g-axis" x1="56.0" y1="404.0" x2="620.0" y2="404.0"/>
-<g class="g-tick" text-anchor="end"><text x="50.0" y="408.0">990</text><text x="50.0" y="334.4">1000</text><text x="50.0" y="260.8">1010</text><text x="50.0" y="187.2">1020</text><text x="50.0" y="113.6">1030</text><text x="50.0" y="40.0">1040</text></g>
+<g class="g-tick" text-anchor="end"><text x="50.0" y="408.0">1110</text><text x="50.0" y="346.7">1115</text><text x="50.0" y="285.3">1120</text><text x="50.0" y="224.0">1125</text><text x="50.0" y="162.7">1130</text><text x="50.0" y="101.3">1135</text><text x="50.0" y="40.0">1140</text></g>
 <g class="g-tick" text-anchor="middle"><text x="56.0" y="420.0">0</text><text x="168.8" y="420.0">40</text><text x="281.6" y="420.0">80</text><text x="394.4" y="420.0">120</text><text x="507.2" y="420.0">160</text><text x="620.0" y="420.0">200</text></g>
 <text class="g-title" x="338.0" y="442.0" text-anchor="middle">Time [s]</text>
 <text class="g-title" x="16" y="220.0" text-anchor="middle" transform="rotate(-90 16 220.0)">Signal [a.u.]</text>
-<polyline class="g-curve g-curve--signal" points="56.0,328.2 61.6,330.4 67.3,334.1 72.9,333.3 78.6,327.5 84.2,331.1 89.8,335.6 95.5,326.7 101.1,332.6 106.8,331.1 112.4,331.9 118.0,317.9 123.7,244.3 129.3,161.9 135.0,117.7 140.6,114.0 146.2,108.1 151.9,112.5 157.5,122.8 163.2,132.4 168.8,131.7 174.4,150.8 180.1,222.9 185.7,299.5 191.4,342.2 197.0,362.0 202.6,357.6 208.3,351.0 213.9,340.7 219.6,346.6 225.2,326.7 230.8,312.7 236.5,242.1 242.1,167.7 247.8,127.3 253.4,108.1 259.0,108.1 264.7,114.0 270.3,127.3 276.0,134.6 281.6,129.5 287.2,153.8 292.9,228.1 298.5,302.4 304.2,346.6 309.8,359.1 315.4,360.6 321.1,353.2 326.7,345.9 332.4,341.4 338.0,333.3 343.6,317.2 349.3,245.0 354.9,166.3 360.6,119.9 366.2,106.7 371.8,109.6 377.5,114.8 383.1,122.1 388.8,128.7 394.4,137.6 400.0,145.7 405.7,220.7 411.3,303.2 417.0,350.3 422.6,359.8 428.2,362.8 433.9,349.5 439.5,351.0 445.2,334.8 450.8,326.7 456.4,313.5 462.1,245.8 467.7,165.5 473.4,120.6 479.0,107.4 484.6,104.4 490.3,108.1 495.9,125.8 501.6,119.9 507.2,131.7 512.8,154.5 518.5,231.0 524.1,306.1 529.8,343.6 535.4,363.5 541.0,357.6 546.7,344.4 552.3,348.1 558.0,328.9 563.6,326.0 569.2,317.2 574.9,236.9 580.5,167.0 586.2,125.1 591.8,105.2 597.4,111.1 603.1,122.1 608.7,113.3 614.4,122.1"/>
+<polyline class="g-curve g-curve--signal" points="56.0,297.3 61.6,251.9 67.3,289.9 72.9,270.3 78.6,315.7 84.2,243.3 89.8,255.6 95.5,280.1 101.1,293.6 106.8,254.3 112.4,283.8 118.0,256.8 123.7,151.3 129.3,137.8 135.0,113.3 140.6,59.3 146.2,65.4 151.9,113.3 157.5,93.7 163.2,61.8 168.8,96.1 174.4,143.9 180.1,201.6 185.7,258.0 191.4,267.8 197.0,362.3 202.6,321.8 208.3,288.7 213.9,316.9 219.6,278.9 225.2,251.9 230.8,244.5 236.5,195.5 242.1,140.3 247.8,112.1 253.4,56.9 259.0,64.2 264.7,109.6 270.3,96.1 276.0,104.7 281.6,117.0 287.2,119.4 292.9,190.6 298.5,248.2 304.2,282.6 309.8,274.0 315.4,310.8 321.1,310.8 326.7,243.3 332.4,274.0 338.0,269.1 343.6,277.7 349.3,189.3 354.9,156.2 360.6,131.7 366.2,64.2 371.8,117.0 377.5,110.8 383.1,71.6 388.8,92.4 394.4,86.3 400.0,108.4 405.7,156.2 411.3,264.2 417.0,258.0 422.6,308.3 428.2,324.3 433.9,305.9 439.5,266.6 445.2,332.9 450.8,233.5 456.4,258.0 462.1,207.7 467.7,164.8 473.4,119.4 479.0,98.6 484.6,102.2 490.3,120.6 495.9,102.2 501.6,101.0 507.2,123.1 512.8,128.0 518.5,205.3 524.1,280.1 529.8,292.4 535.4,314.5 541.0,348.8 546.7,323.0 552.3,283.8 558.0,255.6 563.6,331.6 569.2,267.8 574.9,205.3 580.5,191.8 586.2,132.9 591.8,108.4 597.4,103.5 603.1,94.9 608.7,69.1 614.4,129.2"/>
 <!-- /gen:fmri-curve -->
         </svg>
         <div class="legend" style="top: var(--nm-space-6); right: var(--nm-space-4)" aria-label="Legend">

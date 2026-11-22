@@ -136,3 +136,17 @@ Notes
 Notes
 - **Laptop.** Rendered at 1280 × 720 CSS px with device scale 1.5 (1920 × 1080 physical), using the `nm-viewport` meta that `pnpm design:render` reads. Below 1600 px the task panel and inspector become overlays (brief §4.4). The layout starts at 1×2, and the four viewport roles are one key away (`F6` role pager, law 2). The overlay panel covers part of the viewport only when the user opens it (`Ctrl+B`, law 1 ~). The banner keeps the SAFE-001 fields; modality and accession move to its tooltip. Output buttons become icon buttons with shortcut tooltips. The battery notice is one line in the status bar (brief §12.2).
 - **Arabic RTL Directory removed** (2026-11-22): the product is English only, so the RTL variant, its composer and the RTL shell rules were deleted.
+
+## Design review 2026-11-22
+
+### 1. Anatomical brain phantom (all imaging screens)
+
+The disc and stripe phantoms behind the design imagery are replaced by one skull-stripped brain phantom (`scripts/make_phantoms.py --only brain`; spec in `ALGORITHMS.md` §12). Every image, curve, table, ROI and segmentation is computed from it by `render_phantom_imagery.py`. No lesion is painted onto an image any more.
+
+- **Geometry.** 2D series are 128 × 128 at 1.8 mm with 8 slices of 5 mm (DSC, DTI). DCE, permeability and IVIM have 4 slices. fMRI is 64 × 64 at 3 mm, and the 3D FLAIR, SWI and multi-echo series are 128 × 128 × 96 at 1.5 mm. Overlays, slice counters and voxel sizes now match these grids in every screen.
+- **Generated, not typed.** The DSC table, ratio table, ROI overlays and ΔR2* graph (03 and its variants 16–18, 23, 24) and the AIF box overlay (04) are now `gen:` regions. So are the mismatch region and volume tables and seeds (05), the DCE and permeability ROIs (07, 08) and the lesion outlines (13). They follow `phantom-data.json`, so a phantom change cannot leave stale numbers.
+- **Realistic values shown.** ADC is ≈ 800 in tissue, ≈ 3000 in CSF and 457 in the stroke core. The ROI1/mirror relCBF ratio is 0.49 and MTT 12.1 s against 7.1 s. Perfusion 76.8 ml, core 9.4 ml, mismatch 67.4 ml. The tumour has rim Ktrans 0.12 min⁻¹. The fMRI clusters lie in the left motor and parietal cortex.
+- **AIF quality check (04) now comes from the data.** The automatic box sits on the left MCA branch. Its 6-voxel average peaks only 1.9 × above tissue (partial volume), so the check warns on peak height rather than timing; the timing check passes (AIF peaks 3.0 s before tissue).
+- **DCE ROI3 (white matter) does not enhance.** T0 and the fitted parameters show "—", as `ALGORITHMS.md` §0.1 now defines for curves that never reach a 20 % rise.
+- **Tractography (10).** Bundles are the corpus callosum (R–L) and a left posterior A–P bundle. The notice explains that left corticospinal seeds give no fibers because the tract runs through-plane on 5 mm slices.
+- **Law check.** No layout changed; all ten laws keep their previous marks. Smaller ROIs on the 128-matrix (DCE rim ROI 10 voxels) are still legible because outlines are 2 px and labelled.

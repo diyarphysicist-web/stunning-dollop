@@ -71,7 +71,7 @@
 <!-- /gen:sprite -->
 
 <!-- Echo Accumulation (ECHO-001…003): source | live result, sum over the selected echoes.
-     Imagery from the multi_echo_gre phantom (TE 5/10/15/20 ms; T2* 60 ms tissue, 30 ms lesions), slice 16 as in the FLAIR screens. -->
+     Imagery from the multi_echo_gre phantom (TE 5/10/15/20 ms; T2* GM 52, WM 45, lesions 70 ms), slice 60 as in the FLAIR screens. -->
 <div class="app app--no-inspector">
   <!-- gen:topbar -->
 <header class="topbar" data-od-id="topbar">
@@ -148,7 +148,7 @@
       <div class="vp__head"><span class="vp__role">Source</span><span class="stepper"><button class="ibtn ibtn--sm" aria-label="Previous echo (Left)"><svg class="ic ic--sm"><use href="#i-chev-left"/></svg></button>Echo <b>1</b> / 4 · TE 5 ms<button class="ibtn ibtn--sm" aria-label="Next echo (Right)"><svg class="ic ic--sm"><use href="#i-chev-right"/></svg></button></span></div>
       <div class="vp__body vp__body--fit">
         <div class="vp__stage"><img src="../assets/img/echo_e1.png" width="512" height="512" alt="Echo 1 of 4"></div>
-        <div class="ov ov--tl">Multi-echo GRE · Echo 1/4 · Slice 16/32</div>
+        <div class="ov ov--tl">Multi-echo GRE · Echo 1/4 · Slice 60/96</div>
         <div class="ov ov--tr">PHANTOM^SYNTHETIC<br><span class="t2">NMR-PHANTOM-001 · 2026-01-01</span></div>
         <div class="ov ov--bl">Window auto <span class="t2">a.u.</span></div>
         <span class="ov orient orient--n">A</span><span class="ov orient orient--s">P</span><span class="ov orient orient--w">R</span><span class="ov orient orient--e">L</span>
@@ -158,9 +158,9 @@
       <div class="vp__head"><span class="vp__role">Result</span><span class="dense">Σ echoes 1–4</span></div>
       <div class="vp__body vp__body--fit">
         <div class="vp__stage"><img src="../assets/img/echo_sum.png" width="512" height="512" alt="Sum of echoes 1 to 4"></div>
-        <div class="ov ov--tl">Sum of echoes 1–4 · Slice 16/32<br><span class="t2">Live preview</span></div>
+        <div class="ov ov--tl">Sum of echoes 1–4 · Slice 60/96<br><span class="t2">Live preview</span></div>
         <div class="ov ov--bl">Window auto <span class="t2">a.u.</span></div>
-        <div class="ov ov--br">1.0 × 1.0 mm · 64 × 64</div>
+        <div class="ov ov--br">1.5 × 1.5 mm · 128 × 128</div>
         <span class="ov orient orient--n">A</span><span class="ov orient orient--s">P</span><span class="ov orient orient--w">R</span><span class="ov orient orient--e">L</span>
       </div>
     </section>

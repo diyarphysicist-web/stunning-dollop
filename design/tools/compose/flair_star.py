@@ -124,7 +124,7 @@ for pk, pname, pslice, (on, os_, ow, oe) in PLANES:
             roi = (f'\n          <svg viewBox="0 0 512 512" aria-hidden="true"><circle class="roi roi--1" cx="{x:.0f}" cy="{y:.0f}" r="{R:.0f}"/></svg>'
                    f'\n          <span class="ov roi-label roi-label--1" style="left: {(x + 0.6 * R) / 5.12:.0f}%; top: {(y - 0.75 * R) / 5.12:.0f}%">L1</span>')
         head_extra = f'<span class="dense t2">{pname}</span>' if ck == "swi" else ""
-        br = f'<div class="ov ov--br">Zoom 200 %</div>' if ck == "prod" else ""
+        br = f'<div class="ov ov--br">Zoom {fs["zoom_pct"]} %</div>' if ck == "prod" else ""
         tiles.append(f'''    <section class="vp{active}" aria-label="{cname}, {pname.lower()}">
       <div class="vp__head"><span class="vp__role">{cname}</span>{head_extra}<span class="spacer"></span><button class="ibtn ibtn--sm" aria-label="Viewport menu (right-click)"><svg class="ic ic--sm"><use href="#i-more"/></svg></button></div>
       <div class="vp__body vp__body--fit">

@@ -116,7 +116,7 @@
     </div>
     <div class="panel__head">
       <div class="panel__head-row"><h1 class="panel__title" data-od-id="package-title">DSC Neuro Perfusion</h1><button class="ibtn ibtn--sm" aria-label="Collapse panel (Ctrl+B)"><svg class="ic ic--sm"><use href="#i-collapse"/></svg></button></div>
-      <p class="dense t2">DSC perf SNR50 · 60 dyn · TR 2.1 s · TE 30 ms</p>
+      <p class="dense t2">DSC perf SNR50 · 60 dyn · TR 1.5 s · TE 30 ms</p>
     </div>
 
     <div class="panel__body">
@@ -155,7 +155,7 @@
             </div>
             <div class="field">
               <span class="field__label">AIF <button class="link dense">Define AIF… <span class="kbd">A</span></button></span>
-              <span class="dense">Automatic · 7 × 7 vox box at (27, 56)</span>
+              <span class="dense">Automatic · 7 × 7 vox box at (86, 61)</span>
             </div>
             <div class="field" data-od-id="spatial-smoothing">
               <span class="field__label">Spatial smoothing</span>
@@ -239,32 +239,34 @@
       <div class="vp__head">
         <span class="vp__role">1 · Source</span>
         <div class="select"><span class="input__value">DSC perf SNR50</span><svg class="ic"><use href="#i-chev-down"/></svg></div>
-        <span class="stepper"><button class="ibtn ibtn--sm" aria-label="Previous dynamic (Left)"><svg class="ic ic--sm"><use href="#i-chev-left"/></svg></button>Dyn <b>9</b> / 60<button class="ibtn ibtn--sm" aria-label="Next dynamic (Right)"><svg class="ic ic--sm"><use href="#i-chev-right"/></svg></button></span>
+        <span class="stepper"><button class="ibtn ibtn--sm" aria-label="Previous dynamic (Left)"><svg class="ic ic--sm"><use href="#i-chev-left"/></svg></button>Dyn <b>14</b> / 60<button class="ibtn ibtn--sm" aria-label="Next dynamic (Right)"><svg class="ic ic--sm"><use href="#i-chev-right"/></svg></button></span>
         <span class="spacer"></span>
         <button class="ibtn ibtn--sm" aria-label="Viewport menu (right-click)"><svg class="ic ic--sm"><use href="#i-more"/></svg></button>
       </div>
       <div class="vp__body vp__body--fit">
         <div class="vp__stage">
-          <img src="../assets/img/dsc_source_peak.png" width="512" height="512" alt="DSC source image, dynamic 9 of 60, slice 3 of 4">
-          <svg viewBox="0 0 512 512" aria-hidden="true">
-            <line class="mirror-line" x1="256" y1="12" x2="256" y2="500"/>
-            <rect class="mirror-grip" x="250" y="236" width="12" height="40" rx="2"/>
-            <ellipse class="roi roi--1" cx="132" cy="260" rx="36" ry="44"/>
-            <ellipse class="roi roi--1 roi--linked" cx="380" cy="260" rx="36" ry="44"/>
-            <ellipse class="roi roi--2" cx="252" cy="124" rx="36" ry="28"/>
-            <rect class="roi-handle" x="129" y="213" width="6" height="6"/>
-            <rect class="roi-handle" x="129" y="301" width="6" height="6"/>
-            <rect class="roi-handle" x="93" y="257" width="6" height="6"/>
-            <rect class="roi-handle" x="165" y="257" width="6" height="6"/>
-          </svg>
-          <span class="ov roi-label roi-label--1" style="left:18.75%; top:42.2%">ROI1</span>
-          <span class="ov roi-label roi-label--1" style="left:67.2%; top:42.2%">ROI1-mirror</span>
-          <span class="ov roi-label roi-label--2" style="left:57.5%; top:18.75%">ROI2</span>
+          <img src="../assets/img/dsc_source_peak.png" width="512" height="512" alt="DSC source image, dynamic 14 of 60, slice 4 of 8">
+<!-- gen:dsc-rois-source -->
+<svg viewBox="0 0 512 512" aria-hidden="true">
+<line class="mirror-line" x1="256" y1="12" x2="256" y2="500"/>
+<rect class="mirror-grip" x="250" y="236" width="12" height="40" rx="2"/>
+<ellipse class="roi roi--1" cx="164.0" cy="244.0" rx="20.0" ry="28.0"/>
+<ellipse class="roi roi--1 roi--linked" cx="344.0" cy="244.0" rx="20.0" ry="28.0"/>
+<ellipse class="roi roi--2" cx="308.0" cy="328.0" rx="24.0" ry="16.0"/>
+<rect class="roi-handle" x="161.0" y="213.0" width="6" height="6"/>
+<rect class="roi-handle" x="161.0" y="269.0" width="6" height="6"/>
+<rect class="roi-handle" x="141.0" y="241.0" width="6" height="6"/>
+<rect class="roi-handle" x="181.0" y="241.0" width="6" height="6"/>
+</svg>
+<span class="ov roi-label roi-label--1" style="left:28.1%; top:38.7%">ROI1</span>
+<span class="ov roi-label roi-label--1" style="left:63.3%; top:38.7%">ROI1-mirror</span>
+<span class="ov roi-label roi-label--2" style="left:55.5%; top:57.4%">ROI2</span>
+<!-- /gen:dsc-rois-source -->
         </div>
-        <div class="ov ov--tl">DSC perf SNR50 · Dyn 9/60 · Slice 3/4<br><span class="t2">t 16.8 s · TR 2.1 s · TE 30 ms</span></div>
+        <div class="ov ov--tl">DSC perf SNR50 · Dyn 14/60 · Slice 4/8<br><span class="t2">t 19.5 s · TR 1.5 s · TE 30 ms</span></div>
         <div class="ov ov--tr">PHANTOM^SYNTHETIC<br><span class="t2">NMR-PHANTOM-001 · 2026-01-01</span></div>
-        <div class="ov ov--bl">W 1595.2 · L 802.4 <span class="t2">a.u.</span><br><span class="t2">Mirror line x 32.0 vox</span></div>
-        <div class="ov ov--br">Zoom 100 %<br><span class="t2">2.0 × 2.0 mm · 64 × 64</span></div>
+        <div class="ov ov--bl">W 1298.6 · L 652.5 <span class="t2">a.u.</span><br><span class="t2">Mirror line x 63.5 vox</span></div>
+        <div class="ov ov--br">Zoom 100 %<br><span class="t2">1.8 × 1.8 mm · 128 × 128</span></div>
         <span class="ov orient orient--n">A</span>
         <span class="ov orient orient--s">P</span>
         <span class="ov orient orient--w">R</span>
@@ -288,22 +290,24 @@
       </div>
       <div class="vp__body vp__body--fit">
         <div class="vp__stage">
-          <img src="../assets/img/dsc_relcbv.png" width="512" height="512" alt="relCBV map, slice 3 of 4, Stroke LUT 0 to 12 ml/100 g">
-          <svg viewBox="0 0 512 512" aria-hidden="true">
-            <ellipse class="roi roi--1" cx="132" cy="260" rx="36" ry="44"/>
-            <ellipse class="roi roi--1 roi--linked" cx="380" cy="260" rx="36" ry="44"/>
-            <ellipse class="roi roi--2" cx="252" cy="124" rx="36" ry="28"/>
-          </svg>
+          <img src="../assets/img/dsc_relcbv.png" width="512" height="512" alt="relCBV map, slice 4 of 8, Stroke LUT 0 to 8 ml/100 g">
+<!-- gen:dsc-rois -->
+<svg viewBox="0 0 512 512" aria-hidden="true">
+<ellipse class="roi roi--1" cx="164.0" cy="244.0" rx="20.0" ry="28.0"/>
+<ellipse class="roi roi--1 roi--linked" cx="344.0" cy="244.0" rx="20.0" ry="28.0"/>
+<ellipse class="roi roi--2" cx="308.0" cy="328.0" rx="24.0" ry="16.0"/>
+</svg>
+<!-- /gen:dsc-rois -->
         </div>
-        <div class="ov ov--tl">relCBV [ml/100 g]<br><span class="t2">Model-free · Stroke LUT · Slice 3/4</span></div>
+        <div class="ov ov--tl">relCBV [ml/100 g]<br><span class="t2">Model-free · Stroke LUT · Slice 4/8</span></div>
         <div class="ov ov--tr">PHANTOM^SYNTHETIC<br><span class="t2">NMR-PHANTOM-001 · 2026-01-01</span></div>
-        <div class="ov ov--bl">Window 0–12 <span class="t2">ml/100 g</span><br><span class="t2">Opacity 100 %</span></div>
-        <div class="ov ov--br">Zoom 100 %<br><span class="t2">2.0 × 2.0 mm · 64 × 64</span></div>
+        <div class="ov ov--bl">Window 0–8 <span class="t2">ml/100 g</span><br><span class="t2">Opacity 100 %</span></div>
+        <div class="ov ov--br">Zoom 100 %<br><span class="t2">1.8 × 1.8 mm · 128 × 128</span></div>
         <div class="cbar" style="--lut: var(--nm-lut-stroke)" data-od-id="colorbar-relcbv">
-          <span>12</span>
+          <span>8</span>
           <span class="cbar__ramp"></span>
           <span>0</span>
-          <span class="cbar__meta">ml/100 g<br>W 0–12</span>
+          <span class="cbar__meta">ml/100 g<br>W 0–8</span>
         </div>
         <span class="ov orient orient--n">A</span>
         <span class="ov orient orient--s">P</span>

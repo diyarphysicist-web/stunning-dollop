@@ -71,7 +71,7 @@
 <!-- /gen:sprite -->
 
 <!-- Subtraction (SUB-001…009): compact single-task workspace — source | live result | reference.
-     T1 DCE semiquant phantom: source dynamics 2–12 (showing 8), reference dynamic 1, S − W·R with W 1.00. -->
+     T1 DCE semiquant phantom: source dynamics 2–12 (showing 6), reference dynamic 1, S − W·R with W 1.00. -->
 <div class="app app--no-inspector">
   <!-- gen:topbar -->
 <header class="topbar" data-od-id="topbar">
@@ -110,7 +110,7 @@
   <aside class="panel" aria-label="Subtraction" data-od-id="task-panel">
     <div class="panel__head" style="padding-top: var(--nm-panel-padding)">
       <div class="panel__head-row"><h1 class="panel__title">Subtraction</h1></div>
-      <p class="dense t2">T1 DCE semiquant · 12 dyn · 2 slices</p>
+      <p class="dense t2">T1 DCE semiquant · 12 dyn · 4 slices</p>
     </div>
     <div class="panel__body">
       <section class="psec">
@@ -170,10 +170,10 @@
 
   <main class="vgrid vgrid--1x2" style="grid-template-columns: repeat(3, minmax(0, 1fr))" aria-label="Viewports" data-od-id="viewport-grid">
     <section class="vp" aria-label="Source">
-      <div class="vp__head"><span class="vp__role">Source S</span><span class="stepper"><button class="ibtn ibtn--sm" aria-label="Previous dynamic (Left)"><svg class="ic ic--sm"><use href="#i-chev-left"/></svg></button>Dyn <b>8</b> / 12<button class="ibtn ibtn--sm" aria-label="Next dynamic (Right)"><svg class="ic ic--sm"><use href="#i-chev-right"/></svg></button></span></div>
+      <div class="vp__head"><span class="vp__role">Source S</span><span class="stepper"><button class="ibtn ibtn--sm" aria-label="Previous dynamic (Left)"><svg class="ic ic--sm"><use href="#i-chev-left"/></svg></button>Dyn <b>6</b> / 12<button class="ibtn ibtn--sm" aria-label="Next dynamic (Right)"><svg class="ic ic--sm"><use href="#i-chev-right"/></svg></button></span></div>
       <div class="vp__body vp__body--fit">
-        <div class="vp__stage"><img src="../assets/img/dce_source.png" width="512" height="512" alt="Source, dynamic 8 of 12"></div>
-        <div class="ov ov--tl">T1 DCE semiquant · Dyn 8/12 · Slice 1/2</div>
+        <div class="vp__stage"><img src="../assets/img/dce_source.png" width="512" height="512" alt="Source, dynamic 6 of 12"></div>
+        <div class="ov ov--tl">T1 DCE semiquant · Dyn 6/12 · Slice 2/4</div>
         <div class="ov ov--bl">Window auto <span class="t2">a.u.</span></div>
         <span class="ov orient orient--w">R</span><span class="ov orient orient--e">L</span>
       </div>
@@ -181,11 +181,11 @@
     <section class="vp is-active" aria-label="Result">
       <div class="vp__head"><span class="vp__role">Result</span><span class="dense">S − 1.00 · R</span></div>
       <div class="vp__body vp__body--fit">
-        <div class="vp__stage"><img src="../assets/img/dce_subtracted.png" width="512" height="512" alt="Result, dynamic 8 minus dynamic 1"></div>
-        <div class="ov ov--tl">Dyn 8 − Dyn 1 · Slice 1/2<br><span class="t2">Live preview</span></div>
+        <div class="vp__stage"><img src="../assets/img/dce_subtracted.png" width="512" height="512" alt="Result, dynamic 6 minus dynamic 1"></div>
+        <div class="ov ov--tl">Dyn 6 − Dyn 1 · Slice 2/4<br><span class="t2">Live preview</span></div>
         <div class="ov ov--tr">PHANTOM^SYNTHETIC<br><span class="t2">NMR-PHANTOM-001 · 2026-01-01</span></div>
         <div class="ov ov--bl">Window auto <span class="t2">a.u.</span></div>
-        <div class="ov ov--br">2.0 × 2.0 mm · 48 × 48</div>
+        <div class="ov ov--br">1.8 × 1.8 mm · 128 × 128</div>
         <span class="ov orient orient--n">A</span><span class="ov orient orient--s">P</span><span class="ov orient orient--w">R</span><span class="ov orient orient--e">L</span>
       </div>
     </section>
@@ -193,7 +193,7 @@
       <div class="vp__head"><span class="vp__role">Reference R</span><span class="stepper">Dyn <b>1</b> / 12</span></div>
       <div class="vp__body vp__body--fit">
         <div class="vp__stage"><img src="../assets/img/dce_dyn01.png" width="512" height="512" alt="Reference, dynamic 1 of 12"></div>
-        <div class="ov ov--tl">T1 DCE semiquant · Dyn 1/12 · Slice 1/2</div>
+        <div class="ov ov--tl">T1 DCE semiquant · Dyn 1/12 · Slice 2/4</div>
         <div class="ov ov--bl">Window auto <span class="t2">a.u.</span></div>
         <span class="ov orient orient--w">R</span><span class="ov orient orient--e">L</span>
       </div>
