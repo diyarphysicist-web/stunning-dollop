@@ -375,7 +375,7 @@ STATUS = {
     "dir": '<span class="dot dot--warning"></span><b>Pre-processing 1 series</b> · DTI multishell 64 %',
     "report": '<span class="dot dot--success"></span><b>Report ready</b> · 1 page · A4',
     "idle": '<span class="dot dot--idle"></span><b>No study open</b>',
-    "import": '<span class="dot dot--warning"></span><b>Importing</b> · 412 / 2 009 files · 21 %',
+    "import": '<span class="dot dot--warning"></span><b>Importing</b> · 412 / 2,009 files · 21 %',
     "settings": '<span class="dot dot--success"></span><b>Settings saved</b> · changes apply to new sessions',
     "sub": '<span class="dot dot--success"></span><b>S − 1.00·R</b> · dyn 2–12 − dyn 1 · 0 divisions by zero',
     "echo": '<span class="dot dot--success"></span><b>Σ echoes 1–4</b> · live preview',
@@ -462,7 +462,7 @@ def dce_table() -> str:
     for key, note, unit, nd in rows:
         cells = "".join(
             '<td class="num t3">—</td>' if ps[r][key] is None
-            else f'<td class="num">{tick_label(round(ps[r][key], nd)) if nd else f"{ps[r][key]:,.0f}".replace(",", " ")}</td>'
+            else f'<td class="num">{tick_label(round(ps[r][key], nd)) if nd else f"{ps[r][key]:,.0f}"}</td>'
             for r in DCE_ROIS
         )
         n = f' <span class="t3">{note}</span>' if note else ""
@@ -642,9 +642,61 @@ def adv_table() -> str:
 GENERATORS = {"lba-stage-base": lambda: lba_stage("base"), "lba-stage-follow": lambda: lba_stage("follow"), "dce-rois-source": lambda: roi_overlay("dce", True), "dce-rois": lambda: roi_overlay("dce", False), "perm-rois-source": lambda: roi_overlay("perm", True), "perm-rois": lambda: roi_overlay("perm", False), "mm-regions": mm_regions, "mm-volumes": mm_volumes, "mm-seed-core": lambda: _seed("core", DATA["dti"]["mismatch"]["core_seed_px"]), "mm-seed-deficit": lambda: _seed("deficit", DATA["dsc"]["mismatch"]["deficit_seed_px"]), "dsc-rois-source": dsc_rois_source, "dsc-rois": dsc_rois, "aif-overlay": aif_overlay, "dsc-graph": dsc_graph, "dsc-table": dsc_table, "dsc-ratio": dsc_ratio, "topbar-none": lambda: topbar_none(), "topbar-2": lambda: topbar('<span class="bf"><span class="bf__k">Studies</span><span class="bf__v">2026-01-01 · 2026-07-01</span></span>'), "lba-table": lba_table, "lba-trend": lba_trend, "adv-graph": adv_graph, "adv-table": adv_table, "fmri-curve": fmri_curve, "mrs-spectrum": mrs_spectrum, "mrs-table": mrs_table, "topbar": topbar, "statusbar": statusbar, "dce-graph": dce_graph, "dce-table": dce_table, "perm-graph": perm_graph, "perm-table": perm_table, "mrs-thumb": mrs_thumb, "sprite": sprite, "aif-grid": aif_grid, "aif-average": aif_average, "mm-signal": mm_signal}
 
 
+# GEN-201: English number formatting. Quantities of 1,000 or more get comma grouping; identifiers do not.
+_NUM = re.compile(r"(?<![\w.,#/:\-])\d{4,}(?:\.\d+)?(?![\w/:\-]|[.,]\d)")
+_KEEP = re.compile(
+    r"\(\w{4},\w{4}\)"  # DICOM tags
+    r"|\b\d{3,4} ?× ?\d{3,4}\b"  # display resolutions, width × height
+    r"|\bport \d+"  # network ports
+)
+_TAG = re.compile(r"<[^>]*>")
+_ATTR = re.compile(r'\b(alt|aria-label|title)="([^"]*)"')
+
+
+def _group(m: re.Match[str]) -> str:
+    v = m.group()
+    return f"{float(v):,.{len(v.partition('.')[2])}f}"
+
+
+def group_digits(text: str) -> str:
+    """Insert grouping commas into quantities in visible text, leaving identifiers alone."""
+    out, pos = [], 0
+    for k in _KEEP.finditer(text):
+        out.append(_NUM.sub(_group, text[pos : k.start()]))
+        out.append(k.group())
+        pos = k.end()
+    out.append(_NUM.sub(_group, text[pos:]))
+    return "".join(out)
+
+
+def english_numbers(html: str) -> str:
+    """Apply GEN-201 to text nodes and alt / aria-label / title attributes.
+
+    Scripts, styles, comments and typed input values (shown as typed) are left alone."""
+    out, pos, skip, raw = [], 0, 0, False
+    for m in _TAG.finditer(html):
+        text = html[pos : m.start()]
+        out.append(text if skip or raw else group_digits(text))
+        tag = m.group()
+        low = tag.lower()
+        if low.startswith(("<script", "<style")):
+            skip += 1
+        elif low.startswith(("</script", "</style")):
+            skip -= 1
+        raw = "input__value" in tag
+        if not tag.startswith("<!--"):
+            tag = _ATTR.sub(lambda a: f'{a.group(1)}="{group_digits(a.group(2))}"', tag)
+        out.append(tag)
+        pos = m.end()
+    out.append(html[pos:])
+    return "".join(out)
+
+
 def main() -> None:
     pat = re.compile(r"(<!-- gen:([\w-]+) -->)(.*?)(<!-- /gen:\2 -->)", re.S)
     for html in sorted(SCREENS.glob("*.html")):
+        if html.name == "index.html":
+            continue
         src = html.read_text(encoding="utf-8")
         hits: list[str] = []
 
@@ -659,10 +711,10 @@ def main() -> None:
                 body = GENERATORS[name]()
             return f"{m.group(1)}\n{body}\n{m.group(4)}"
 
-        out = pat.sub(sub, src)
-        if hits:
+        out = english_numbers(pat.sub(sub, src))
+        if out != src:
             html.write_text(out, encoding="utf-8", newline="\n")
-            print(f"{html.name}: {', '.join(hits)}")
+            print(f"{html.name}: {', '.join(hits) or 'numbers'}")
 
 
 if __name__ == "__main__":
