@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>NeuroMR-PRO · Tractography</title>
+<meta name="viewport" content="width=1920, height=1080">
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/luts.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+
+<!-- gen:sprite -->
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-directory" viewBox="0 0 20 20"><path d="M2.5 5h5.5l1.5 1.75h8v9.75h-15z"/><path d="M2.5 9h15"/></symbol>
+  <symbol id="i-viewer" viewBox="0 0 20 20"><rect x="2.5" y="2.5" width="15" height="15" rx="1.5"/><path d="M10 6v8M6 10h8"/></symbol>
+  <symbol id="i-analysis" viewBox="0 0 20 20"><path d="M2.5 16.5h15"/><path d="M3 13.5l3.5-5 3 3L13 4.5l4 7"/></symbol>
+  <symbol id="i-reports" viewBox="0 0 20 20"><path d="M5 2.5h7l3.5 3.5v11.5H5z"/><path d="M12 2.5V6h3.5M7.5 10h5M7.5 13h5"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 20 20"><path d="M3.5 5h2M9 5h7.5M3.5 10h8M15 10h1.5M3.5 15h4M11 15h5.5"/><circle cx="7.25" cy="5" r="1.75"/><circle cx="13.25" cy="10" r="1.75"/><circle cx="9.25" cy="15" r="1.75"/></symbol>
+  <symbol id="i-scroll" viewBox="0 0 20 20"><rect x="5" y="7" width="10" height="6" rx="1"/><path d="M10 2.5v2.5M8.25 4.25L10 2.5l1.75 1.75M10 17.5V15M8.25 15.75L10 17.5l1.75-1.75"/></symbol>
+  <symbol id="i-pan" viewBox="0 0 20 20"><path d="M10 2.5v15M2.5 10h15M8 4.5l2-2 2 2M8 15.5l2 2 2-2M4.5 8l-2 2 2 2M15.5 8l2 2-2 2"/></symbol>
+  <symbol id="i-zoom" viewBox="0 0 20 20"><circle cx="8.5" cy="8.5" r="5.25"/><path d="M12.4 12.4l4.6 4.6M6.25 8.5h4.5M8.5 6.25v4.5"/></symbol>
+  <symbol id="i-wl" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7"/><path d="M10 3a7 7 0 0 1 0 14z" fill="currentColor"/></symbol>
+  <symbol id="i-mask" viewBox="0 0 20 20"><path d="M4 7c2-4 9.5-4.5 12-1s1 9.5-4.5 9.5S2 11.5 4 7z" stroke-dasharray="2 2"/><circle cx="10" cy="10" r="1.5"/></symbol>
+  <symbol id="i-ellipse" viewBox="0 0 20 20"><ellipse cx="10" cy="10" rx="7.25" ry="5.25"/><path d="M10 8.5v3M8.5 10h3"/></symbol>
+  <symbol id="i-spline" viewBox="0 0 20 20"><path d="M3.5 14.5C5 7 8 7 10 10s5 3 6.5-4.5"/><circle cx="3.5" cy="14.5" r="1.25"/><circle cx="10" cy="10" r="1.25"/><circle cx="16.5" cy="5.5" r="1.25"/></symbol>
+  <symbol id="i-freehand" viewBox="0 0 20 20"><path d="M5 13.5C2.5 9.5 5 4.5 10 4.5s7.5 4 5 7.5-7 2.5-8 .5 1.5-4 4-2"/></symbol>
+  <symbol id="i-mirror" viewBox="0 0 20 20"><path d="M10 2.5v15" stroke-dasharray="2 2.25"/><path d="M7.5 6L3 10l4.5 4zM12.5 6L17 10l-4.5 4z"/></symbol>
+  <symbol id="i-reset" viewBox="0 0 20 20"><path d="M4 10a6 6 0 1 0 1.75-4.25"/><path d="M4 3v3.5h3.5"/></symbol>
+  <symbol id="i-layout" viewBox="0 0 20 20"><rect x="3" y="3" width="14" height="14" rx="1"/><path d="M10 3v14M3 10h14"/></symbol>
+  <symbol id="i-undo" viewBox="0 0 20 20"><path d="M7 4.5L3.5 8 7 11.5"/><path d="M3.5 8H12a4.25 4.25 0 0 1 0 8.5H8.5"/></symbol>
+  <symbol id="i-redo" viewBox="0 0 20 20"><path d="M13 4.5L16.5 8 13 11.5"/><path d="M16.5 8H8a4.25 4.25 0 0 0 0 8.5h3.5"/></symbol>
+  <symbol id="i-bookmark" viewBox="0 0 20 20"><path d="M5.5 3h9v14L10 13.5 5.5 17z"/></symbol>
+  <symbol id="i-series" viewBox="0 0 20 20"><rect x="3" y="6" width="10.5" height="11" rx="1"/><path d="M6.5 3h10.5v11"/><path d="M8.25 9v5M5.75 11.5h5"/></symbol>
+  <symbol id="i-table-save" viewBox="0 0 20 20"><path d="M17 11V3.5H3v10h7"/><path d="M3 7h14M8 3.5v10"/><path d="M14.5 12.5v5M12.5 15.5l2 2 2-2"/></symbol>
+  <symbol id="i-check" viewBox="0 0 20 20"><path d="M4.5 10.5l3.5 3.5 7.5-8"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 20 20"><rect x="4.5" y="9" width="11" height="8" rx="1"/><path d="M7 9V6.5a3 3 0 0 1 6 0V9"/></symbol>
+  <symbol id="i-chev-down" viewBox="0 0 20 20"><path d="M6 8l4 4 4-4"/></symbol>
+  <symbol id="i-chev-right" viewBox="0 0 20 20"><path d="M8 6l4 4-4 4"/></symbol>
+  <symbol id="i-chev-left" viewBox="0 0 20 20"><path d="M12 6l-4 4 4 4"/></symbol>
+  <symbol id="i-link" viewBox="0 0 20 20"><path d="M8.25 11.75l3.5-3.5"/><path d="M9 6.25l1.5-1.5a3 3 0 0 1 4.25 4.25l-1.5 1.5M11 13.75l-1.5 1.5a3 3 0 0 1-4.25-4.25l1.5-1.5"/></symbol>
+  <symbol id="i-close" viewBox="0 0 20 20"><path d="M5.5 5.5l9 9M14.5 5.5l-9 9"/></symbol>
+  <symbol id="i-more" viewBox="0 0 20 20"><circle cx="5" cy="10" r="0.75"/><circle cx="10" cy="10" r="0.75"/><circle cx="15" cy="10" r="0.75"/></symbol>
+  <symbol id="i-info" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7"/><path d="M10 9v4.5M10 6.5v.01"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 20 20"><path d="M10 3l7.5 13.5h-15z"/><path d="M10 8.25v3.75M10 14.25v.01"/></symbol>
+  <symbol id="i-collapse" viewBox="0 0 20 20"><rect x="3" y="3.5" width="14" height="13" rx="1"/><path d="M8 3.5v13M13.5 8l-2 2 2 2"/></symbol>
+  <symbol id="i-engine" viewBox="0 0 20 20"><rect x="5" y="5" width="10" height="10" rx="1"/><path d="M8 2.5V5M12 2.5V5M8 15v2.5M12 15v2.5M2.5 8H5M2.5 12H5M15 8h2.5M15 12h2.5"/></symbol>
+  <symbol id="i-display" viewBox="0 0 20 20"><rect x="2.5" y="3.5" width="15" height="10" rx="1"/><path d="M7 17h6M10 13.5V17"/></symbol>
+  <symbol id="i-keyboard" viewBox="0 0 20 20"><rect x="2.5" y="5" width="15" height="10" rx="1"/><path d="M5.5 8h1M9.5 8h1M13.5 8h1M6.5 12h7"/></symbol>
+  <symbol id="i-search" viewBox="0 0 20 20"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></symbol>
+  <symbol id="i-user" viewBox="0 0 20 20"><circle cx="10" cy="7" r="3"/><path d="M4 17c1-3.5 3.25-5 6-5s5 1.5 6 5"/></symbol>
+  <symbol id="i-jobs" viewBox="0 0 20 20"><path d="M3 5.5h14M3 10h14M3 14.5h8"/></symbol>
+  <symbol id="i-min" viewBox="0 0 20 20"><path d="M5.5 10h9"/></symbol>
+  <symbol id="i-max" viewBox="0 0 20 20"><rect x="5.5" y="5.5" width="9" height="9"/></symbol>
+  <symbol id="i-brand" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7.25"/><path d="M5.5 10h2l1.25-3 2.5 6 1.25-3h2"/></symbol>
+  <symbol id="i-arrow-up" viewBox="0 0 20 20"><path d="M10 16V4M5.5 8.5L10 4l4.5 4.5"/></symbol>
+  <symbol id="i-arrow-down" viewBox="0 0 20 20"><path d="M10 4v12M5.5 11.5L10 16l4.5-4.5"/></symbol>
+  <symbol id="i-arrow-left" viewBox="0 0 20 20"><path d="M16 10H4M8.5 5.5L4 10l4.5 4.5"/></symbol>
+  <symbol id="i-arrow-right" viewBox="0 0 20 20"><path d="M4 10h12M11.5 5.5L16 10l-4.5 4.5"/></symbol>
+  <symbol id="i-rot-ccw" viewBox="0 0 20 20"><path d="M5 7.5A6 6 0 1 1 4 11"/><path d="M4.5 3.5V7.5h4"/></symbol>
+  <symbol id="i-rot-cw" viewBox="0 0 20 20"><path d="M15 7.5A6 6 0 1 0 16 11"/><path d="M15.5 3.5V7.5h-4"/></symbol>
+  <symbol id="i-translate" viewBox="0 0 20 20"><rect x="6.5" y="6.5" width="7" height="7" rx="0.5"/><path d="M10 2.5v2.5M10 15v2.5M2.5 10H5M15 10h2.5"/></symbol>
+  <symbol id="i-rotate" viewBox="0 0 20 20"><rect x="6.5" y="6.5" width="7" height="7" rx="0.5" transform="rotate(15 10 10)"/><path d="M3.5 7a7 7 0 0 1 6.5-4.5M16.5 13a7 7 0 0 1-6.5 4.5"/></symbol>
+  <symbol id="i-seed" viewBox="0 0 20 20"><circle cx="10" cy="10" r="3"/><path d="M10 2.5V6M10 14v3.5M2.5 10H6M14 10h3.5"/></symbol>
+  <symbol id="i-exclude" viewBox="0 0 20 20"><ellipse cx="10" cy="10" rx="7" ry="5.5" stroke-dasharray="2 2"/><path d="M7.5 7.5l5 5M12.5 7.5l-5 5"/></symbol>
+  <symbol id="i-box" viewBox="0 0 20 20"><rect x="4" y="4" width="12" height="12"/><path d="M8 4v12M12 4v12M4 8h12M4 12h12" stroke-opacity="0.6"/></symbol>
+  <symbol id="i-run" viewBox="0 0 20 20"><path d="M6.5 4.5v11l9-5.5z"/></symbol>
+  <symbol id="i-crosshair" viewBox="0 0 20 20"><path d="M10 2.5v5M10 12.5v5M2.5 10h5M12.5 10h5"/></symbol>
+  <symbol id="i-hatch" viewBox="0 0 20 20"><rect x="3" y="3" width="14" height="14" rx="1"/><path d="M3 9l6-6M3 15L15 3M9 17l8-8"/></symbol>
+</svg>
+<!-- /gen:sprite -->
+
+<!-- Tractography (TRK-001…015): 3D main view with three orthogonal planes plus axial, coronal and sagittal
+     reference views; bundle manager and statistics in the inspector; bundle settings dialog open as a popover
+     over the inspector so no image is covered. Streamlines and statistics are computed from the DTI phantom
+     with the TRK-006 rules (render_phantom_imagery.py, tractography()). -->
+<div class="app">
+  <!-- gen:topbar -->
+<header class="topbar" data-od-id="topbar">
+    <div class="brand"><svg class="ic brand__mark"><use href="#i-brand"/></svg>NeuroMR-PRO</div>
+    <div class="banner" data-od-id="patient-banner" aria-label="Patient">
+      <span class="banner__name">PHANTOM^SYNTHETIC</span>
+      <span class="bf"><span class="bf__k">ID</span><span class="bf__v mono">NMR-PHANTOM-001</span></span>
+      <span class="bf"><span class="bf__k">Sex</span><span class="bf__v">O</span></span>
+      <span class="bf"><span class="bf__k">Age</span><span class="bf__v">56 y</span><span class="bf__k">(DOB 1970-01-01)</span></span>
+      <span class="bf"><span class="bf__k">Study</span><span class="bf__v">2026-01-01</span></span>
+      <span class="bf"><span class="bf__k">Modality</span><span class="bf__v">MR · 3.0 T</span></span>
+      <span class="bf"><span class="bf__k">Acc</span><span class="bf__v mono">PHANTOM0001</span></span>
+    </div>
+    <div class="topbar__actions">
+      <button class="ibtn" aria-label="Search studies (Ctrl+K)"><svg class="ic"><use href="#i-search"/></svg></button>
+      <button class="ibtn" aria-label="Keyboard shortcuts (?)"><svg class="ic"><use href="#i-keyboard"/></svg></button>
+      <button class="ibtn" aria-label="Account and sign out"><svg class="ic"><use href="#i-user"/></svg></button>
+      <div class="winctl">
+        <button aria-label="Minimise"><svg class="ic ic--sm"><use href="#i-min"/></svg></button>
+        <button aria-label="Maximise"><svg class="ic ic--sm"><use href="#i-max"/></svg></button>
+        <button class="winctl__close" aria-label="Close"><svg class="ic ic--sm"><use href="#i-close"/></svg></button>
+      </div>
+    </div>
+  </header>
+<!-- /gen:topbar -->
+  <!-- gen:rail-analysis -->
+<nav class="rail" aria-label="Activities" data-od-id="activity-rail">
+    <button class="rail__item" aria-label="Directory (Ctrl+1)"><svg class="ic"><use href="#i-directory"/></svg>Directory</button>
+    <button class="rail__item" aria-label="Viewer (Ctrl+2)"><svg class="ic"><use href="#i-viewer"/></svg>Viewer</button>
+    <button class="rail__item is-active" aria-current="page" aria-label="Analysis (Ctrl+3)"><svg class="ic"><use href="#i-analysis"/></svg>Analysis</button>
+    <button class="rail__item" aria-label="Reports (Ctrl+4)"><svg class="ic"><use href="#i-reports"/></svg>Reports</button>
+    <button class="rail__item rail__end" aria-label="Settings (Ctrl+,)"><svg class="ic"><use href="#i-settings"/></svg>Settings</button>
+  </nav>
+<!-- /gen:rail-analysis -->
+
+  <aside class="panel" aria-label="Task guidance" data-od-id="task-panel">
+    <div class="panel__switch">
+      <div class="seg" role="tablist" aria-label="Left panel">
+        <button class="seg__item" role="tab">Series</button>
+        <button class="seg__item is-selected" role="tab" aria-selected="true">Package</button>
+        <button class="seg__item" role="tab">Key Images</button>
+        <button class="seg__item" role="tab">Bookmarks</button>
+      </div>
+    </div>
+    <div class="panel__head">
+      <nav class="crumb" aria-label="Breadcrumb"><span>Diffusion</span><svg class="ic"><use href="#i-chev-right"/></svg><span>5 · Tractography</span></nav>
+      <div class="panel__head-row"><h1 class="panel__title">Tractography</h1><button class="ibtn ibtn--sm" aria-label="Collapse panel (Ctrl+B)"><svg class="ic ic--sm"><use href="#i-collapse"/></svg></button></div>
+      <p class="dense t2">DTI 32dir · 32 directions · b 0/1000 s/mm²</p>
+    </div>
+    <div class="panel__body">
+      <ol class="steps" data-od-id="task-steps">
+        <li class="step step--done"><div class="step__row"><span class="badge" aria-label="Step 1, done"><svg class="ic"><use href="#i-check"/></svg></span><span class="step__title">Select underlay &amp; overlay</span><span class="step__state t3">Done</span><span class="step__sum">3D FLAIR · FA direction · registered</span></div></li>
+        <li class="step step--current" aria-current="step">
+          <div class="step__row"><span class="badge">2</span><span class="step__title">Track fiber bundle</span><span class="step__state">Current</span></div>
+          <div class="step__body">
+            <div class="field">
+              <span class="field__label">Method</span>
+              <div class="seg" role="radiogroup" aria-label="Tracking method">
+                <button class="seg__item" role="radio">Multi-ROI manual</button>
+                <button class="seg__item is-selected" role="radio" aria-checked="true">Single-ROI auto</button>
+              </div>
+              <label class="check"><span class="check__box"><svg class="ic"><use href="#i-check"/></svg></span>Single ROI in high density</label>
+            </div>
+            <div class="field">
+              <span class="field__label">ROI shape</span>
+              <div class="seg" role="radiogroup" aria-label="ROI shape" style="grid-auto-flow: row; grid-template-columns: repeat(3, minmax(0, 1fr))">
+                <button class="seg__item" role="radio">Polygon</button>
+                <button class="seg__item is-selected" role="radio" aria-checked="true">Ellipse</button>
+                <button class="seg__item" role="radio">Freehand</button>
+                <button class="seg__item" role="radio">Seed 2D</button>
+                <button class="seg__item" role="radio">Seed 3D</button>
+              </div>
+            </div>
+            <dl>
+              <div class="kv"><dt>Minimum FA</dt><dd>0.20</dd></div>
+              <div class="kv"><dt>Maximum angle change</dt><dd>45<span class="u">°</span></dd></div>
+              <div class="kv"><dt>Minimum fiber length</dt><dd>10<span class="u">mm</span></dd></div>
+            </dl>
+            <div class="psec__row">
+              <button class="btn btn--secondary btn--dense"><svg class="ic"><use href="#i-run"/></svg>Track <span class="kbd">Ctrl+Enter</span></button>
+              <button class="btn btn--ghost btn--dense"><svg class="ic"><use href="#i-exclude"/></svg>Exclude <span class="kbd">N</span></button>
+            </div>
+            <div class="notice notice--info" role="note">
+              <svg class="ic"><use href="#i-info"/></svg>
+              <span class="notice__text">Seeds in the S–I band produced no fibers: its principal direction is through-plane on this 2-slice series.</span>
+            </div>
+          </div>
+        </li>
+        <li class="step step--todo"><div class="step__row"><span class="badge">3</span><span class="step__title">Save fiber bundles</span><span class="step__state t3"></span><span class="step__sum">With study · DICOM · navigation export</span></div></li>
+        <li class="step step--todo"><div class="step__row"><span class="badge"><svg class="ic"><use href="#i-info"/></svg></span><span class="step__title">Guidance</span><span class="step__state t3">Hidden</span><span class="step__sum">ROI placement hints for six common tracts</span></div></li>
+      </ol>
+    </div>
+    <div class="panel__foot">
+      <button class="btn btn--primary btn--block">Continue to Save fiber bundles <span class="kbd">Ctrl+Enter</span></button>
+    </div>
+  </aside>
+
+  <div class="toolbar" role="toolbar" aria-label="3D and ROI tools" data-od-id="toolbar">
+    <button class="ibtn is-active" aria-pressed="true" aria-label="Rotate 3D view (O)"><svg class="ic"><use href="#i-rotate"/></svg></button>
+    <button class="ibtn" aria-label="Pan (P)"><svg class="ic"><use href="#i-pan"/></svg></button>
+    <button class="ibtn" aria-label="Zoom (Z)"><svg class="ic"><use href="#i-zoom"/></svg></button>
+    <button class="ibtn" aria-label="Gray level (W)"><svg class="ic"><use href="#i-wl"/></svg></button>
+    <span class="tb-sep"></span>
+    <button class="ibtn" aria-label="Draw ROI: ellipse (E)"><svg class="ic"><use href="#i-ellipse"/></svg></button>
+    <button class="ibtn" aria-label="Draw ROI: freehand (F)"><svg class="ic"><use href="#i-freehand"/></svg></button>
+    <button class="ibtn" aria-label="Seed point (D)"><svg class="ic"><use href="#i-seed"/></svg></button>
+    <button class="ibtn" aria-label="Exclude ROI (N)"><svg class="ic"><use href="#i-exclude"/></svg></button>
+    <span class="tb-sep"></span>
+    <button class="ibtn is-active" aria-pressed="true" aria-label="Fiber probing, follow mouse (G)"><svg class="ic"><use href="#i-crosshair"/></svg></button>
+    <span class="tb-sep"></span>
+    <span class="tb-label">View</span>
+    <div class="seg" role="radiogroup" aria-label="Orientation preset" style="width: calc(var(--nm-space-12) * 6)">
+      <button class="seg__item" role="radio">From feet</button>
+      <button class="seg__item" role="radio">Anterior</button>
+      <button class="seg__item" role="radio">Left</button>
+      <button class="seg__item is-selected" role="radio" aria-checked="true">Free</button>
+    </div>
+    <span class="tb-sep"></span>
+    <button class="ibtn" aria-label="Undo (Ctrl+Z)"><svg class="ic"><use href="#i-undo"/></svg></button>
+    <button class="ibtn" aria-label="Redo (Ctrl+Y)"><svg class="ic"><use href="#i-redo"/></svg></button>
+    <span class="spacer"></span>
+    <button class="btn btn--secondary btn--dense"><svg class="ic"><use href="#i-series"/></svg>Export for navigation…</button>
+  </div>
+
+  <main class="vgrid vgrid--reg" aria-label="Viewports" data-od-id="viewport-grid">
+    <section class="vp vp--tall is-active" aria-label="3D main view" data-od-id="vp-3d">
+      <div class="vp__head">
+        <span class="vp__role">3D</span>
+        <label class="check is-checked"><span class="check__box"><svg class="ic"><use href="#i-check"/></svg></span><span class="legend__line" style="--c: var(--nm-plane-axial)"></span>Axial</label>
+        <label class="check is-checked"><span class="check__box"><svg class="ic"><use href="#i-check"/></svg></span><span class="legend__line" style="--c: var(--nm-plane-coronal)"></span>Coronal</label>
+        <label class="check is-checked"><span class="check__box"><svg class="ic"><use href="#i-check"/></svg></span><span class="legend__line" style="--c: var(--nm-plane-sagittal)"></span>Sagittal</label>
+        <span class="dense t2">Plane opacity 100 %</span>
+        <span class="spacer"></span>
+        <button class="ibtn ibtn--sm" aria-label="Viewport menu (right-click)"><svg class="ic ic--sm"><use href="#i-more"/></svg></button>
+      </div>
+      <div class="vp__body vp__body--fit">
+        <div class="vp__stage"><img src="../assets/img/trk_3d.png" width="768" height="768" alt="3D view: axial FLAIR plane with FA-direction overlay, coronal and sagittal FLAIR planes, and two fiber bundles on the axial plane"></div>
+        <div class="ov ov--tl">3D FLAIR underlay · FA direction overlay<br><span class="t2">2 bundles · 50 fibers</span></div>
+        <div class="ov ov--tr">PHANTOM^SYNTHETIC<br><span class="t2">NMR-PHANTOM-001 · 2026-01-01</span></div>
+        <div class="ov ov--bl">Probe x 15.7 · y 0.0 · z 0.0 mm<br><span class="t2">Bundle 1 · ROI 1 mean FA 0.80 · ADC 765 ×10⁻⁶ mm²/s</span></div>
+        <div class="ov ov--br">Free rotation · azimuth −58° · elevation 32°<br><span class="t2">Field of view 64 mm</span></div>
+      </div>
+    </section>
+
+    <section class="vp" aria-label="Reference view, axial">
+      <div class="vp__head"><span class="vp__role">Axial</span><span class="dense t2">z 0.0 mm</span><span class="spacer"></span><button class="ibtn ibtn--sm" aria-label="Viewport menu (right-click)"><svg class="ic ic--sm"><use href="#i-more"/></svg></button></div>
+      <div class="vp__body vp__body--fit">
+        <div class="vp__stage">
+          <img src="../assets/img/trk_ref_ax.png" width="512" height="512" alt="Axial reference: FLAIR with FA-direction overlay and both bundles">
+          <svg viewBox="0 0 512 512" aria-hidden="true">
+            <line class="pline pline--coronal" x1="0" y1="256" x2="512" y2="256"/>
+            <line class="pline pline--sagittal" x1="256" y1="0" x2="256" y2="512"/>
+            <ellipse class="roi roi--1" cx="381.6" cy="256" rx="40" ry="56"/>
+            <ellipse class="roi roi--2" cx="256" cy="256" rx="40" ry="56"/>
+          </svg>
+        </div>
+        <span class="ov orient orient--w">R</span><span class="ov orient orient--e">L</span>
+      </div>
+    </section>
+
+    <section class="vp" aria-label="Reference view, coronal">
+      <div class="vp__head"><span class="vp__role">Coronal</span><span class="dense t2">y 0.0 mm</span><span class="spacer"></span><button class="ibtn ibtn--sm" aria-label="Viewport menu (right-click)"><svg class="ic ic--sm"><use href="#i-more"/></svg></button></div>
+      <div class="vp__body vp__body--fit">
+        <div class="vp__stage vp__stage--wide">
+          <img src="../assets/img/trk_ref_cor.png" width="512" height="256" alt="Coronal FLAIR reference">
+          <svg viewBox="0 0 512 256" aria-hidden="true">
+            <line class="pline pline--axial" x1="0" y1="128" x2="512" y2="128"/>
+            <line class="pline pline--sagittal" x1="256" y1="0" x2="256" y2="256"/>
+            <rect class="pgrip pline--axial" x="6" y="122" width="16" height="12" rx="2"/>
+          </svg>
+        </div>
+        <span class="ov orient orient--n">S</span><span class="ov orient orient--w">R</span><span class="ov orient orient--e">L</span>
+      </div>
+    </section>
+
+    <section class="vp" aria-label="Reference view, sagittal">
+      <div class="vp__head"><span class="vp__role">Sagittal</span><span class="dense t2">x 0.0 mm</span><span class="spacer"></span><button class="ibtn ibtn--sm" aria-label="Viewport menu (right-click)"><svg class="ic ic--sm"><use href="#i-more"/></svg></button></div>
+      <div class="vp__body vp__body--fit">
+        <div class="vp__stage vp__stage--wide">
+          <img src="../assets/img/trk_ref_sag.png" width="512" height="256" alt="Sagittal FLAIR reference">
+          <svg viewBox="0 0 512 256" aria-hidden="true">
+            <line class="pline pline--axial" x1="0" y1="128" x2="512" y2="128"/>
+            <line class="pline pline--coronal" x1="256" y1="0" x2="256" y2="256"/>
+            <rect class="pgrip pline--axial" x="6" y="122" width="16" height="12" rx="2"/>
+          </svg>
+        </div>
+        <span class="ov orient orient--n">S</span><span class="ov orient orient--w">A</span><span class="ov orient orient--e">P</span>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ Inspector: bundle manager + statistics ============ -->
+  <aside class="inspector" aria-label="Bundles" data-od-id="inspector">
+    <div class="inspector__head"><h2 class="panel__title">Bundles</h2><span class="spacer"></span><button class="ibtn" aria-label="Close inspector (I)"><svg class="ic"><use href="#i-close"/></svg></button></div>
+    <div class="panel__body">
+      <section class="section" data-od-id="bundle-tree">
+        <div class="tree" role="tree">
+          <div class="tree__row is-selected" role="treeitem" aria-expanded="true"><svg class="ic"><use href="#i-chev-down"/></svg><span class="tree__dot" style="--c: var(--nm-roi-1)"></span><span>Bundle 1 · A–P band</span><span class="t2">26</span><button class="ibtn ibtn--sm" aria-label="Bundle menu"><svg class="ic ic--sm"><use href="#i-more"/></svg></button></div>
+          <div class="tree__row tree__row--child" role="treeitem"><svg class="ic"><use href="#i-ellipse"/></svg><span></span><span>ROI 1 · include</span><span>26 vox</span><span></span></div>
+          <div class="tree__row" role="treeitem" aria-expanded="true"><svg class="ic"><use href="#i-chev-down"/></svg><span class="tree__dot" style="--c: var(--nm-roi-2)"></span><span>Bundle 2 · R–L band</span><span class="t2">24</span><button class="ibtn ibtn--sm" aria-label="Bundle menu"><svg class="ic ic--sm"><use href="#i-more"/></svg></button></div>
+          <div class="tree__row tree__row--child" role="treeitem"><svg class="ic"><use href="#i-ellipse"/></svg><span></span><span>ROI 1 · include</span><span>24 vox</span><span></span></div>
+        </div>
+      </section>
+      <section class="section" data-od-id="fiber-stats">
+        <div class="psec__row"><span class="eyebrow">Statistics</span><span class="spacer"></span><button class="link dense">Export CSV</button></div>
+        <table class="tbl tbl--dense">
+          <colgroup><col style="width:46%"><col><col></colgroup>
+          <thead><tr><th>Bundle</th><th class="num">1</th><th class="num">2</th></tr></thead>
+          <tbody>
+            <tr><td>Fibers</td><td class="num">26</td><td class="num">24</td></tr>
+            <tr><td>Mean length <span class="t3">mm</span></td><td class="num">64.3</td><td class="num">16.0</td></tr>
+            <tr><td>FA <span class="t3">mean ± SD</span></td><td class="num">0.80 ± 0.03</td><td class="num">0.81 ± 0.03</td></tr>
+            <tr><td>ADC <span class="t3">×10⁻⁶ mm²/s</span></td><td class="num">769 ± 34</td><td class="num">762 ± 40</td></tr>
+            <tr><td>ROI volume <span class="t3">mm³</span></td><td class="num">416</td><td class="num">384</td></tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </aside>
+
+  <!-- Bundle settings dialog (TRK-007), opened from the bundle menu; anchored over the inspector -->
+  <div class="popover" style="right: var(--nm-space-2); top: calc(var(--nm-size-topbar) + var(--nm-size-toolbar) + var(--nm-space-12) * 3)" data-od-id="bundle-settings">
+    <div class="dialog" style="width: calc(var(--nm-size-inspector) - var(--nm-space-4))" role="dialog" aria-labelledby="bs-title">
+      <div class="dialog__head"><h2 class="dialog__title" id="bs-title">Bundle 1 settings</h2><button class="ibtn" aria-label="Close (Esc)"><svg class="ic"><use href="#i-close"/></svg></button></div>
+      <div class="dialog__body">
+        <label class="field"><span class="field__label">Name</span><span class="input"><span class="input__value">Bundle 1 · A–P band</span></span></label>
+        <label class="field field--row"><span class="field__label">Minimum FA</span><span class="input input--num input--dense" style="width: calc(var(--nm-space-12) * 2)"><span class="input__value">0.20</span></span></label>
+        <label class="field field--row"><span class="field__label">Maximum angle</span><span class="input input--num input--dense" style="width: calc(var(--nm-space-12) * 2)"><span class="input__value">45</span><span class="input__suffix">°</span></span></label>
+        <label class="field field--row"><span class="field__label">Minimum length</span><span class="input input--num input--dense" style="width: calc(var(--nm-space-12) * 2)"><span class="input__value">10</span><span class="input__suffix">mm</span></span></label>
+        <div class="field"><span class="field__label">Colour</span>
+          <div class="seg" role="radiogroup" aria-label="Fiber colour"><button class="seg__item is-selected" role="radio" aria-checked="true">Bundle colour</button><button class="seg__item" role="radio">Directional</button></div>
+        </div>
+        <div class="notice notice--warning" role="note"><svg class="ic"><use href="#i-warn"/></svg><span class="notice__text">Lowering FA or raising the angle limit creates spurious tracts — keep the defaults unless you have a reason.</span></div>
+      </div>
+      <div class="dialog__foot"><button class="btn btn--ghost btn--dense">Defaults</button><span class="spacer"></span><button class="btn btn--secondary btn--dense">Cancel</button><button class="btn btn--primary btn--dense">Apply <span class="kbd">Enter</span></button></div>
+    </div>
+  </div>
+
+  <!-- gen:statusbar-trk -->
+<footer class="statusbar" data-od-id="statusbar">
+    <span class="sb-item"><svg class="ic"><use href="#i-jobs"/></svg>Jobs <b>0 running</b></span>
+    <span class="sb-sep"></span>
+    <span class="sb-item"><span class="dot dot--success"></span><b>2 bundles · 50 fibers</b> · tracking rules FA 0.20 / 45° / 10 mm</span>
+    <span class="sb-sep"></span>
+    <span class="sb-item"><svg class="ic"><use href="#i-engine"/></svg>Engine <span class="dot dot--success"></span><b>connected</b> · local</span>
+    <span class="sb-sep"></span>
+    <span class="sb-item">Licence <b>active</b></span>
+    <span class="spacer"></span>
+    <span class="sb-item"><svg class="ic"><use href="#i-display"/></svg><b>Diagnostic display</b></span>
+    <span class="sb-sep"></span>
+    <span class="sb-item"><span class="kbd">?</span> shortcuts</span>
+  </footer>
+<!-- /gen:statusbar-trk -->
+</div>
+</body>
+</html>

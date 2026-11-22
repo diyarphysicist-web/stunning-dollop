@@ -168,6 +168,9 @@ def statusbar(state: str = '<span class="dot dot--success"></span><b>Maps up to 
 
 STATUS = {
     "dir": '<span class="dot dot--warning"></span><b>Pre-processing 1 series</b> · DTI multishell 64 %',
+    "trk": '<span class="dot dot--success"></span><b>2 bundles · 50 fibers</b> · tracking rules FA 0.20 / 45° / 10 mm',
+    "fmri": '<span class="dot dot--success"></span><b>SPMs up to date</b> · Block · 1 task',
+    "mrs": '<span class="dot dot--success"></span><b>Processed</b> · voxel quality good',
     "preview": '<span class="dot dot--success"></span><b>Live preview</b> · ADC, eADC and DWI-iso compute on Generate',
 }
 
@@ -282,7 +285,51 @@ def mrs_thumb() -> str:
     return f'<polyline class="g-curve" style="stroke: var(--nm-color-text-primary); stroke-width: 3" points="{pts}"/>'
 
 
-GENERATORS = {"topbar": topbar, "statusbar": statusbar, "dce-graph": dce_graph, "dce-table": dce_table, "perm-graph": perm_graph, "perm-table": perm_table, "mrs-thumb": mrs_thumb, "sprite": sprite, "aif-grid": aif_grid, "aif-average": aif_average, "mm-signal": mm_signal}
+# ── Brain Function (fMRI) ─────────────────────────────────────────────────────
+def fmri_curve() -> str:
+    f = DATA["fmri"]
+    n, tr = f["dynamics"], f["tr_s"]
+    t = [i * tr for i in range(n)]
+    y = f["cluster_curve"]
+    lo, hi = min(y), max(y)
+    step = next(v for v in (1, 2, 5, 10, 20, 50, 100) if (hi - lo) / v <= 6)
+    y0, y1 = step * int(lo // step), step * int(hi // step + 1)
+    out, sx, sy = axes([0, 40, 80, 120, 160, 200], list(range(y0, y1 + 1, step)), (0, n * tr), (y0, y1), "Time [s]", "Signal [a.u.]")
+    shade = [f'<rect class="g-paradigm" x="{f1(sx(o))}" y="{f1(Y0)}" width="{f1(sx(o + d) - sx(o))}" height="{f1(Y1 - Y0)}"/>' for o, d in zip(f["onsets_s"], f["durations_s"], strict=True)]
+    out = out[:1] + shade + out[1:]
+    out.append(poly("g-curve g-curve--signal", t, y, sx, sy))
+    return NL.join(out)
+
+
+# ── Spectroscopy ──────────────────────────────────────────────────────────────
+def mrs_spectrum() -> str:
+    m = DATA["mrs"]
+    ppm, y, base = m["ppm"], m["real"], m["baseline"]
+    top = max(y)
+    yt = [0, 200, 400, 600, 800, 1000]
+    # wider frame (viewBox 960 × 556) so text keeps the 11 px overlay size in the large spectrum viewport
+    out, sx, sy = axes([4.0, 3.5, 3.0, 2.5, 2.0, 1.5, 1.0, 0.5], yt, (4.2, 0.2), (min(min(y), 0) - 50, 1050), "Chemical shift [ppm]", "Signal [a.u.]", frame=(56.0, 940.0, 36.0, 500.0))
+    out.append(poly("g-curve g-curve--base", ppm, base, sx, sy))
+    out.append(poly("g-curve g-curve--signal", ppm, y, sx, sy))
+    for row in m["table"]:
+        out.append(f'<text class="g-peak" x="{f1(sx(row["ppm"]))}" y="{f1(sy(row["height"]) - 8)}" text-anchor="middle">{row["metabolite"]}</text>')
+    return NL.join(out)
+
+
+def mrs_table() -> str:
+    m = DATA["mrs"]
+    noise = max(r["height"] for r in m["table"]) / m["snr"]
+    out = []
+    for r in m["table"]:
+        out.append(
+            f'<tr><td class="strong">{r["metabolite"]}</td><td class="num">{r["ppm"]:.2f}</td><td class="num">{r["height"]:.1f}</td>'
+            f'<td class="num">{r["area"]:.2f}</td><td class="num">{m["linewidth_ppm"]:.3f}</td><td class="num">{r["height"] / noise:.1f}</td>'
+            f'<td class="num">{r["ratio_cr"]:.2f}</td><td><span class="dot dot--success" style="display: inline-block"></span> Good</td></tr>'
+        )
+    return NL.join(out)
+
+
+GENERATORS = {"fmri-curve": fmri_curve, "mrs-spectrum": mrs_spectrum, "mrs-table": mrs_table, "topbar": topbar, "statusbar": statusbar, "dce-graph": dce_graph, "dce-table": dce_table, "perm-graph": perm_graph, "perm-table": perm_table, "mrs-thumb": mrs_thumb, "sprite": sprite, "aif-grid": aif_grid, "aif-average": aif_average, "mm-signal": mm_signal}
 
 
 def main() -> None:

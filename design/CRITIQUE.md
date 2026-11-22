@@ -39,3 +39,18 @@ Notes
 - **07 DCE.** Table values are computed from the phantom ROI curves by `inject_plots.py`, using a bilinear fit with a least-squares knee (DCE-006). MAXRELENH reads 144 / 101 / 84 % against truth 150 / 100 / 80 %, and the fitted lines are drawn for ROI1. ROI outlines now carry a 1 px black halo so they stay visible on colour maps (all screens).
 - **08 Permeability.** The injection preset uses the phantom's values (r₁ 4.5 s⁻¹·mM⁻¹, 0.1 mmol/kg, medium, Hct 45 %; blood T1 1613 ms at 3.0 T, PERM-007). The example preset is flagged as an example (PERM-006). Ktrans/kep/ve/vp are the Tofts phantom's ground-truth classes, because the fit arrives in Phase 5. Task guidance follows the new PERM-012.
 - **09 Diffusion.** The default layout is source | maps (DIF-002), so the 2×2 skeleton applies inside the map viewport (law 2 ~). ADC, eADC and DWI-iso are listed as computed on Generate, with no live preview (DIF-006). The FA-direction legend colours come from the new `FA_DIRECTION_PALETTE` in `packages/viewer/src/luts`. Task guidance follows the new DIF-012.
+
+## Batch 4
+
+| Screen | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 10 Tractography | ✓ | ~ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| 11 Brain Function | ✓ | ~ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| 11 Paradigm editor (block, event) | ~ | — | ✓ | ✓ | — | ✓ | — | ✓ | ✓ | ✓ |
+| 12 Spectroscopy | ✓ | ~ | ✓ | ✓ | ✓ | ✓ | ✓ | — | ✓ | ✓ |
+
+Notes
+- **10 Tractography.** Layout follows TRK-002 (3D main view plus three reference views) rather than the 2×2 grid (law 2 ~); the steps panel, toolbar and inspector keep the shared skeleton. Streamlines are real: `render_phantom_imagery.py` tracks the DTI phantom's tensors with the TRK-006 rules (FA ≥ 0.20, ≤ 45° per step, ≥ 10 mm, step 0.5 voxel, one seed per voxel). That gives 26 fibers (64.3 mm) in the A–P band and 24 (16.0 mm) in the R–L band. The S–I band yields none, because its principal direction is through-plane on a 2-slice series, and the screen says so. The 3D view is a z-buffered render of the FLAIR planes with the FA-direction overlay and the fibers. Plane colours come from the new `PLANE_PALETTE`. The bundle settings dialog is anchored inside the inspector, so no image is covered (law 1).
+- **11 Brain Function.** SPMs are shown tiled (FMRI-010), with the selected slice and the cluster's time-intensity curve beside them; the paradigm is shaded on the graph (FMRI-011). The FMRI-013 warning sits next to the curve it asks the user to check. There is no anatomical series covering the 144 mm BOLD field of view in the phantom study, so the underlay is the mean BOLD, and the screen says so.
+- **11 Paradigm editor.** A modal wizard (FMRI-007) is acceptable under law 1: the user opens it, and it needs no image interaction. The block variant shows the sequential task/rest blocks of the phantom paradigm; the event variant shows the same paradigm imported as a BIDS TSV.
+- **12 Spectroscopy.** SVS layout per MRS-002, with the spectrum and table in place of the 2×2 grid (law 2 ~). The spectrum, baseline, peak table and SNR come from the SVS phantom. Per-metabolite SNR is peak height divided by noise RMS (MRS-012). The quality legend uses the MRS-010 classes. The "Fitted" overlay is off, because no fit exists until Phase 8. The spectrum graph uses a wider viewBox so its text matches the 11 px overlay size.
