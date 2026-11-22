@@ -1236,3 +1236,28 @@ ul, ol { list-style: none; }
 .paper figure { margin: 0; }
 .paper__imgs { grid-template-columns: repeat(3, calc(var(--nm-space-12) * 3.4)); justify-content: start; }
 .paper { gap: var(--nm-space-2); }
+
+/* --------------------------------------------------------------------------
+   29. Batch 8 — laptop tier (panels as overlays below 1600 px) and RTL chrome
+   -------------------------------------------------------------------------- */
+.app--laptop { grid-template-columns: var(--nm-size-rail) minmax(0, 1fr); grid-template-areas: "top top" "rail toolbar" "rail grid" "status status"; }
+.app--laptop > .panel { display: none; }
+.app--laptop > .panel.panel--overlay { display: flex; position: absolute; z-index: var(--nm-z-panel-overlay); left: var(--nm-size-rail); top: var(--nm-size-topbar); bottom: var(--nm-size-statusbar); width: var(--nm-size-task-panel); box-shadow: var(--nm-elevation-popover); }
+.app--laptop .banner { gap: var(--nm-space-3); }
+/* RTL: chrome mirrors (grid and flex follow the writing direction); hairlines move to the inline end.
+   Viewports, orientation markers, graphs and DICOM overlays never mirror. */
+[dir="rtl"] .rail { border-right: 0; border-left: var(--nm-size-hairline) solid var(--nm-color-border); }
+[dir="rtl"] .rail__item.is-active::before { left: auto; right: 0; }
+[dir="rtl"] .panel { border-right: 0; border-left: var(--nm-size-hairline) solid var(--nm-color-border); }
+[dir="rtl"] .inspector { border-left: 0; border-right: var(--nm-size-hairline) solid var(--nm-color-border); }
+[dir="rtl"] .brand { border-right: 0; padding-right: 0; border-left: var(--nm-size-hairline) solid var(--nm-color-border); padding-left: var(--nm-space-4); }
+[dir="rtl"] .topbar { padding-left: 0; padding-right: var(--nm-space-4); }
+[dir="rtl"] .winctl { margin-left: 0; margin-right: var(--nm-space-2); border-left: 0; border-right: var(--nm-size-hairline) solid var(--nm-color-border); }
+[dir="rtl"] .tbl th, [dir="rtl"] .tbl td { text-align: right; }
+[dir="rtl"] .tbl .num { text-align: left; }
+[dir="rtl"] .lx__item.is-selected { box-shadow: inset calc(var(--nm-size-focus-ring) * -1) 0 0 var(--nm-color-accent); }
+[dir="rtl"] .ic--flip { transform: scaleX(-1); }
+.ltr { direction: ltr; unicode-bidi: isolate; }
+/* RTL: numbers, dimensions and progress values are isolated left-to-right (Western digits, no reordering) */
+[dir="rtl"] .tbl td.num, [dir="rtl"] .progress__pct, [dir="rtl"] .tbl--series td:nth-child(6), [dir="rtl"] .kbd { direction: ltr; unicode-bidi: isolate; }
+[dir="rtl"] .tbl--series td:nth-child(6) { text-align: right; }
