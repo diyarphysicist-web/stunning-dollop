@@ -220,13 +220,57 @@ def build(out: Path, only: set[str] | None) -> list[str]:
             )
             _save_truth(ph, out / ph.name)
             done.append(ph.name)
+
+    if want("swi"):
+        p = other.make_swi_epi()
+        write_series(
+            p.data,
+            out / p.name / "dicom",
+            study,
+            SeriesSpec(
+                "SWI EPI",
+                610,
+                "none",
+                te_ms=p.meta["te_ms"],
+                tr_ms=p.meta["tr_ms"],
+                pixel_mm=1.0,
+                slice_mm=1.0,
+                flip_deg=90.0,
+                image_type=("ORIGINAL", "PRIMARY", "M", "SWI"),
+                extra={"ScanningSequence": "EP", "SequenceVariant": "SK"},
+            ),
+        )
+        _save_truth(p, out / p.name)
+        done.append(p.name)
+
+    if want("echo"):
+        p = other.make_multi_echo()
+        write_series(
+            p.data,
+            out / p.name / "dicom",
+            study,
+            SeriesSpec(
+                "Multi-echo GRE",
+                620,
+                "echo",
+                echo_times_ms=p.meta["te_ms"],
+                tr_ms=p.meta["tr_ms"],
+                flip_deg=p.meta["flip_deg"],
+                pixel_mm=1.0,
+                slice_mm=1.0,
+            ),
+        )
+        _save_truth(p, out / p.name)
+        done.append(p.name)
     return done
 
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--out", type=Path, default=ROOT / "data" / "phantoms")
-    ap.add_argument("--only", type=str, default=None, help="comma list: dsc,dce,dti,ivim,fmri,mrs,flair")
+    ap.add_argument(
+        "--only", type=str, default=None, help="comma list: dsc,dce,dti,ivim,fmri,mrs,flair,swi,echo"
+    )
     args = ap.parse_args()
     only = set(args.only.split(",")) if args.only else None
     for name in build(args.out, only):

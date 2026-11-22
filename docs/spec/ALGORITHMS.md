@@ -197,7 +197,7 @@ References: Provencher, Magn Reson Med 1993;30:672–679 (LCModel principle). Ne
 
 - Inter-study registration: rigid then optional affine, Mattes MI, multi-resolution (SimpleITK), brain-masked.
 - Change map: N4 bias-field correction (Tustison 2010) on both volumes → registration → histogram matching of follow-up to baseline within the brain mask → difference D = follow-up − baseline → robust range from 2nd–98th percentile of |D| → display threshold = 10 % of that range; overlay alpha = clip((|D| − thr)/(range − thr), 0, 1).
-- FLAIR*: register SWI/EPI to FLAIR (rigid, same session), normalise each to [0, 1] by the 99th percentile within brain, product voxelwise (Sati et al., Radiology 2012;265:926–932).
+- FLAIR*: register SWI/EPI to FLAIR (rigid, same session), normalise each to [0, 1] by the 99th percentile within brain, product voxelwise (Sati et al., Radiology 2012;265:926–932). Phantom: `swi_epi` (T2*-weighted EPI on the baseline FLAIR grid and lesions; hypointense central veins in lesions 1 and 3 plus one vein outside any lesion; displaced by a known (0, 1.5, −1) voxel shift).
 - Seed-point segmentation: from the clicked voxel, threshold = intensity midpoint between local lesion core (median in 3×3×3) and surrounding ring (median at the sphere boundary), adjustable by `Shift`+wheel; connected component inside the limiting sphere; hole filling.
 - Volume = voxel count × voxel volume [ml].
 
@@ -227,4 +227,4 @@ References: Le Bihan et al., Radiology 1988;168:497–505. Jensen et al., Magn R
 ## 11. Subtraction and echo accumulation
 
 - Subtraction (SUB-001): float32 voxelwise with the formulas in the spec; divisions with |denominator| < ε (1e-6 × max |R|) return 0 and are counted. Output rescaled to the integer range with stored slope/intercept.
-- Echo accumulation (ECHO-002): Σ_{e∈range} S_e in float32, rescaled likewise.
+- Echo accumulation (ECHO-002): Σ_{e∈range} S_e in float32, rescaled likewise. Phantom: `multi_echo_gre` (S0 · exp(−TE/T2*), TE 5/10/15/20 ms, T2* 60 ms tissue and 30 ms lesions, SNR 100; truth holds the noise-free sum over all echoes).

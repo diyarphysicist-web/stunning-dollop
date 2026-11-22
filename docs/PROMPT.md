@@ -305,7 +305,7 @@ Create `CLAUDE.md` in Phase 0 containing §2, §7, a summary of §12 and §13, t
 
 ### 9. Data for development and testing
 
-- `scripts/make_phantoms.py` generates synthetic DICOM series with known ground truth: DSC (gamma-variate bolus with set CBV/CBF/MTT/T0, leakage terms K1/K2, Rician noise at SNR 20/50/100, TR 1.0–2.1 s), DCE (Extended Tofts with set Ktrans/ve/vp, VFA reference series at 5°/15°), DWI/DTI (known tensors, 6–64 directions, b = 0/500/1000/2000), IVIM/kurtosis (known D, f, D*, K), fMRI (block design with known activation blobs), SVS/CSI spectra (known metabolite amplitudes, line widths, noise), longitudinal FLAIR pairs (lesions that grow/shrink by known volumes).
+- `scripts/make_phantoms.py` generates synthetic DICOM series with known ground truth: DSC (gamma-variate bolus with set CBV/CBF/MTT/T0, leakage terms K1/K2, Rician noise at SNR 20/50/100, TR 1.0–2.1 s), DCE (Extended Tofts with set Ktrans/ve/vp, VFA reference series at 5°/15°), DWI/DTI (known tensors, 6–64 directions, b = 0/500/1000/2000), IVIM/kurtosis (known D, f, D*, K), fMRI (block design with known activation blobs), SVS/CSI spectra (known metabolite amplitudes, line widths, noise), longitudinal FLAIR pairs (lesions that grow/shrink by known volumes), SWI/EPI for FLAIR* (known central veins and registration shift), multi-echo GRE (known S0 and T2*).
 - `scripts/fetch_public_data.py` downloads fully anonymized public neuro datasets (e.g. DIPY sample data, OpenNeuro BOLD/DWI) into git-ignored `data/`. If a download host is blocked by the session's network policy, fall back to the synthetic phantoms and report the blocked host in the phase report; no test may depend on public data being present.
 
 ### 10. Build phases (each ends with the §2.5 gate)

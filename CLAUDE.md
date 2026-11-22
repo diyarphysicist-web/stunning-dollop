@@ -59,7 +59,7 @@ CI: `.github/workflows/ci.yml` (node, engine, traceability with `CURRENT_PHASE`,
 
 **Done in Phase 0**
 - Manual chapters read (General, T1, T2*/Mismatch, Permeability, Diffusion, fiber tracking, Brain Function, spectroscopy, Longitudinal, Subtraction, Echo Accumulation, Advanced Diffusion); spec and algorithms written in original wording.
-- Monorepo scaffold, CI, phantom generator (DSC incl. leakage, DCE semi-quant, Tofts + VFA, DTI 6–64 dirs, multishell, IVIM/DKI, fMRI block, SVS FID, FLAIR follow-up pair), DHF skeleton.
+- Monorepo scaffold, CI, phantom generator (DSC incl. leakage, DCE semi-quant, Tofts + VFA, DTI 6–64 dirs, multishell, IVIM/DKI, fMRI block, SVS FID, FLAIR follow-up pair, SWI/EPI for FLAIR* and multi-echo GRE added 2026-11-22), DHF skeleton.
 
 **Open issues**
 - Brief §4.2 says tertiary text is "≥ 4.98:1" on the raised surface; exact value is 4.977:1 (passes 4.5:1). Test asserts 4.98 to two decimals.
@@ -67,7 +67,7 @@ CI: `.github/workflows/ci.yml` (node, engine, traceability with `CURRENT_PHASE`,
 - Spectroscopy phantom is written as `fid.npz` (no DICOM MR Spectroscopy writer yet; due Phase 8).
 - `apps/desktop` (Electron) is created in Phase 2a.
 - Open Design MCP is not reachable from cloud sessions; it also disconnected locally during batch 6 (files are still synced by copying into the project folder).
-- No SWI/EPI or multi-echo phantom: FLAIR* is shown disabled and Echo Accumulation uses design-only decayed FLAIR imagery. Add both phantoms to `scripts/make_phantoms.py` before Phases 9–10.
+- SWI/EPI (`swi_epi`) and multi-echo (`multi_echo_gre`) phantoms now exist, but screens 13 (FLAIR* shown disabled) and 15 (design-only decayed FLAIR imagery) still use the earlier imagery; switching them to the phantoms needs Diyar's go-ahead because the design is in review.
 - Local tooling: `uv` is not on PATH on Diyar's PC; the system Python 3.14 (`/c/Python314/python`) has numpy/scipy/pydicom/Pillow and runs `design/tools/*.py`. Run `inject_plots.py` after editing any screen with `gen:` regions, then `pnpm design:render <filter>`, then copy changed files into the Open Design project folder.
 
 **Exact next step:** Wait for Diyar's review. Apply any requested changes through the same design path (screens → inject_plots → render → critique → commit). On "design approved": mark the design locked here and start Phase 2.

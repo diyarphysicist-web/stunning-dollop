@@ -106,6 +106,54 @@ def test_flair_pair_volume_changes():
     assert vf[0] > vb[0] and vf[1] < vb[1] and vf[2] == vb[2] and vb[3] == 0 and vf[4] == 0
 
 
+def test_swi_epi_central_veins_and_shift():
+    p = other.make_swi_epi(snr=1e6, shift_vox=(0.0, 0.0, 0.0))
+    t = p.truth
+    img = p.data[..., 0]
+    lesions, veins = t["lesions"], t["veins"]
+    assert list(t["central_vein"]) == [True, False, True, False, False]
+    for i, flagged in enumerate(t["central_vein"]):
+        assert bool((lesions[i] & veins).any()) == bool(flagged)
+    # veins are hypointense against tissue and lesions
+    assert img[veins].max() < 0.5 * img[t["brain"] & ~veins].min()
+    # one vein lies outside every lesion
+    assert (veins & ~lesions.any(axis=0)).sum() > 10
+    # the default volume is displaced by the recorded shift
+    moved = other.make_swi_epi(snr=1e6)
+    np.testing.assert_allclose(moved.truth["shift_vox"], (0.0, 1.5, -1.0))
+    assert not np.allclose(moved.data, p.data, atol=1.0)
+
+
+def test_swi_epi_shares_flair_lesions():
+    b, _ = other.make_flair_pair()
+    p = other.make_swi_epi()
+    np.testing.assert_array_equal(p.truth["lesions"].sum(axis=(1, 2, 3)), b.truth["volumes_vox"])
+
+
+def test_multi_echo_decay_and_echo_sum():
+    p = other.make_multi_echo(snr=1e6)
+    t = p.truth
+    te = p.meta["te_ms"]
+    brain = t["brain"]
+    expected = t["s0"][brain][:, None] * np.exp(-te / t["t2star_ms"][brain][:, None])
+    np.testing.assert_allclose(p.data[brain], expected, rtol=1e-4)
+    np.testing.assert_allclose(p.data[brain].sum(axis=-1), t["echo_sum"][brain], rtol=1e-4)
+    # log-linear fit recovers T2* exactly when noise-free
+    slope = np.polyfit(te, np.log(p.data[brain][:200].T), 1)[0]
+    np.testing.assert_allclose(-1.0 / slope, t["t2star_ms"][brain][:200], rtol=1e-3)
+    assert set(np.unique(t["t2star_ms"][brain])) == {30.0, 60.0}
+
+
+def test_multi_echo_dicom_echo_times(tmp_path):
+    p = other.make_multi_echo(shape=(2, 16, 16))
+    paths = write_series(
+        p.data, tmp_path, StudySpec(), SeriesSpec("ME", 1, "echo", echo_times_ms=p.meta["te_ms"])
+    )
+    assert len(paths) == 2 * 4
+    echoes = sorted({(int(d.EchoNumbers), float(d.EchoTime)) for d in map(pydicom.dcmread, paths)})
+    assert echoes == [(1, 5.0), (2, 10.0), (3, 15.0), (4, 20.0)]
+
+
 def test_dicom_round_trip(tmp_path):
     p = dsc.make_dsc(snr=50.0, n_dyn=8, shape=(2, 16, 16))
     paths = write_series(
