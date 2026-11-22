@@ -38,6 +38,11 @@
   --nm-color-critical-subtle: #FF5A5F1F;
   --nm-color-scrim: #000000B3;
   --nm-color-overlay-text-shadow: #000000;
+  /* Print (PDF reports and printed tables only — never app chrome) */
+  --nm-color-print-paper: #FFFFFF;
+  --nm-color-print-ink: #111418;
+  --nm-color-print-ink-secondary: #4A515C;
+  --nm-color-print-rule: #C9CED6;
 
   /* ── Typography (§4.3) ───────────────────────────────────── */
   --nm-font-ui: "Inter", system-ui, "Segoe UI", sans-serif;

@@ -34,6 +34,11 @@ describe("brief §4.2 text contrast (exported design tokens)", () => {
     expect(contrastRatio("#6B7380", tokens.colorRaised)).toBeLessThan(4.5);
   });
 
+  it("print ink passes 4.5:1 on report paper (PDF reports)", () => {
+    expect(contrastRatio(tokens.colorPrintInk, tokens.colorPrintPaper)).toBeGreaterThanOrEqual(4.5);
+    expect(contrastRatio(tokens.colorPrintInkSecondary, tokens.colorPrintPaper)).toBeGreaterThanOrEqual(4.5);
+  });
+
   it("brief §4.2 surface and text values are unchanged", () => {
     expect(tokens.colorViewport).toBe("#000000");
     expect([tokens.colorBg, tokens.colorSurface, tokens.colorRaised, tokens.colorBorder]).toEqual(["#0B0D10", "#12151A", "#181C22", "#232830"]);

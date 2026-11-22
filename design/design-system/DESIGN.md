@@ -39,6 +39,10 @@ Every text token passes ≥ 4.5:1 on every surface including hover (unit-tested 
 - **Mismatch:** diffusion core `#D55E00` (vermilion), perfusion deficit `#56B4E9` (sky), penumbra = deficit minus core, sky with 45° hatching option.
 - Accent blue is never used as a data colour inside a viewport, so selection is never confused with data.
 
+### Print (PDF reports only)
+
+Report pages are documents, not chrome: `--nm-color-print-paper` #FFFFFF, `--nm-color-print-ink` #111418, `--nm-color-print-ink-secondary` #4A515C (≥ 4.5:1 on paper, unit-tested), `--nm-color-print-rule` #C9CED6. Key images keep their LUTs and colour bars; the app never uses print tokens on screen except inside a report-page preview.
+
 ## 3. Typography Rules
 
 | Use | Family | Size / line | Weight |
