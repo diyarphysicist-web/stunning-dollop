@@ -175,8 +175,10 @@ def make_flair_pair(
 
 # --- SWI/EPI for FLAIR* (LBA-025) ------------------------------------------------------
 
-# Baseline lesions that contain a central vein (indices into FLAIR_LESIONS).
+# Baseline lesions that contain a central vein, and lesions with two distinct veins (a NAIMS
+# exclusion criterion), as indices into FLAIR_LESIONS.
 CENTRAL_VEIN_LESIONS = (0, 2)
+MULTI_VEIN_LESIONS = (1,)
 
 
 def make_swi_epi(
@@ -188,11 +190,13 @@ def make_swi_epi(
     """T2*-weighted SWI/EPI volume of the baseline head, for FLAIR* (LBA-025).
 
     Same grid and lesions as the baseline FLAIR. Veins are hypointense columns along z:
-    one through the centre of each lesion in CENTRAL_VEIN_LESIONS, and one outside any lesion.
+    one through the centre of each lesion in CENTRAL_VEIN_LESIONS, two off-centre veins 4 voxels apart
+    through each lesion in MULTI_VEIN_LESIONS, and one outside any lesion.
     The volume is displaced by `shift_vox` (z, y, x) relative to the FLAIR, so the in-session
     rigid registration has a known answer.
 
-    Truth: veins and lesions masks in FLAIR space, per-lesion central-vein flags, the shift [voxels].
+    Truth: veins and lesions masks in FLAIR space, per-lesion central-vein and multiple-vein flags,
+    the shift [voxels].
     """
     from scipy.ndimage import shift as nd_shift
 
@@ -205,6 +209,11 @@ def make_swi_epi(
         (cz, cy, cx), r, _ = FLAIR_LESIONS[i]
         reach = int(np.ceil(r)) + 2
         veins |= (yy == cy) & (xx == cx) & (np.abs(zz - cz) <= reach)
+    for i in MULTI_VEIN_LESIONS:
+        (cz, cy, cx), r, _ = FLAIR_LESIONS[i]
+        reach = int(np.ceil(r)) + 2
+        for off in (-2, 2):
+            veins |= (yy == cy) & (xx == cx + off) & (np.abs(zz - cz) <= reach)
     veins |= (yy == 32) & (xx == 14) & (zz >= 6) & (zz <= 26)  # vein away from every lesion
     veins &= brain
     img = np.where(brain, 400.0, 0.0)
@@ -213,6 +222,7 @@ def make_swi_epi(
     moved = nd_shift(img, shift_vox, order=1, mode="constant", cval=0.0)
     data = add_rician(moved, 400.0 / snr, gen)
     flags = np.array([i in CENTRAL_VEIN_LESIONS for i in range(len(FLAIR_LESIONS))])
+    multi = np.array([i in MULTI_VEIN_LESIONS for i in range(len(FLAIR_LESIONS))])
     has_lesion = np.array([m.any() for m in lesions])
     return Phantom(
         "swi_epi",
@@ -222,6 +232,7 @@ def make_swi_epi(
             veins=veins,
             lesions=np.stack(lesions),
             central_vein=flags & has_lesion,
+            multiple_veins=multi & has_lesion,
             shift_vox=np.array(shift_vox),
         ),
         dict(kind="SWI", te_ms=30.0, tr_ms=3000.0),

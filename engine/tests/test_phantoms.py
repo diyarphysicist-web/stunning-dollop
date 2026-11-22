@@ -5,6 +5,7 @@ from __future__ import annotations
 import numpy as np
 import pydicom
 import pytest
+from scipy import ndimage
 
 from neuromr_engine.dicom.writer import SeriesSpec, StudySpec, write_series
 from neuromr_engine.phantoms import dce, diffusion, dsc, other
@@ -112,8 +113,13 @@ def test_swi_epi_central_veins_and_shift():
     img = p.data[..., 0]
     lesions, veins = t["lesions"], t["veins"]
     assert list(t["central_vein"]) == [True, False, True, False, False]
-    for i, flagged in enumerate(t["central_vein"]):
-        assert bool((lesions[i] & veins).any()) == bool(flagged)
+    assert list(t["multiple_veins"]) == [False, True, False, False, False]
+    for i, (central, multi) in enumerate(zip(t["central_vein"], t["multiple_veins"], strict=True)):
+        assert bool((lesions[i] & veins).any()) == bool(central or multi)
+    # the multiple-vein lesion holds two distinct veins in its central axial slice
+    (cz, _, _), _, _ = other.FLAIR_LESIONS[1]
+    _, n_veins = ndimage.label((lesions[1] & veins)[cz])
+    assert n_veins == 2
     # veins are hypointense against tissue and lesions
     assert img[veins].max() < 0.5 * img[t["brain"] & ~veins].min()
     # one vein lies outside every lesion
