@@ -124,8 +124,7 @@ Notes
 |---|---|---|---|---|---|---|---|---|---|---|
 | 24 Laptop DSC (panel collapsed) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | 24 Laptop DSC (panel overlay) | ~ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| 24 Arabic RTL Directory | — | — | — | ✓ | ✓ | ✓ | ✓ | — | ✓ | ✓ |
 
 Notes
 - **Laptop.** Rendered at 1280 × 720 CSS px with device scale 1.5 (1920 × 1080 physical), using the `nm-viewport` meta that `pnpm design:render` reads. Below 1600 px the task panel and inspector become overlays (brief §4.4). The layout starts at 1×2, and the four viewport roles are one key away (`F6` role pager, law 2). The overlay panel covers part of the viewport only when the user opens it (`Ctrl+B`, law 1 ~). The banner keeps the SAFE-001 fields; modality and accession move to its tooltip. Output buttons become icon buttons with shortcut tooltips. The battery notice is one line in the status bar (brief §12.2).
-- **Arabic RTL.** The chrome mirrors through grid and flex direction; hairlines move to the inline end. Patient names, IDs, DICOM descriptions, units, keyboard chips, dates and numbers stay left-to-right with Western digits; without isolation, "1 849" and "60 dyn × 4 sl" were reordered, so `.ltr` and the RTL table rules isolate them. Thumbnails never mirror. Launcher reasons are translated from the same `validity.ts` messages. **Open item:** Inter has no Arabic glyphs, so the screen falls back to the system UI font. An offline Arabic/Kurdish UI font needs to become a token (`--nm-font-ui-arabic`) before Phase 2's i18n work. Kurdish (Sorani) is not designed separately; it uses the same RTL rules.
+- **Arabic RTL Directory removed** (2026-11-22): the product is English only, so the RTL variant, its composer and the RTL shell rules were deleted.

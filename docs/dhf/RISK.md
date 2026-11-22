@@ -5,7 +5,7 @@ Status: Phase 0 baseline. Severity (S) 1 negligible … 5 catastrophic; probabil
 | ID | Hazard / hazardous situation | Possible harm | S | P | Risk | Risk controls (requirements) | Verification |
 |---|---|---|---|---|---|---|---|
 | H-01 | Wrong patient: series of two patients combined, or results filed to the wrong patient | Wrong diagnosis or treatment | 5 | 2 | 10 | SAFE-001, SAFE-010, SAFE-020, SAFE-021, GEN-162, GEN-192 | validity tests, export tests (Phase 2) |
-| H-02 | Wrong side: left/right confusion after mirror/flip/rotate or RTL layout | Wrong-side surgery or intervention | 5 | 2 | 10 | SAFE-040, GEN-130, brief §12.8 (viewports never mirror in RTL) | viewer orientation tests (Phase 2) |
+| H-02 | Wrong side: left/right confusion after mirror/flip/rotate | Wrong-side surgery or intervention | 5 | 2 | 10 | SAFE-040, GEN-130 | viewer orientation tests (Phase 2) |
 | H-03 | Wrong map scaling or units (e.g. ml/100 g vs relative, s vs min) | Misclassification of tissue viability or tumour grade | 4 | 3 | 12 | SAFE-050, GEN-112, GEN-141, GEN-160 (rescale and units in DICOM) | per-package unit tests |
 | H-04 | Failed or poor registration presented as valid (mismatch, tractography, fMRI, longitudinal) | Wrong mismatch volume, misplaced tract or activation in surgical planning | 4 | 3 | 12 | REG-001…006, SAFE-070, MM-002, TRK-015, FMRI-002, LBA-010, LBA-024 | registration phantom tests (Phase 4) |
 | H-05 | Stale result shown after inputs changed | Decision on outdated numbers | 4 | 3 | 12 | SAFE-030, GEN-031 | state-invalidation tests (Phase 2) |

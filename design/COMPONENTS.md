@@ -4,7 +4,7 @@ Derived from the exported screens in `design/screens/` (brief §3 step 7). Every
 
 **States used throughout:** default · hover · active (pressed or current) · focused (2 px accent ring, outside, `:focus-visible` only) · disabled (tertiary text, no hover, reason in tooltip) · busy (inline progress with Cancel; never a blocking spinner) · error (critical border plus a one-sentence message that names the fix). Motion: 120 ms ease-out for panels and overlays; 0 ms inside viewports.
 
-**Keyboard rules:** every action has a shortcut shown in its tooltip and in the shortcut sheet (`?`). Tab order follows reading order (mirrored in RTL). `Esc` closes the topmost popover, menu or dialog. Arrow keys move inside composite widgets (segmented controls, tabs, lists, grids). `Shift+F10` or the context-menu key opens the context menu of the focused viewport, table or graph.
+**Keyboard rules:** every action has a shortcut shown in its tooltip and in the shortcut sheet (`?`). Tab order follows reading order. `Esc` closes the topmost popover, menu or dialog. Arrow keys move inside composite widgets (segmented controls, tabs, lists, grids). `Shift+F10` or the context-menu key opens the context menu of the focused viewport, table or graph.
 
 ---
 
@@ -56,7 +56,7 @@ Derived from the exported screens in `design/screens/` (brief §3 step 7). Every
 | **Viewport grid** | 1×1, 1×2, 2×1, 2×2 (default), 2×3, 3×3, AIF (tall + 2), REG (tall + 3), tiles (SPM), maps 2×2 inside one viewport | — | `Ctrl+L` layout, `Tab` next viewport, `Enter` maximise, `F6` role pager (laptop) |
 | **Viewport** | image (fitted stage, square or 2:1 for coronal/sagittal), panel (table), graph, 3D | default, active (1 px accent outline + accent head rule), busy (`.vp__state` progress + Cancel, no colour bar without a map), empty | `↑↓` slices, `←→` dynamics / b-values / maps |
 | **Viewport head** | role label, series select, map tabs, stepper, link indicator, menu | — | — |
-| **Overlay text** | four corners, orientation markers (never mirrored, also in RTL), ROI labels, probe readout | — | — |
+| **Overlay text** | four corners, orientation markers (never hidden), ROI labels, probe readout | — | — |
 | **Colour bar** | vertical with max/min, unit, window; compact (tiles, maps 2×2, report) | — | right-drag adjusts window |
 | **ROI graphics** | ellipse, spline, freehand, rectangle; linked mirror (dashed); handles; halo for colour maps | selected (handles), hover | `Del`, `Ctrl+D`, `Ctrl+Z` |
 | **Mirror line / plane lines / crosshair** | mirror (accent + grip), axial/coronal/sagittal (plane palette + grip), crosshair (accent, gap) | dragging | `L`, `X` |
@@ -68,7 +68,7 @@ Derived from the exported screens in `design/screens/` (brief §3 step 7). Every
 
 | Component | Variants | States | Keyboard |
 |---|---|---|---|
-| **Table** | 28 px rows, dense 24 px, sticky raised header with unit line, numeric right-aligned (RTL: numbers isolated LTR), ROI swatch (solid, linked outline, hatched), total row, current column | row hover, selected, focused cell | arrows, `Ctrl+C` copy TSV, click a slice column to jump |
+| **Table** | 28 px rows, dense 24 px, sticky raised header with unit line, numeric right-aligned, ROI swatch (solid, linked outline, hatched), total row, current column | row hover, selected, focused cell | arrows, `Ctrl+C` copy TSV, click a slice column to jump |
 | **Stale bar** | stale results, export blocked (SAFE-030) | — | `Ctrl+R` recompute |
 | **Graph** | time curves, voxel grid, signal vs b, spectrum (ppm decreasing to the right), trend, paradigm shading, fitted line (neutral dashed), markers | — | right-click menu; legend toggles |
 | **Legend** | curves with toggles, swatches, direction colours | — | — |
@@ -104,7 +104,3 @@ Derived from the exported screens in `design/screens/` (brief §3 step 7). Every
 | **Gate** | sign-in, lock (no patient data) | input focus, error | `Enter` primary |
 | **Report paper** | A4/Letter, print tokens only, header, identifiers, key images with colour bars, print tables, graph, method, footer | fit page | `Ctrl+P` print, `Ctrl+Shift+S` save PDF |
 | **Test pattern** | full window on the display under test | — | `Esc` close |
-
-## 8. Bidirectional text (§29)
-
-Chrome mirrors in RTL through grid and flex direction; hairlines move to the inline end; directional icons flip (`.ic--flip`). Patient names, IDs, DICOM text, numbers (Western digits), units, keyboard chips and dates stay left-to-right, isolated with `.ltr` or by the table rules. Viewports, orientation markers, graph axes, DICOM overlays and the 3D view never mirror.

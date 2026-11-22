@@ -157,6 +157,10 @@ Out of scope: cardiac, cartilage, liver, breast, prostate and muscle workflows. 
 - **GEN-191** A package cannot open a series while its import or background pre-processing is still running; the launcher shows progress and the reason.
 - **GEN-192** Packages that combine series from several studies warn when the data come from more than one study and block series from different patients (SAFE-020).
 
+### 1.21 Interface language
+
+- **GEN-200** The interface is English only; no other language ships. Every user-facing string (labels, tooltips, messages, launcher reasons, report text) comes from one message catalog in ICU message format, and components never hard-code strings, so a translation can be added later without code changes.
+
 ---
 
 ## 2. Study Directory and launcher
@@ -454,7 +458,7 @@ Used by Mismatch, Tractography (anatomical underlay and fMRI overlay), Brain Fun
 - **SAFE-020** Series from different patients cannot be combined in one session (one-line block message).
 - **SAFE-021** Longitudinal load checks Patient ID and asks for confirmation when demographics differ.
 - **SAFE-030** Results become **stale** the moment any input changes (ROI, mask, AIF, smoothing, registration, thresholds, selected b-values); stale tables and maps are visibly marked until recomputed, and stale results cannot be exported.
-- **SAFE-040** R/L/A/P/S/I orientation markers on every 2D viewport; they follow mirror/flip/rotate and never mirror in RTL languages.
+- **SAFE-040** R/L/A/P/S/I orientation markers on every 2D viewport; they follow mirror/flip/rotate and are never hidden.
 - **SAFE-050** Every map shows name, units, scaling, LUT bar and window range.
 - **SAFE-060** Results computed with non-default settings (smoothing, thresholds, AIF source, skipped dynamics, registration edits) are flagged in table, export and report.
 - **SAFE-070** Registration that has not been reviewed by the user is labelled as such wherever derived results appear.

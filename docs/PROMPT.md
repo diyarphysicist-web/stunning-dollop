@@ -157,7 +157,7 @@ Whenever a later phase needs a new dialog or panel, design it first (Open Design
 21. License page (modules, status, offline activation request/response) and Settings → System (hardware tier, GPU, displays, engine location).
 22. Audit log viewer (administrator) and Collect diagnostics.
 23. PDF report preview for DSC and Mismatch.
-24. Laptop variant (1920×1080 @150 %, panels as overlays) of the DSC workspace, and an Arabic RTL variant of the Directory.
+24. Laptop variant (1920×1080 @150 %, panels as overlays) of the DSC workspace.
 
 ### 6. Functional specification by package (condensed from the manual — read the chapters for full detail)
 
@@ -269,7 +269,7 @@ Use exactly this stack:
 - **Storage:** local study index in SQLite (better-sqlite3), file cache on disk, analysis sessions and bookmarks as versioned JSON.
 - **DICOM I/O:** import from folder/DICOMDIR, DIMSE C-FIND/C-MOVE/C-STORE to a PACS node via pynetdicom, export SC/SC-RGB/SEG back to PACS or folder.
 - **Packaging:** Windows 10/11 x64 is the only commercial target: per-machine MSI (WiX, via electron-builder or a WiX project) plus a signed EXE bootstrapper, ADMX/ADML policy templates, all binaries Authenticode-signed (§12.5). Python sidecar frozen with PyInstaller (onedir) and signed. Linux AppImage is a developer build only.
-- **Enterprise services:** license server and optional remote compute engine as Windows Services (§12.5, §12.7); auth via Windows SSO / OIDC / local accounts; i18n with ICU messages (§12.8).
+- **Enterprise services:** license server and optional remote compute engine as Windows Services (§12.5, §12.7); auth via Windows SSO / OIDC / local accounts; English UI with every string in one message catalog (§12.8).
 
 Engineering rules: all heavy math in the sidecar or Web Workers, never on the renderer main thread; typed IPC contract shared in `packages/contracts`; every algorithm is a pure function with its own unit tests; structured logging with patient identifiers redacted.
 
@@ -312,7 +312,7 @@ Create `CLAUDE.md` in Phase 0 containing §2, §7, a summary of §12 and §13, t
 
 - **Phase 0 — Foundation.** Read manual chapters, write `FUNCTIONAL_SPEC.md` and `ALGORITHMS.md`, scaffold monorepo, CLAUDE.md, CI (lint, typecheck, unit tests, Python tests, license check, SBOM, vulnerability scan), phantom generator, `docs/dhf/` skeleton with requirement IDs, SOUP list, initial risk analysis (§13).
 - **Phase 1 — Design (§3: Open Design, or the §3.9 in-repo path).** Brief, DESIGN.md, all §5.2 screens, tokens export, component inventory, design lock.
-- **Phase 2a — Platform core.** Electron shell, sidecar supervisor, DICOM import and SQLite index, Study Directory, series-type classifier and package-validity rules, generic Viewer, Analysis Workspace shell with all §6.0 shared behaviors, layouts/presets, bookmarks, Generate Series and table export, i18n infrastructure.
+- **Phase 2a — Platform core.** Electron shell, sidecar supervisor, DICOM import and SQLite index, Study Directory, series-type classifier and package-validity rules, generic Viewer, Analysis Workspace shell with all §6.0 shared behaviors, layouts/presets, bookmarks, Generate Series and table export, UI string catalog.
 - **Phase 2b — Security and licensing.** Sign-in and roles, auto-lock, audit trail, encrypted cache, licensing core with offline activation, PDF reports.
 - **Phase 2c — Integration and packaging.** Per-monitor DPI, multi-window/multi-monitor with display profiles and hanging protocols, hardware-tier detection, DICOMweb and C-STORE SCP, `neuromr://` launch protocol, MSI built in CI on a Windows runner (unsigned until a code-signing certificate is configured; signing is a tracked open item, not a placeholder).
 - **Phase 3 — DSC Neuro Perfusion** including Define AIF, all four methods, Tmax, leakage advanced maps, and phantom validation.
@@ -323,7 +323,7 @@ Create `CLAUDE.md` in Phase 0 containing §2, §7, a summary of §12 and §13, t
 - **Phase 8 — Spectroscopy.**
 - **Phase 9 — Longitudinal Brain Analysis** including change-map subtraction fusion and FLAIR*.
 - **Phase 10 — Advanced Diffusion, Subtraction, Echo Accumulation.**
-- **Phase 11 — Hardening and release.** Performance budgets (§11) on all hardware tiers, the §12.10 test matrix (hardware items are manual checks on real machines, recorded in the verification report), accessibility audit, error-state review against the locked design state screens, signed MSI + ADMX + silent-install docs, antivirus checks, Arabic and Kurdish RTL, DICOM conformance statement, complete `docs/dhf/` with traceability and verification report, user guide in original wording under `docs/user-guide/`, IT administrator guide under `docs/admin-guide/`.
+- **Phase 11 — Hardening and release.** Performance budgets (§11) on all hardware tiers, the §12.10 test matrix (hardware items are manual checks on real machines, recorded in the verification report), accessibility audit, error-state review against the locked design state screens, signed MSI + ADMX + silent-install docs, antivirus checks, DICOM conformance statement, complete `docs/dhf/` with traceability and verification report, user guide in original wording under `docs/user-guide/`, IT administrator guide under `docs/admin-guide/`.
 - **Phase 12 — Client/server.** Remote compute engine as a Windows Service with mTLS, floating license server, background pre-processing rules on the server (§12.5 topology b).
 
 ### 11. Verification and acceptance
@@ -402,7 +402,7 @@ The app detects CPU cores, RAM, GPU (vendor, model, VRAM, WebGL2 support), displ
 
 #### 12.5 Deployment and IT administration
 - **Installers:** a per-machine MSI (WiX) for enterprise deployment through Intune, Configuration Manager (SCCM), or Group Policy.
-  - Silent install, repair, and uninstall, with documented MSI properties (license server, PACS nodes, language, data folder, engine location).
+  - Silent install, repair, and uninstall, with documented MSI properties (license server, PACS nodes, data folder, engine location).
   - A signed EXE bootstrapper for manual single-site installs.
 - **Code signing:** every EXE, DLL, MSI, and sidecar binary is Authenticode-signed (EV certificate or Azure Trusted Signing) and timestamped.
   - Freeze the sidecar as a PyInstaller *onedir* build, not onefile, to reduce antivirus false positives.
@@ -468,10 +468,8 @@ The app detects CPU cores, RAM, GPU (vendor, model, VRAM, WebGL2 support), displ
 - **Expiry:** warnings start 30 days before. After expiry, viewing, reporting, and exporting existing results keep working; only new analyses are blocked. Never lock a user out of results they already created.
 
 #### 12.8 Localization
-- i18n infrastructure from Phase 2 (ICU message format, no hard-coded strings in components).
-- Ship English first, then Arabic and Kurdish (Sorani). Both use full right-to-left mirroring of the chrome.
-- Image viewports, L/R orientation markers, graph axes, DICOM overlays, and the 3D view never mirror.
-- Clinical numbers use Western digits in every language.
+- The product is English only. No other languages ship.
+- From Phase 2, every UI string lives in one message catalog (ICU message format); components never hard-code strings, so translation stays possible later.
 
 #### 12.9 Patient-safety rules in the UI
 - The patient banner (name, ID, sex, age, study date) is visible in every window, including extension windows on other monitors.
@@ -491,7 +489,7 @@ The app detects CPU cores, RAM, GPU (vendor, model, VRAM, WebGL2 support), displ
   - 5K or 6K single display;
   - undock/redock;
   - display unplugged mid-session.
-- **Playwright screenshot sizes:** 1920×1080 @100 %, 2560×1440 @100 %, 3840×2160 @150 %, 5120×2880 @200 %, and one Arabic RTL run.
+- **Playwright screenshot sizes:** 1920×1080 @100 %, 2560×1440 @100 %, 3840×2160 @150 %, 5120×2880 @200 %.
 - **Endurance:** 5,000-study index, a 3,000-image DTI series, and 4 hours of continuous scripted use with memory growth under 10 %.
 
 ### 13. Medical-device software lifecycle (required to sell)

@@ -44,7 +44,7 @@ Role controls visible packages, PACS store rights, who edits shared presets and 
 - **DPI:** per-monitor DPI v2; every size is a CSS-pixel token scaled by devicePixelRatio; canvases render at native device pixels.
 - **Input:** keyboard first (every primary action has a shortcut, `?` opens the sheet), mouse with modes, precision touchpad (two-finger scroll = slice, pinch = zoom), pen. Nothing is reachable only by hover.
 - **Offline:** no web fonts, icons or help from the internet. Inter and JetBrains Mono ship with the app.
-- **Languages:** English first, then Arabic and Kurdish (Sorani) with full RTL chrome. Viewports, orientation markers, graph axes, DICOM overlays and the 3D view never mirror. Clinical numbers always use Western digits.
+- **Language:** English only. Every UI string lives in one message catalog, so translation stays possible later.
 
 ## 4. Visual direction — "Quiet instrument"
 
@@ -120,7 +120,7 @@ Numbering matches `design/screens/<nn>-<name>.{html,png}`. Screens 01–24 are b
 | 21a / 21b | License page; Settings → System | §12.7, §12.2 |
 | 22a / 22b | Audit log viewer; Collect diagnostics | §12.4–12.5 |
 | 23a / 23b | PDF report preview: DSC; Mismatch | §12.6 |
-| 24a / 24b | Laptop DSC (1920×1080 @150 %, overlays); Arabic RTL Directory | §12.3, §12.8 |
+| 24 | Laptop DSC (1920×1080 @150 %, overlays) | §12.3 |
 | 25 | Longitudinal 4-study layout | LBA-001, LBA-020 |
 | 26 | Extended lesion types: Cavernoma, Bleeding, Edema in findings and properties | LBA-037 |
 

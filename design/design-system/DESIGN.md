@@ -57,7 +57,6 @@ Report pages are documents, not chrome: `--nm-color-print-paper` #FFFFFF, `--nm-
 
 - `font-variant-numeric: tabular-nums` everywhere a number appears. Numbers right-aligned in tables; unit in the column header or a secondary-colour suffix, never omitted.
 - Sentence case for all labels. Uppercase only for orientation markers (R L A P S I) and 11 px section eyebrows.
-- Clinical numbers use Western digits in every language.
 
 ## 4. Component Stylings
 
@@ -80,7 +79,6 @@ Report pages are documents, not chrome: `--nm-color-print-paper` #FFFFFF, `--nm-
 - **Shell:** top bar 48 px (patient banner + global actions) · activity rail 56 px (Directory, Viewer, Analysis, Results/Reports, Settings) · task panel 300 px (collapsible to 0) · toolbar 40 px · viewport grid fills the rest · optional inspector 280 px · status bar 24 px (jobs, engine, licence, display).
 - Viewport grids: 1×1, 1×2, 2×1, **2×2 (default)**, 2×3, 3×3, user presets. Default analysis roles: (1) source · (2) live maps · (3) table ↔ anatomical · (4) graph ↔ anatomical.
 - Below 1600 px window width the task panel and inspector become overlays over the grid edge (never over the centre of an image). At ≥ 3840 px the inspector is open by default.
-- RTL (Arabic, Kurdish): chrome mirrors (rail on the right, text right-aligned, panel order reversed). Viewports, orientation markers, graph axes, DICOM overlays and 3D never mirror.
 
 ## 6. Depth & Elevation
 
