@@ -4,14 +4,18 @@
   "type": "module",
   "version": "0.1.0",
   "packageManager": "pnpm@10.28.0",
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "lint": "eslint .",
     "typecheck": "tsc -b",
     "test": "vitest run",
     "phantoms": "uv run --project engine python scripts/make_phantoms.py",
     "trace": "uv run --project engine python scripts/trace.py",
-    "engine:test": "uv run --project engine pytest engine/tests"
+    "engine:test": "uv run --project engine pytest engine/tests",
+    "tokens": "node scripts/export-tokens.mjs",
+    "tokens:check": "node scripts/export-tokens.mjs --check"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
