@@ -10,6 +10,3 @@ python design/tools/compose/states.py     # 18-directory-empty, 18-directory-loa
 python design/tools/inject_plots.py       # refill generated regions
 pnpm design:render 1                      # re-render PNGs
 ```
-
-After `states.py`, re-apply the hand fixes recorded in `design/CRITIQUE.md` (batch 6) if a base changed:
-`18-dsc-computing` drops the map colour bar while computing.

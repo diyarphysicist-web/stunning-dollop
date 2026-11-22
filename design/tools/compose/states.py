@@ -86,6 +86,8 @@ s = sub(s, r'<div class="vp__stage">\n          <img src="../assets/img/dsc_relc
           </div>
         </div>''')
 s = s.replace('<span class="t2">Model-free · Stroke LUT · Slice 3/4</span>', '<span class="t2">Gamma variate · computing</span>')
+s = sub(s, r'\n        <div class="cbar" style="--lut: var\(--nm-lut-stroke\)" data-od-id="colorbar-relcbv">.*?\n        </div>', "")  # no colour bar without a map
+s = s.replace('<div class="ov ov--bl">Window 0–12 <span class="t2">ml/100 g</span><br><span class="t2">Opacity 100 %</span></div>', '<div class="ov ov--bl">Window 0–12 <span class="t2">ml/100 g</span> · applies when ready</div>')
 s = s.replace('''        <div class="tbl-head">
           <h3 data-od-id="region-parameters-title">Region parameters</h3>''', '''        <div class="stale-bar" role="status" data-od-id="stale-results" style="margin-bottom: var(--nm-space-2)"><svg class="ic ic--sm" style="color: var(--nm-color-warning)"><use href="#i-warn"/></svg><span>Stale — the method changed to Gamma variate. Values below are Model-free; export is blocked until maps finish.</span></div>
         <div class="tbl-head">
