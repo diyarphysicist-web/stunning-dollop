@@ -168,6 +168,9 @@ def statusbar(state: str = '<span class="dot dot--success"></span><b>Maps up to 
 
 STATUS = {
     "dir": '<span class="dot dot--warning"></span><b>Pre-processing 1 series</b> · DTI multishell 64 %',
+    "sub": '<span class="dot dot--success"></span><b>S − 1.00·R</b> · dyn 2–12 − dyn 1 · 0 divisions by zero',
+    "echo": '<span class="dot dot--success"></span><b>Σ echoes 1–4</b> · live preview',
+    "lba": '<span class="dot dot--success"></span><b>Registered</b> · 5 findings · 2 time points',
     "trk": '<span class="dot dot--success"></span><b>2 bundles · 50 fibers</b> · tracking rules FA 0.20 / 45° / 10 mm',
     "fmri": '<span class="dot dot--success"></span><b>SPMs up to date</b> · Block · 1 task',
     "mrs": '<span class="dot dot--success"></span><b>Processed</b> · voxel quality good',
@@ -329,7 +332,94 @@ def mrs_table() -> str:
     return NL.join(out)
 
 
-GENERATORS = {"fmri-curve": fmri_curve, "mrs-spectrum": mrs_spectrum, "mrs-table": mrs_table, "topbar": topbar, "statusbar": statusbar, "dce-graph": dce_graph, "dce-table": dce_table, "perm-graph": perm_graph, "perm-table": perm_table, "mrs-thumb": mrs_thumb, "sprite": sprite, "aif-grid": aif_grid, "aif-average": aif_average, "mm-signal": mm_signal}
+# ── Longitudinal Brain Analysis ───────────────────────────────────────────────
+LBA_DATES = ("2026-01-01", "2026-07-01")
+
+
+def _lba_change(a: float, b: float) -> str:
+    if a == 0 and b > 0:
+        return "New"
+    if b == 0 and a > 0:
+        return "Disappeared"
+    rel = (b - a) / a
+    return "Stable" if abs(rel) < 0.05 else ("Significantly increased" if rel > 0.5 else "Increased") if rel > 0 else ("Significantly decreased" if rel < -0.5 else "Decreased")
+
+
+def lba_table() -> str:
+    les = DATA["flair"]["lesions"]
+    rows = [
+        f'<tr{" class=\"is-selected\" aria-selected=\"true\"" if x["name"] == "L1" else ""}><td class="strong">{x["name"]}</td><td class="num">{x["ml_base"]:.3f}</td>'
+        f'<td class="num">{x["ml_follow"]:.3f}</td><td>{_lba_change(x["ml_base"], x["ml_follow"])}</td></tr>'
+        for x in les
+    ]
+    tb, tf = sum(x["ml_base"] for x in les), sum(x["ml_follow"] for x in les)
+    rows.append(f'<tr class="is-total"><td>Total</td><td class="num">{tb:.3f}</td><td class="num">{tf:.3f}</td><td>{"+" if tf >= tb else "−"}{abs(tf - tb) / tb * 100:.1f} %</td></tr>')
+    return NL.join(rows)
+
+
+def lba_trend() -> str:
+    les = DATA["flair"]["lesions"]
+    tot = [sum(x["ml_base"] for x in les), sum(x["ml_follow"] for x in les)]
+    out, sx, sy = axes([0, 1], [0, 0.2, 0.4, 0.6, 0.8], (-0.25, 1.25), (0, 0.8), "Study date", "Volume [ml]")
+    out = [o for o in out if 'text-anchor="middle"><text' not in o]  # replace numeric x ticks with dates
+    out.append('<g class="g-tick" text-anchor="middle">' + "".join(f'<text x="{f1(sx(i))}" y="{f1(Y1 + 16)}">{d}</text>' for i, d in enumerate(LBA_DATES)) + "</g>")
+    for i, x in enumerate(les, start=1):
+        out.append(poly(f"g-curve g-curve--{min(i, 3)}" if i <= 3 else "g-curve g-curve--muted", [0, 1], [x["ml_base"], x["ml_follow"]], sx, sy))
+    out.append(poly("g-curve g-curve--aif", [0, 1], tot, sx, sy))
+    for i, v in enumerate(tot):
+        out.append(f'<circle class="g-fit-dot" cx="{f1(sx(i))}" cy="{f1(sy(v))}" r="3"/>')
+    return NL.join(out)
+
+
+# ── Advanced Diffusion: kurtosis + simplified IVIM fit (ADV-003/007/010) ──────
+def _adv_fit() -> dict:
+    import numpy as np
+    from scipy.optimize import curve_fit
+
+    iv = DATA["ivim"]
+    b = np.array(iv["bvals"], float)
+    s = np.array(iv["signal_roi1"], float)
+    s0 = s[0]
+    use = (b == 0) | (b >= 100)  # exclude 0 < b < IVIM threshold 100 s/mm² (ADV-007)
+
+    def model(bb: np.ndarray, f: float, d: float, k: float) -> np.ndarray:
+        return np.where(bb == 0, s0, s0 * (1 - f) * np.exp(-bb * d + (bb * d) ** 2 * k / 6))
+
+    p, _ = curve_fit(model, b[use], s[use], p0=(0.1, 1e-3, 0.5), bounds=([0, 1e-5, 0], [0.5, 5e-3, 3]))
+    fit = model(b[use], *p)
+    nrmse = float(np.sqrt(np.mean((fit - s[use]) ** 2)) / s0)
+    r2 = float(1 - np.sum((fit - s[use]) ** 2) / np.sum((s[use] - s[use].mean()) ** 2))
+    return {"f": p[0], "d": p[1], "k": p[2], "nrmse": nrmse, "r2": r2, "b": b, "s": s, "use": use, "model": model, "p": p}
+
+
+def adv_graph() -> str:
+    import numpy as np
+
+    a = _adv_fit()
+    out, sx, sy = axes([0, 500, 1000, 1500, 2000], [0, 200, 400, 600, 800, 1000], (0, 2100), (0, 1050), "b-value [s/mm²]", "Signal [a.u.]")
+    bb = np.linspace(100, 2000, 60)
+    out.append(poly("g-curve g-curve--fit", list(bb), list(a["model"](bb, *a["p"])), sx, sy))
+    for b, s, u in zip(a["b"], a["s"], a["use"], strict=True):
+        cls = "g-fit-dot" if u else "g-peak"
+        out.append(f'<circle class="{cls}" cx="{f1(sx(b))}" cy="{f1(sy(s))}" r="{3.5 if u else 3}"/>')
+    return NL.join(out)
+
+
+def adv_values() -> dict:
+    a = _adv_fit()
+    return {"D": a["d"] * 1e6, "f": a["f"] * 100, "K": a["k"], "nrmse": a["nrmse"] * 100, "r2": a["r2"]}
+
+
+def adv_table() -> str:
+    v = adv_values()
+    return (
+        f'<tr class="is-selected" aria-selected="true"><td class="strong"><span class="swatch" style="--c: var(--nm-roi-1)"></span>ROI1</td>'
+        f'<td class="num">{v["D"]:.0f}</td><td class="num">{v["f"]:.1f}</td><td class="num">{v["K"]:.2f}</td>'
+        f'<td class="num">{v["r2"]:.4f}</td><td class="num">{v["nrmse"]:.2f}</td></tr>'
+    )
+
+
+GENERATORS = {"topbar-2": lambda: topbar('<span class="bf"><span class="bf__k">Studies</span><span class="bf__v">2026-01-01 · 2026-07-01</span></span>'), "lba-table": lba_table, "lba-trend": lba_trend, "adv-graph": adv_graph, "adv-table": adv_table, "fmri-curve": fmri_curve, "mrs-spectrum": mrs_spectrum, "mrs-table": mrs_table, "topbar": topbar, "statusbar": statusbar, "dce-graph": dce_graph, "dce-table": dce_table, "perm-graph": perm_graph, "perm-table": perm_table, "mrs-thumb": mrs_thumb, "sprite": sprite, "aif-grid": aif_grid, "aif-average": aif_average, "mm-signal": mm_signal}
 
 
 def main() -> None:
