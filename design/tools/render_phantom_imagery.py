@@ -950,6 +950,7 @@ def write_luts_css(out: Path, luts: dict[str, list[str]], roi: list[str], mm: di
     for name, pts in luts.items():
         stops = ", ".join(pts)
         lines.append(f"  --nm-lut-{name}: linear-gradient(to top, {stops});")
+        lines.append(f"  --nm-lut-{name}-h: linear-gradient(to right, {stops});")
     for i, c in enumerate(roi, start=1):
         lines.append(f"  --nm-roi-{i}: {c};")
     for k, c in mm.items():

@@ -2,10 +2,15 @@
  * Data only (LUT bars, ROI outlines and curves, mismatch overlays); chrome uses tokens.css. */
 :root {
   --nm-lut-gray: linear-gradient(to top, #000000, #FFFFFF);
+  --nm-lut-gray-h: linear-gradient(to right, #000000, #FFFFFF);
   --nm-lut-blueToRed: linear-gradient(to top, #0000FF, #00C000, #FFFF00, #FF9900, #FF0000);
+  --nm-lut-blueToRed-h: linear-gradient(to right, #0000FF, #00C000, #FFFF00, #FF9900, #FF0000);
   --nm-lut-stroke: linear-gradient(to top, #000000, #7FD4FF, #00C040, #FFC000, #FF0000);
+  --nm-lut-stroke-h: linear-gradient(to right, #000000, #7FD4FF, #00C040, #FFC000, #FF0000);
   --nm-lut-hot: linear-gradient(to top, #000000, #FF0000, #FFFF00, #FFFFFF);
+  --nm-lut-hot-h: linear-gradient(to right, #000000, #FF0000, #FFFF00, #FFFFFF);
   --nm-lut-viridis: linear-gradient(to top, #440154, #472C7A, #3B518B, #2C718E, #21908D, #27AD81, #5CC863, #AADC32, #FDE725);
+  --nm-lut-viridis-h: linear-gradient(to right, #440154, #472C7A, #3B518B, #2C718E, #21908D, #27AD81, #5CC863, #AADC32, #FDE725);
   --nm-roi-1: #E69F00;
   --nm-roi-2: #56B4E9;
   --nm-roi-3: #009E73;
