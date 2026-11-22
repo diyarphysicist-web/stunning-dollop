@@ -42,13 +42,14 @@ CI: `.github/workflows/ci.yml` (node, engine, traceability with `CURRENT_PHASE`,
 
 ## Handoff
 
-**Phase status:** Phase 0 (Foundation) complete. Phase 1 (Design) in progress in Open Design (project **NeuroMR-PRO**, design system `neuromr-pro`); batch 1 committed.
+**Phase status:** Phase 0 (Foundation) complete. Phase 1 (Design) in progress in Open Design (project **NeuroMR-PRO**, design system `neuromr-pro`); batches 1–2 committed.
 
 **Done in Phase 1 so far**
 - Batch 1: `design/BRIEF.md`, design system `design/design-system/` (DESIGN.md, tokens.css, manifest), tokens exported to `packages/ui/src/tokens/` with tests, phantom imagery (`design/tools/render_phantom_imagery.py` → `design/assets/img`, `assets/data/phantom-data.json`), Playwright PNG export (`pnpm design:render`), shared `design/screens/shell.css`, screens 02 Workspace shell and 03 DSC Perfusion.
+- Batch 2: 04 Define AIF, 05 Mismatch 2×2 and 2×3, 06 Co-registration; `design/screens/icons.svg` (single-source sprite), `design/tools/inject_plots.py` (draws every curve from `phantom-data.json` into `<!-- gen:NAME -->` regions and inlines the sprite), `design/CRITIQUE.md` (§4.6 pass per screen). Spec: REG workspace also serves Longitudinal (LBA-012).
 - Workflow: screens are written in `design/screens/`, mirrored into the Open Design project (`…/open-design/.od/projects/neuromr-pro/screens/`), rendered at 1920×1080 and 2560×1440, self-critiqued against brief §4.6.
 
-**Phase 1 batches remaining:** 2 Define AIF, Mismatch 2×2/2×3, Co-registration · 3 Directory, DCE, Permeability, Diffusion · 4 Tractography, fMRI, Spectroscopy · 5 Longitudinal, Advanced Diffusion, Subtraction/Echo Accumulation · 6 dialogs (Generate Series, Save Tables, layouts, settings, shortcuts), states · 7 sign-in/lock, multi-monitor, licence/system, audit/diagnostics, PDF reports · 8 laptop and RTL variants, `design/COMPONENTS.md`.
+**Phase 1 batches remaining:** 3 Directory, DCE, Permeability, Diffusion · 4 Tractography, fMRI, Spectroscopy · 5 Longitudinal, Advanced Diffusion, Subtraction/Echo Accumulation · 6 dialogs (Generate Series, Save Tables, layouts, settings, shortcuts), states · 7 sign-in/lock, multi-monitor, licence/system, audit/diagnostics, PDF reports · 8 laptop and RTL variants, `design/COMPONENTS.md`.
 
 **Done in Phase 0**
 - Manual chapters read (General, T1, T2*/Mismatch, Permeability, Diffusion, fiber tracking, Brain Function, spectroscopy, Longitudinal, Subtraction, Echo Accumulation, Advanced Diffusion); spec and algorithms written in original wording.
@@ -60,5 +61,6 @@ CI: `.github/workflows/ci.yml` (node, engine, traceability with `CURRENT_PHASE`,
 - Spectroscopy phantom is written as `fid.npz` (no DICOM MR Spectroscopy writer yet; due Phase 8).
 - `apps/desktop` (Electron) is created in Phase 2a.
 - Open Design MCP is not reachable from cloud sessions.
+- Local tooling: `uv` is not on PATH on Diyar's PC; the system Python 3.14 (`/c/Python314/python`) has numpy/scipy/pydicom/Pillow and runs `design/tools/*.py`. Run `inject_plots.py` after editing any screen with `gen:` regions, then `pnpm design:render <filter>`, then copy changed files into the Open Design project folder.
 
-**Exact next step:** Phase 1 batch 2 — screens 04 Define AIF, 05 Mismatch (2×2 and 2×3), 06 Co-registration Review & Edit, on `shell.css` and the `neuromr-pro` tokens; render, critique, commit, push; then the next batch. When all screens are done, mark the design "draft – awaiting Diyar's approval" (do not lock, do not start Phase 2 until Diyar writes "design approved").
+**Exact next step:** Phase 1 batch 3 — screens 01 Study Directory, 07 DCE / T1 Perfusion, 08 Permeability, 09 Diffusion (1×1 and 2×2), on `shell.css` and the `neuromr-pro` tokens; render, critique, commit, push; then the next batch. When all screens are done, mark the design "draft – awaiting Diyar's approval" (do not lock, do not start Phase 2 until Diyar writes "design approved").
