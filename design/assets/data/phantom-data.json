@@ -4843,6 +4843,7 @@
  },
  "flair_star": {
   "lesion": "L1",
+  "min_diameter_mm": 7.0,
   "centre_slice": {
    "ax": 13,
    "cor": 23,
@@ -4869,7 +4870,7 @@
    ],
    "prod": [
     0.0,
-    1.08
+    1.1
    ]
   },
   "baseline_lesions": [

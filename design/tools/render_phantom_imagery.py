@@ -698,9 +698,15 @@ def flair_star(ph: Path, img: Path, data: dict) -> None:
             save_gray(img / f"fstar_{name}_{k}.png", pl[k], lo, hi)
         windows[name] = [r(lo, 2), r(hi, 2)]
     save_gray(img / "swi_epi.png", swi[data["flair"]["slice"] - 1])  # Directory thumbnail
+    # smallest diameter of L1 from its FLAIR segmentation (threshold 1.5 × median tissue), for LBA-026
+    seg, _ = ndimage.label(fl > 1.5 * np.median(fl[fm]))
+    comp = seg == seg[cz, cy, cx]
+    extents = [int(np.ptp(np.nonzero(comp)[ax])) + 1 for ax in range(3)]
+    min_diam_mm = min(extents) * px
     nz = fl.shape[0]
     data["flair_star"] = {
         "lesion": "L1",
+        "min_diameter_mm": r(min_diam_mm, 1),
         "centre_slice": {"ax": cz + 1, "cor": cy + 1, "sag": cx + 1},
         "slices": {"ax": nz, "cor": fl.shape[1], "sag": fl.shape[2]},
         "shift_mm": [r(-dy * px, 1), r(-dx * px, 1)],  # SWI/EPI displacement (y, x) found by the search

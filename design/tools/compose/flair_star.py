@@ -27,26 +27,29 @@ def mm(v: float) -> str:
 
 s = (S / "13-longitudinal.html").read_text(encoding="utf-8")
 s = s.replace("<title>NeuroMR-PRO · Longitudinal Brain Analysis</title>", "<title>NeuroMR-PRO · Longitudinal Brain Analysis · FLAIR*</title>")
-s = sub(s, r"<!-- Longitudinal Brain Analysis \(LBA-001…043\).*?-->", """<!-- Longitudinal Brain Analysis, FLAIR* mode (LBA-025) with the central-vein review (LBA-026).
-     Built by design/tools/compose/flair_star.py from 13-longitudinal. SWI/EPI (swi_epi phantom) is registered to
-     the baseline FLAIR (in-plane rigid search, a design preview), both normalised by the 99th percentile in the
-     brain, product shown in three planes around L1 at zoom 200 %. -->""")
-s = s.replace('<div class="app">', '<div class="app app--no-inspector">', 1)
+s = sub(s, r"<!-- Longitudinal Brain Analysis \(LBA-001…043\).*?-->", """<!-- Longitudinal Brain Analysis, FLAIR* mode (LBA-025) with the NAIMS central-vein review (LBA-026) and summary
+     (LBA-027). Built by design/tools/compose/flair_star.py from 13-longitudinal. SWI/EPI (swi_epi phantom) is registered
+     to the baseline FLAIR (in-plane rigid search, a design preview), both normalised by the 99th percentile in the
+     brain, product shown in three planes around L1 at zoom 200 %. Marks shown match the phantom truth: L4 central
+     vein, L3 two distinct veins (excluded), L5 no vein; L1 (central vein) is being reviewed. -->""")
 
 finding = lambda name, dot, mark, sel=False: (  # noqa: E731
     f'          <div class="tree__row{" is-selected" if sel else ""}" role="option"{" aria-selected=\"true\"" if sel else ""}>'
     f'<svg class="ic"><use href="#i-freehand"/></svg><span class="tree__dot" style="--c: {dot}"></span>'
-    f'<span>{name} · Lesion</span><span></span>{mark}</div>\n'
+    f'<span>{name}</span><span></span>{mark}</div>\n'
 )
-not_reviewed = '<span class="dense t3">Not reviewed</span>'
 rows = (
-    finding("L1", "var(--nm-roi-1)", not_reviewed, True)
-    + finding("L3", "var(--nm-roi-3)", '<span class="chip">Absent</span>')
+    finding("L1", "var(--nm-roi-1)", '<span class="dense t3">Not reviewed</span>', True)
+    + finding("L3", "var(--nm-roi-3)", '<span class="chip">Excluded · multiple veins</span>')
     + finding("L4", "var(--nm-color-text-tertiary)", '<span class="chip">Present</span>')
-    + finding("L5", "var(--nm-color-text-tertiary)", '<span class="chip">Indeterminate</span>')
+    + finding("L5", "var(--nm-color-text-tertiary)", '<span class="chip">Absent</span>')
 )
+MARKS = {"Present": 1, "Absent": 1, "Indeterminate": 0, "Excluded": 1, "Not reviewed": 1}
+pos, neg = MARKS["Present"], MARKS["Absent"]
+pct = f"{100 * pos / (pos + neg):.0f} %" if pos + neg else "—"
+summary = "".join(f'          <div class="kv"><dt>{k}</dt><dd>{v}</dd></div>\n' for k, v in MARKS.items())
 
-s = sub(s, r'  <aside class="panel" aria-label="Longitudinal analysis".*?\n  </aside>\n', f'''  <aside class="panel" aria-label="Longitudinal analysis" data-od-id="task-panel">
+s = sub(s, r'  <aside class="panel" aria-label="Longitudinal analysis".*?\n  </aside>\n', f"""  <aside class="panel" aria-label="Longitudinal analysis" data-od-id="task-panel">
     <div class="panel__switch">
       <div class="seg" role="tablist" aria-label="Left panel">
         <button class="seg__item" role="tab">Series</button>
@@ -57,7 +60,7 @@ s = sub(s, r'  <aside class="panel" aria-label="Longitudinal analysis".*?\n  </a
     </div>
     <div class="panel__head">
       <div class="panel__head-row"><h1 class="panel__title">Longitudinal Brain Analysis</h1></div>
-      <p class="dense t2">FLAIR* · 2026-01-01 · SWI EPI × 3D FLAIR</p>
+      <p class="dense t2">FLAIR* · 2026-01-01 · #610 SWI EPI × #600 3D FLAIR</p>
     </div>
     <div class="panel__body">
       <section class="psec">
@@ -70,34 +73,29 @@ s = sub(s, r'  <aside class="panel" aria-label="Longitudinal analysis".*?\n  </a
           <button class="seg__item is-selected" role="radio" aria-checked="true">FLAIR*</button>
         </div>
 <!-- /modes -->
-      </section>
-      <section class="psec" data-od-id="fstar-inputs">
-        <span class="eyebrow">Inputs · same time point</span>
-        <label class="field"><span class="field__label">SWI/EPI</span><div class="select"><span class="input__value">#610 SWI EPI</span><svg class="ic"><use href="#i-chev-down"/></svg></div></label>
-        <label class="field"><span class="field__label">FLAIR</span><div class="select"><span class="input__value">#600 3D FLAIR</span><svg class="ic"><use href="#i-chev-down"/></svg></div></label>
-        <span class="field__hint">Picked from the series data types · 1.0 mm slices (≤ 1.5 mm recommended).</span>
-        <div class="psec__row"><span class="dense">Registration <span class="t2">rigid · SWI/EPI → FLAIR · Δy {mm(dy)} mm · Δx {mm(dx)} mm</span></span></div>
+        <span class="dense">Registration <span class="t2">rigid · Δy {mm(dy)} mm · Δx {mm(dx)} mm</span></span>
         <div class="psec__row"><span class="chip chip--warning">Registration not reviewed</span><span class="spacer"></span><button class="btn btn--secondary btn--dense">Review…</button></div>
       </section>
       <section class="psec" data-od-id="cvs-review">
-        <div class="psec__row"><span class="eyebrow">Central-vein review</span><span class="spacer"></span><span class="dense t3">3 of 4 reviewed</span></div>
+        <div class="psec__row"><span class="eyebrow">Central veins · NAIMS</span><span class="spacer"></span><span class="dense t3">3 of 4 reviewed</span></div>
         <div class="tree" role="listbox" aria-label="Findings at 2026-01-01">
 {rows}        </div>
-        <span class="field__label">L1 · central vein</span>
-        <div class="cvs" role="radiogroup" aria-label="Central vein for L1">
-          <button class="btn btn--secondary btn--dense" role="radio" aria-checked="false" title="Present (1)">Present</button>
-          <button class="btn btn--secondary btn--dense" role="radio" aria-checked="false" title="Absent (2)">Absent</button>
-          <button class="btn btn--secondary btn--dense" role="radio" aria-checked="false" title="Indeterminate (3)">Indeterminate</button>
-        </div>
-        <span class="field__hint"><span class="kbd">1</span> <span class="kbd">2</span> <span class="kbd">3</span> mark · <span class="kbd">N</span> next unreviewed · Present 1 · Absent 1 · Indeterminate 1</span>
-        <div class="notice notice--info" role="note" data-od-id="lba-026"><svg class="ic"><use href="#i-info"/></svg><span class="notice__text">Marks are your reading of all three planes; the app does not detect veins.</span></div>
+      </section>
+      <section class="psec" data-od-id="cvs-summary">
+        <span class="eyebrow">Summary</span>
+        <dl>
+{summary}          <div class="kv"><dt>CVS+ of evaluable lesions</dt><dd>{pct} <span class="u">({pos} / {pos + neg})</span></dd></div>
+          <div class="kv"><dt>Select-3*</dt><dd>{pos} <span class="u">/ 3 CVS+</span></dd></div>
+          <div class="kv"><dt>Select-6*</dt><dd>{pos} <span class="u">/ 6 CVS+</span></dd></div>
+        </dl>
+        <span class="field__hint">Evaluable = Present + Absent; Indeterminate, Excluded and unreviewed lesions are not counted.</span>
       </section>
     </div>
     <div class="panel__foot">
       <button class="btn btn--primary btn--block">Save FLAIR* series <span class="kbd">Ctrl+G</span></button>
     </div>
   </aside>
-''')
+""")
 
 s = sub(s, r'    <button class="picker"><svg class="ic"><use href="#i-layout"/></svg>Preset: FLAIR follow-up.*?</button>',
         '    <button class="picker"><svg class="ic"><use href="#i-layout"/></svg>Layout: 3×3 planes<svg class="ic ic--sm"><use href="#i-chev-down"/></svg></button>')
@@ -140,7 +138,41 @@ for pk, pname, pslice, (on, os_, ow, oe) in PLANES:
       </div>
     </section>''')
 s = sub(s, r"<!-- main -->.*?<!-- /main -->", "<!-- main -->\n  <main class=\"vgrid vgrid--3x3\" aria-label=\"Viewports\" data-od-id=\"viewport-grid\">\n" + "\n".join(tiles).replace("\n        \n", "\n") + "\n  </main>\n<!-- /main -->")
-s = sub(s, r'\n  <aside class="inspector" aria-label="Finding".*?</aside>\n', "\n")
+s = sub(s, r'\n  <aside class="inspector" aria-label="Finding".*?</aside>\n', f"""
+  <aside class="inspector" aria-label="Finding" data-od-id="inspector">
+    <div class="inspector__head"><span class="tree__dot" style="--c: var(--nm-roi-1)"></span><h2 class="panel__title">L1</h2><span class="dense t3">Lesion · 2026-01-01</span><span class="spacer"></span><button class="ibtn" aria-label="Close inspector (I)"><svg class="ic"><use href="#i-close"/></svg></button></div>
+    <div class="panel__body">
+      <section class="section">
+        <dl>
+          <div class="kv"><dt>Smallest diameter</dt><dd>{fs["min_diameter_mm"]:.1f}<span class="u">mm</span></dd></div>
+          <div class="kv"><dt>Centred on</dt><dd>Ax {sl["ax"]} · Cor {sl["cor"]} · Sag {sl["sag"]}</dd></div>
+        </dl>
+      </section>
+      <section class="section" data-od-id="naims-vein">
+        <span class="eyebrow">Vein criteria (all five for Present)</span>
+          <label class="check check--wrap is-checked"><span class="check__box"><svg class="ic"><use href="#i-check"/></svg></span>Thin hypointense line or small hypointense dot</label>
+          <label class="check check--wrap is-checked"><span class="check__box"><svg class="ic"><use href="#i-check"/></svg></span>Seen in ≥ 2 perpendicular planes, a thin line in ≥ 1</label>
+          <label class="check check--wrap is-checked"><span class="check__box"><svg class="ic"><use href="#i-check"/></svg></span>Apparent diameter &lt; 2 mm</label>
+          <label class="check check--wrap is-checked"><span class="check__box"><svg class="ic"><use href="#i-check"/></svg></span>Runs partly or entirely through the lesion</label>
+          <label class="check check--wrap"><span class="check__box"><svg class="ic"><use href="#i-check"/></svg></span>Central in the lesion</label>
+      </section>
+      <section class="section" data-od-id="cvs-mark">
+        <span class="eyebrow">Mark</span>
+        <div class="cvs cvs--2" role="radiogroup" aria-label="Central-vein mark for L1">
+          <button class="btn btn--secondary btn--dense" role="radio" aria-checked="false" disabled title="Tick all five vein criteria first (1)">Present</button>
+          <button class="btn btn--secondary btn--dense" role="radio" aria-checked="false" title="Absent (2)">Absent</button>
+          <button class="btn btn--secondary btn--dense" role="radio" aria-checked="false" title="Indeterminate (3)">Indeterminate</button>
+          <button class="btn btn--secondary btn--dense" role="radio" aria-checked="false" title="Excluded, choose a reason (4)">Excluded…</button>
+        </div>
+        <span class="field__hint">Present needs all five criteria. Excluded asks for a reason: lesion &lt; 3 mm, confluent, multiple veins, or poorly visible.</span>
+        <span class="field__hint"><span class="kbd">1</span>–<span class="kbd">4</span> mark · <span class="kbd">N</span> next unreviewed</span>
+      </section>
+      <section class="section" style="border-bottom: 0">
+        <div class="notice notice--info" role="note" data-od-id="lba-026"><svg class="ic"><use href="#i-info"/></svg><span class="notice__text">Marks are your reading of all three planes; the app does not detect veins.</span></div>
+      </section>
+    </div>
+  </aside>
+""")
 s = sub(s, r"\n<!-- dialog -->.*?<!-- /dialog -->\n", "\n")
 s = s.replace("<!-- gen:statusbar-lba -->", "<!-- gen:statusbar-fstar -->").replace("<!-- /gen:statusbar-lba -->", "<!-- /gen:statusbar-fstar -->")
 (S / "13-flair-star.html").write_text(s, encoding="utf-8", newline="\n")

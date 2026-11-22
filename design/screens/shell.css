@@ -1250,3 +1250,6 @@ ul, ol { list-style: none; }
    -------------------------------------------------------------------------- */
 .vgrid--3x3 { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(3, minmax(0, 1fr)); }
 .cvs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--nm-space-1); }
+.check--wrap { white-space: normal; align-items: flex-start; font-size: var(--nm-font-size-dense); line-height: var(--nm-line-height-dense); }
+.check--wrap .check__box { flex: none; margin-top: var(--nm-space-0); }
+.cvs--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
