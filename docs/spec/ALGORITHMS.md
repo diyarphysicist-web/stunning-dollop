@@ -229,3 +229,10 @@ References: Le Bihan et al., Radiology 1988;168:497–505. Jensen et al., Magn R
 
 - Subtraction (SUB-001): float32 voxelwise with the formulas in the spec; divisions with |denominator| < ε (1e-6 × max |R|) return 0 and are counted. Output rescaled to the integer range with stored slope/intercept.
 - Echo accumulation (ECHO-002): Σ_{e∈range} S_e in float32, rescaled likewise. Phantom: `multi_echo_gre` (S0 · exp(−TE/T2*), TE 5/10/15/20 ms, T2* 60 ms tissue and 30 ms lesions, SNR 100; truth holds the noise-free sum over all echoes).
+
+## 12. Phantom families
+
+Two families of synthetic data are written by `scripts/make_phantoms.py`:
+
+- **Parametric phantoms** (`dsc_*`, `dce_*`, `dti_*`, `flair_*`, …): stripes, discs and blocks with one parameter set per class and many voxels per class. Every gate in this document runs on them, because each class is a clean, known population.
+- **Anatomical brain phantom** (`--only brain`, folders `brain_*`; `engine/neuromr_engine/phantoms/brain.py`): one skull-stripped head with grey matter (cortical ribbon with sulci and deep nuclei), white matter, CSF and ventricles. Signals mix the classes by sub-voxel fractions (partial volume); truth labels are the majority class. Pathology: a right-MCA stroke (core and delayed, hypoperfused tissue, Tmax > 6 s), a left frontal tumour (enhancing rim, necrosis), five MS-like lesions (grow, new, shrink, stable, disappear; central veins on SWI), and three task activation sites. Typical values: ADC ≈ 800 × 10⁻⁶ mm²/s in grey and white matter, ≈ 3000 in CSF, ≈ 450 in the stroke core; CBF 60 / 22 ml/100 g/min and CBV 4 / 2 ml/100 g in grey / white matter. In DSC, tissue ΔR2* per unit concentration is 20 × the arterial value (the κ term), giving a cortical first-pass drop of about 30 % next to a 60 % arterial drop. The brain phantom feeds the design imagery and end-to-end checks; it is not used for accuracy gates, where partial volume would blur the class populations.
