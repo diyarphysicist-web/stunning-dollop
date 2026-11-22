@@ -58,3 +58,6 @@ export const MISMATCH_PALETTE = { core: "#D55E00", deficit: "#56B4E9", penumbra:
 
 /** FA direction colour coding (DIF-005): principal eigenvector |x|, |y|, |z| → red R–L, green A–P, blue S–I. */
 export const FA_DIRECTION_PALETTE = { rl: "#FF0000", ap: "#00FF00", si: "#0000FF" } as const;
+
+/** Plane lines in Tractography reference views and 3D plane outlines (TRK-002). */
+export const PLANE_PALETTE = { axial: "#56B4E9", coronal: "#009E73", sagittal: "#E69F00" } as const;
