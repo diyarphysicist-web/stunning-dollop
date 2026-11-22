@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>NeuroMR-PRO · Define AIF</title>
+<meta name="viewport" content="width=1920, height=1080">
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/luts.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+
+<!-- gen:sprite -->
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-directory" viewBox="0 0 20 20"><path d="M2.5 5h5.5l1.5 1.75h8v9.75h-15z"/><path d="M2.5 9h15"/></symbol>
+  <symbol id="i-viewer" viewBox="0 0 20 20"><rect x="2.5" y="2.5" width="15" height="15" rx="1.5"/><path d="M10 6v8M6 10h8"/></symbol>
+  <symbol id="i-analysis" viewBox="0 0 20 20"><path d="M2.5 16.5h15"/><path d="M3 13.5l3.5-5 3 3L13 4.5l4 7"/></symbol>
+  <symbol id="i-reports" viewBox="0 0 20 20"><path d="M5 2.5h7l3.5 3.5v11.5H5z"/><path d="M12 2.5V6h3.5M7.5 10h5M7.5 13h5"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 20 20"><path d="M3.5 5h2M9 5h7.5M3.5 10h8M15 10h1.5M3.5 15h4M11 15h5.5"/><circle cx="7.25" cy="5" r="1.75"/><circle cx="13.25" cy="10" r="1.75"/><circle cx="9.25" cy="15" r="1.75"/></symbol>
+  <symbol id="i-scroll" viewBox="0 0 20 20"><rect x="5" y="7" width="10" height="6" rx="1"/><path d="M10 2.5v2.5M8.25 4.25L10 2.5l1.75 1.75M10 17.5V15M8.25 15.75L10 17.5l1.75-1.75"/></symbol>
+  <symbol id="i-pan" viewBox="0 0 20 20"><path d="M10 2.5v15M2.5 10h15M8 4.5l2-2 2 2M8 15.5l2 2 2-2M4.5 8l-2 2 2 2M15.5 8l2 2-2 2"/></symbol>
+  <symbol id="i-zoom" viewBox="0 0 20 20"><circle cx="8.5" cy="8.5" r="5.25"/><path d="M12.4 12.4l4.6 4.6M6.25 8.5h4.5M8.5 6.25v4.5"/></symbol>
+  <symbol id="i-wl" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7"/><path d="M10 3a7 7 0 0 1 0 14z" fill="currentColor"/></symbol>
+  <symbol id="i-mask" viewBox="0 0 20 20"><path d="M4 7c2-4 9.5-4.5 12-1s1 9.5-4.5 9.5S2 11.5 4 7z" stroke-dasharray="2 2"/><circle cx="10" cy="10" r="1.5"/></symbol>
+  <symbol id="i-ellipse" viewBox="0 0 20 20"><ellipse cx="10" cy="10" rx="7.25" ry="5.25"/><path d="M10 8.5v3M8.5 10h3"/></symbol>
+  <symbol id="i-spline" viewBox="0 0 20 20"><path d="M3.5 14.5C5 7 8 7 10 10s5 3 6.5-4.5"/><circle cx="3.5" cy="14.5" r="1.25"/><circle cx="10" cy="10" r="1.25"/><circle cx="16.5" cy="5.5" r="1.25"/></symbol>
+  <symbol id="i-freehand" viewBox="0 0 20 20"><path d="M5 13.5C2.5 9.5 5 4.5 10 4.5s7.5 4 5 7.5-7 2.5-8 .5 1.5-4 4-2"/></symbol>
+  <symbol id="i-mirror" viewBox="0 0 20 20"><path d="M10 2.5v15" stroke-dasharray="2 2.25"/><path d="M7.5 6L3 10l4.5 4zM12.5 6L17 10l-4.5 4z"/></symbol>
+  <symbol id="i-reset" viewBox="0 0 20 20"><path d="M4 10a6 6 0 1 0 1.75-4.25"/><path d="M4 3v3.5h3.5"/></symbol>
+  <symbol id="i-layout" viewBox="0 0 20 20"><rect x="3" y="3" width="14" height="14" rx="1"/><path d="M10 3v14M3 10h14"/></symbol>
+  <symbol id="i-undo" viewBox="0 0 20 20"><path d="M7 4.5L3.5 8 7 11.5"/><path d="M3.5 8H12a4.25 4.25 0 0 1 0 8.5H8.5"/></symbol>
+  <symbol id="i-redo" viewBox="0 0 20 20"><path d="M13 4.5L16.5 8 13 11.5"/><path d="M16.5 8H8a4.25 4.25 0 0 0 0 8.5h3.5"/></symbol>
+  <symbol id="i-bookmark" viewBox="0 0 20 20"><path d="M5.5 3h9v14L10 13.5 5.5 17z"/></symbol>
+  <symbol id="i-series" viewBox="0 0 20 20"><rect x="3" y="6" width="10.5" height="11" rx="1"/><path d="M6.5 3h10.5v11"/><path d="M8.25 9v5M5.75 11.5h5"/></symbol>
+  <symbol id="i-table-save" viewBox="0 0 20 20"><path d="M17 11V3.5H3v10h7"/><path d="M3 7h14M8 3.5v10"/><path d="M14.5 12.5v5M12.5 15.5l2 2 2-2"/></symbol>
+  <symbol id="i-check" viewBox="0 0 20 20"><path d="M4.5 10.5l3.5 3.5 7.5-8"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 20 20"><rect x="4.5" y="9" width="11" height="8" rx="1"/><path d="M7 9V6.5a3 3 0 0 1 6 0V9"/></symbol>
+  <symbol id="i-chev-down" viewBox="0 0 20 20"><path d="M6 8l4 4 4-4"/></symbol>
+  <symbol id="i-chev-right" viewBox="0 0 20 20"><path d="M8 6l4 4-4 4"/></symbol>
+  <symbol id="i-chev-left" viewBox="0 0 20 20"><path d="M12 6l-4 4 4 4"/></symbol>
+  <symbol id="i-link" viewBox="0 0 20 20"><path d="M8.25 11.75l3.5-3.5"/><path d="M9 6.25l1.5-1.5a3 3 0 0 1 4.25 4.25l-1.5 1.5M11 13.75l-1.5 1.5a3 3 0 0 1-4.25-4.25l1.5-1.5"/></symbol>
+  <symbol id="i-close" viewBox="0 0 20 20"><path d="M5.5 5.5l9 9M14.5 5.5l-9 9"/></symbol>
+  <symbol id="i-more" viewBox="0 0 20 20"><circle cx="5" cy="10" r="0.75"/><circle cx="10" cy="10" r="0.75"/><circle cx="15" cy="10" r="0.75"/></symbol>
+  <symbol id="i-info" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7"/><path d="M10 9v4.5M10 6.5v.01"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 20 20"><path d="M10 3l7.5 13.5h-15z"/><path d="M10 8.25v3.75M10 14.25v.01"/></symbol>
+  <symbol id="i-collapse" viewBox="0 0 20 20"><rect x="3" y="3.5" width="14" height="13" rx="1"/><path d="M8 3.5v13M13.5 8l-2 2 2 2"/></symbol>
+  <symbol id="i-engine" viewBox="0 0 20 20"><rect x="5" y="5" width="10" height="10" rx="1"/><path d="M8 2.5V5M12 2.5V5M8 15v2.5M12 15v2.5M2.5 8H5M2.5 12H5M15 8h2.5M15 12h2.5"/></symbol>
+  <symbol id="i-display" viewBox="0 0 20 20"><rect x="2.5" y="3.5" width="15" height="10" rx="1"/><path d="M7 17h6M10 13.5V17"/></symbol>
+  <symbol id="i-keyboard" viewBox="0 0 20 20"><rect x="2.5" y="5" width="15" height="10" rx="1"/><path d="M5.5 8h1M9.5 8h1M13.5 8h1M6.5 12h7"/></symbol>
+  <symbol id="i-search" viewBox="0 0 20 20"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></symbol>
+  <symbol id="i-user" viewBox="0 0 20 20"><circle cx="10" cy="7" r="3"/><path d="M4 17c1-3.5 3.25-5 6-5s5 1.5 6 5"/></symbol>
+  <symbol id="i-jobs" viewBox="0 0 20 20"><path d="M3 5.5h14M3 10h14M3 14.5h8"/></symbol>
+  <symbol id="i-min" viewBox="0 0 20 20"><path d="M5.5 10h9"/></symbol>
+  <symbol id="i-max" viewBox="0 0 20 20"><rect x="5.5" y="5.5" width="9" height="9"/></symbol>
+  <symbol id="i-brand" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7.25"/><path d="M5.5 10h2l1.25-3 2.5 6 1.25-3h2"/></symbol>
+  <symbol id="i-arrow-up" viewBox="0 0 20 20"><path d="M10 16V4M5.5 8.5L10 4l4.5 4.5"/></symbol>
+  <symbol id="i-arrow-down" viewBox="0 0 20 20"><path d="M10 4v12M5.5 11.5L10 16l4.5-4.5"/></symbol>
+  <symbol id="i-arrow-left" viewBox="0 0 20 20"><path d="M16 10H4M8.5 5.5L4 10l4.5 4.5"/></symbol>
+  <symbol id="i-arrow-right" viewBox="0 0 20 20"><path d="M4 10h12M11.5 5.5L16 10l-4.5 4.5"/></symbol>
+  <symbol id="i-rot-ccw" viewBox="0 0 20 20"><path d="M5 7.5A6 6 0 1 1 4 11"/><path d="M4.5 3.5V7.5h4"/></symbol>
+  <symbol id="i-rot-cw" viewBox="0 0 20 20"><path d="M15 7.5A6 6 0 1 0 16 11"/><path d="M15.5 3.5V7.5h-4"/></symbol>
+  <symbol id="i-translate" viewBox="0 0 20 20"><rect x="6.5" y="6.5" width="7" height="7" rx="0.5"/><path d="M10 2.5v2.5M10 15v2.5M2.5 10H5M15 10h2.5"/></symbol>
+  <symbol id="i-rotate" viewBox="0 0 20 20"><rect x="6.5" y="6.5" width="7" height="7" rx="0.5" transform="rotate(15 10 10)"/><path d="M3.5 7a7 7 0 0 1 6.5-4.5M16.5 13a7 7 0 0 1-6.5 4.5"/></symbol>
+  <symbol id="i-seed" viewBox="0 0 20 20"><circle cx="10" cy="10" r="3"/><path d="M10 2.5V6M10 14v3.5M2.5 10H6M14 10h3.5"/></symbol>
+  <symbol id="i-exclude" viewBox="0 0 20 20"><ellipse cx="10" cy="10" rx="7" ry="5.5" stroke-dasharray="2 2"/><path d="M7.5 7.5l5 5M12.5 7.5l-5 5"/></symbol>
+  <symbol id="i-box" viewBox="0 0 20 20"><rect x="4" y="4" width="12" height="12"/><path d="M8 4v12M12 4v12M4 8h12M4 12h12" stroke-opacity="0.6"/></symbol>
+  <symbol id="i-run" viewBox="0 0 20 20"><path d="M6.5 4.5v11l9-5.5z"/></symbol>
+  <symbol id="i-crosshair" viewBox="0 0 20 20"><path d="M10 2.5v5M10 12.5v5M2.5 10h5M12.5 10h5"/></symbol>
+  <symbol id="i-hatch" viewBox="0 0 20 20"><rect x="3" y="3" width="14" height="14" rx="1"/><path d="M3 9l6-6M3 15L15 3M9 17l8-8"/></symbol>
+</svg>
+<!-- /gen:sprite -->
+
+<!-- Define AIF (DSC-020…024): a full workspace inside the DSC package, never a popup.
+     Left: source slice with the 7×7-voxel box. Right: the 49 voxel curves (click toggles)
+     and the live averaged-AIF preview. Apply / Cancel in the task panel footer. -->
+<div class="app app--no-inspector">
+
+  <header class="topbar" data-od-id="topbar">
+    <div class="brand"><svg class="ic brand__mark"><use href="#i-brand"/></svg>NeuroMR-PRO</div>
+    <div class="banner" data-od-id="patient-banner" aria-label="Patient">
+      <span class="banner__name">PHANTOM^SYNTHETIC</span>
+      <span class="bf"><span class="bf__k">ID</span><span class="bf__v mono">NMR-PHANTOM-001</span></span>
+      <span class="bf"><span class="bf__k">Sex</span><span class="bf__v">O</span></span>
+      <span class="bf"><span class="bf__k">Age</span><span class="bf__v">56 y</span><span class="bf__k">(DOB 1970-01-01)</span></span>
+      <span class="bf"><span class="bf__k">Study</span><span class="bf__v">2026-01-01</span></span>
+      <span class="bf"><span class="bf__k">Modality</span><span class="bf__v">MR · 3.0 T</span></span>
+      <span class="bf"><span class="bf__k">Acc</span><span class="bf__v mono">PHANTOM0001</span></span>
+    </div>
+    <div class="topbar__actions">
+      <button class="ibtn" aria-label="Search studies (Ctrl+K)"><svg class="ic"><use href="#i-search"/></svg></button>
+      <button class="ibtn" aria-label="Keyboard shortcuts (?)"><svg class="ic"><use href="#i-keyboard"/></svg></button>
+      <button class="ibtn" aria-label="Account and sign out"><svg class="ic"><use href="#i-user"/></svg></button>
+      <div class="winctl">
+        <button aria-label="Minimise"><svg class="ic ic--sm"><use href="#i-min"/></svg></button>
+        <button aria-label="Maximise"><svg class="ic ic--sm"><use href="#i-max"/></svg></button>
+        <button class="winctl__close" aria-label="Close"><svg class="ic ic--sm"><use href="#i-close"/></svg></button>
+      </div>
+    </div>
+  </header>
+
+  <nav class="rail" aria-label="Activities" data-od-id="activity-rail">
+    <button class="rail__item" aria-label="Directory (Ctrl+1)"><svg class="ic"><use href="#i-directory"/></svg>Directory</button>
+    <button class="rail__item" aria-label="Viewer (Ctrl+2)"><svg class="ic"><use href="#i-viewer"/></svg>Viewer</button>
+    <button class="rail__item is-active" aria-current="page" aria-label="Analysis (Ctrl+3)"><svg class="ic"><use href="#i-analysis"/></svg>Analysis</button>
+    <button class="rail__item" aria-label="Results and reports (Ctrl+4)"><svg class="ic"><use href="#i-reports"/></svg>Reports</button>
+    <button class="rail__item rail__end" aria-label="Settings (Ctrl+,)"><svg class="ic"><use href="#i-settings"/></svg>Settings</button>
+  </nav>
+
+  <!-- ============ Task panel: AIF controls ============ -->
+  <aside class="panel" aria-label="Define AIF" data-od-id="task-panel">
+    <div class="panel__head" style="padding-top: var(--nm-panel-padding)">
+      <nav class="crumb" aria-label="Breadcrumb"><span>DSC Neuro Perfusion</span><svg class="ic"><use href="#i-chev-right"/></svg><span>3 · Analysis</span></nav>
+      <div class="panel__head-row"><h1 class="panel__title" data-od-id="workspace-title">Define AIF</h1><span class="chip">Manual AIF</span></div>
+      <p class="dense t2">DSC perf SNR50 · Slice 3/4 · Dyn 9/60</p>
+    </div>
+
+    <div class="panel__body">
+      <section class="psec" data-od-id="aif-box">
+        <span class="eyebrow">Box</span>
+        <dl>
+          <div class="kv"><dt>Centre</dt><dd><span class="mono">x 56 · y 27</span><span class="u">vox</span></dd></div>
+          <div class="kv"><dt>Size</dt><dd>7 × 7<span class="u">vox</span> · 14 × 14<span class="u">mm</span></dd></div>
+          <div class="kv"><dt>Slice</dt><dd>3 / 4 · z 8.0<span class="u">mm</span></dd></div>
+        </dl>
+        <p class="field__hint">Drag the box over a feeding artery; arrow keys move it by one voxel.</p>
+      </section>
+
+      <section class="psec" data-od-id="aif-selection">
+        <div class="psec__row"><span class="eyebrow">Curves</span><span class="spacer"></span><span class="dense"><b>6</b> <span class="t2">of 49 selected</span></span></div>
+        <div class="psec__row">
+          <button class="btn btn--secondary btn--dense">Select all <span class="kbd">Ctrl+A</span></button>
+          <button class="btn btn--ghost btn--dense">Clear <span class="kbd">Ctrl+Shift+A</span></button>
+        </div>
+        <p class="field__hint">Click a curve to include or exclude it. Prefer voxels at the vessel centre to limit partial-volume effects.</p>
+      </section>
+
+      <section class="psec" data-od-id="aif-summary">
+        <span class="eyebrow">Averaged AIF</span>
+        <dl>
+          <div class="kv"><dt>Peak ΔR2*</dt><dd>2.22<span class="u">1/s</span></dd></div>
+          <div class="kv"><dt>Time to peak</dt><dd>23.1<span class="u">s</span></dd></div>
+          <div class="kv"><dt>Arrival (half peak)</dt><dd>16.8<span class="u">s</span></dd></div>
+          <div class="kv"><dt>Width (FWHM)</dt><dd>6.3<span class="u">s</span></dd></div>
+        </dl>
+      </section>
+
+      <section class="psec" data-od-id="aif-quality">
+        <span class="eyebrow">Automatic quality check</span>
+        <ul class="qc">
+          <li><svg class="ic is-warn"><use href="#i-warn"/></svg><span>Peak time vs tissue</span><span class="qc__v">+6.3 s</span></li>
+          <li><svg class="ic is-pass"><use href="#i-check"/></svg><span>Peak height vs tissue</span><span class="qc__v">3.3 ×</span></li>
+          <li><svg class="ic is-pass"><use href="#i-check"/></svg><span>Width (FWHM)</span><span class="qc__v">6.3 s</span></li>
+          <li><svg class="ic is-pass"><use href="#i-check"/></svg><span>Samples across peak</span><span class="qc__v">3 · TR 2.1 s</span></li>
+        </ul>
+        <div class="notice notice--warning" role="alert" data-od-id="aif-late-warning">
+          <svg class="ic"><use href="#i-warn"/></svg>
+          <span class="notice__text">This AIF peaks 6.3 s after tissue — move the box onto a feeding artery or check the slice for motion.</span>
+        </div>
+      </section>
+    </div>
+
+    <div class="panel__foot">
+      <button class="btn btn--primary btn--block" data-od-id="cta-apply">Apply AIF <span class="kbd">Enter</span></button>
+      <button class="btn btn--secondary btn--block" data-od-id="cta-cancel">Cancel <span class="kbd">Esc</span></button>
+    </div>
+  </aside>
+
+  <!-- ============ Toolbar ============ -->
+  <div class="toolbar" role="toolbar" aria-label="AIF tools" data-od-id="toolbar">
+    <button class="ibtn" aria-label="Scroll (S)"><svg class="ic"><use href="#i-scroll"/></svg></button>
+    <button class="ibtn" aria-label="Pan (P)"><svg class="ic"><use href="#i-pan"/></svg></button>
+    <button class="ibtn" aria-label="Zoom (Z)"><svg class="ic"><use href="#i-zoom"/></svg></button>
+    <button class="ibtn" aria-label="Window/Level (W)"><svg class="ic"><use href="#i-wl"/></svg></button>
+    <span class="tb-sep"></span>
+    <button class="ibtn is-active" aria-pressed="true" aria-label="Move AIF box (X)" data-od-id="tool-move-box">
+      <svg class="ic"><use href="#i-box"/></svg>
+      <span class="tip tip--below" role="tooltip">Move AIF box <span class="kbd">X</span></span>
+    </button>
+    <button class="ibtn" aria-label="Reset view (R)"><svg class="ic"><use href="#i-reset"/></svg></button>
+    <span class="tb-sep"></span>
+    <button class="ibtn" aria-label="Undo box move (Ctrl+Z)"><svg class="ic"><use href="#i-undo"/></svg></button>
+    <button class="ibtn" aria-label="Redo (Ctrl+Y)"><svg class="ic"><use href="#i-redo"/></svg></button>
+    <span class="tb-sep"></span>
+    <span class="stepper"><button class="ibtn ibtn--sm" aria-label="Previous slice (Up)"><svg class="ic ic--sm"><use href="#i-chev-left"/></svg></button>Slice <b>3</b> / 4<button class="ibtn ibtn--sm" aria-label="Next slice (Down)"><svg class="ic ic--sm"><use href="#i-chev-right"/></svg></button></span>
+    <span class="stepper"><button class="ibtn ibtn--sm" aria-label="Previous dynamic (Left)"><svg class="ic ic--sm"><use href="#i-chev-left"/></svg></button>Dyn <b>9</b> / 60<button class="ibtn ibtn--sm" aria-label="Next dynamic (Right)"><svg class="ic ic--sm"><use href="#i-chev-right"/></svg></button></span>
+    <span class="spacer"></span>
+    <span class="dense t3">Results update when you apply the AIF</span>
+  </div>
+
+  <!-- ============ Viewports: source (tall) · curve grid · averaged AIF ============ -->
+  <main class="vgrid vgrid--aif" aria-label="Viewports" data-od-id="viewport-grid">
+
+    <section class="vp vp--tall is-active" aria-label="Source slice with AIF box" data-od-id="vp-aif-source">
+      <div class="vp__head">
+        <span class="vp__role">Source</span>
+        <div class="select"><span class="input__value">DSC perf SNR50</span><svg class="ic"><use href="#i-chev-down"/></svg></div>
+        <span class="spacer"></span>
+        <button class="ibtn ibtn--sm" aria-label="Viewport menu (right-click)"><svg class="ic ic--sm"><use href="#i-more"/></svg></button>
+      </div>
+      <div class="vp__body vp__body--fit">
+        <div class="vp__stage">
+          <img src="../assets/img/dsc_source_peak.png" width="512" height="512" alt="DSC source image, dynamic 9 of 60, slice 3 of 4, with a 7 by 7 voxel AIF box at x 56, y 27">
+          <svg viewBox="0 0 512 512" aria-hidden="true">
+            <!-- selected voxels (indices 1, 9, 14, 19, 35, 45 → row,col) -->
+            <rect class="aif-vox" x="432" y="192" width="8" height="8"/>
+            <rect class="aif-vox" x="440" y="200" width="8" height="8"/>
+            <rect class="aif-vox" x="424" y="208" width="8" height="8"/>
+            <rect class="aif-vox" x="464" y="208" width="8" height="8"/>
+            <rect class="aif-vox" x="424" y="232" width="8" height="8"/>
+            <rect class="aif-vox" x="448" y="240" width="8" height="8"/>
+            <g class="aif-box-grid">
+              <line x1="432" y1="192" x2="432" y2="248"/><line x1="440" y1="192" x2="440" y2="248"/><line x1="448" y1="192" x2="448" y2="248"/>
+              <line x1="456" y1="192" x2="456" y2="248"/><line x1="464" y1="192" x2="464" y2="248"/><line x1="472" y1="192" x2="472" y2="248"/>
+              <line x1="424" y1="200" x2="480" y2="200"/><line x1="424" y1="208" x2="480" y2="208"/><line x1="424" y1="216" x2="480" y2="216"/>
+              <line x1="424" y1="224" x2="480" y2="224"/><line x1="424" y1="232" x2="480" y2="232"/><line x1="424" y1="240" x2="480" y2="240"/>
+            </g>
+            <rect class="aif-box" x="424" y="192" width="56" height="56"/>
+            <rect class="roi-handle" x="421" y="189" width="6" height="6"/>
+            <rect class="roi-handle" x="477" y="189" width="6" height="6"/>
+            <rect class="roi-handle" x="421" y="245" width="6" height="6"/>
+            <rect class="roi-handle" x="477" y="245" width="6" height="6"/>
+          </svg>
+          <span class="ov" style="left: 82.8%; top: 36%; transform: translateY(-100%); padding-bottom: var(--nm-space-1); color: var(--nm-color-accent)">AIF box 7 × 7</span>
+        </div>
+        <div class="ov ov--tl">DSC perf SNR50 · Dyn 9/60 · Slice 3/4<br><span class="t2">t 16.8 s · TR 2.1 s · TE 30 ms</span></div>
+        <div class="ov ov--tr">PHANTOM^SYNTHETIC<br><span class="t2">NMR-PHANTOM-001 · 2026-01-01</span></div>
+        <div class="ov ov--bl">W 1595.2 · L 802.4 <span class="t2">a.u.</span><br><span class="t2">Cursor x 56 · y 27 vox</span></div>
+        <div class="ov ov--br">Zoom 100 %<br><span class="t2">2.0 × 2.0 mm · 64 × 64</span></div>
+        <span class="ov orient orient--n">A</span>
+        <span class="ov orient orient--s">P</span>
+        <span class="ov orient orient--w">R</span>
+        <span class="ov orient orient--e">L</span>
+      </div>
+    </section>
+
+    <section class="vp" aria-label="Voxel curves in the AIF box" data-od-id="vp-aif-curves">
+      <div class="vp__head">
+        <span class="vp__role">Voxel curves</span>
+        <span class="dense t2">ΔR2* [1/s] · 0–126 s · common scale −2.3 to 3.7 1/s</span>
+        <span class="spacer"></span>
+        <span class="dense"><span class="legend__line" style="--c: var(--nm-color-accent); display: inline-block; vertical-align: middle; margin-right: var(--nm-space-1)"></span>Included</span>
+        <span class="dense t2"><span class="legend__line" style="--c: var(--nm-color-text-tertiary); display: inline-block; vertical-align: middle; margin-right: var(--nm-space-1)"></span>Excluded</span>
+        <button class="ibtn ibtn--sm" aria-label="Curve grid menu (right-click)"><svg class="ic ic--sm"><use href="#i-more"/></svg></button>
+      </div>
+      <div class="vp__body">
+        <svg class="aif-grid" viewBox="0 0 700 700" preserveAspectRatio="xMidYMid meet" role="group" aria-label="49 voxel curves in a 7 by 7 grid; 6 included">
+<!-- gen:aif-grid -->
+<rect class="aif-cell" x="1.0" y="1.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="8.0" y1="59.6" x2="92.0" y2="59.6"/>
+<polyline class="g-curve g-curve--muted" points="8.0,64.6 9.4,50.2 10.8,54.9 12.3,72.5 13.7,55.9 15.1,71.4 16.5,67.0 18.0,55.5 19.4,50.2 20.8,50.9 22.2,51.0 23.7,53.9 25.1,45.6 26.5,57.8 27.9,41.5 29.4,72.6 30.8,58.4 32.2,65.7 33.6,68.5 35.1,55.7 36.5,68.9 37.9,54.8 39.3,58.5 40.7,49.2 42.2,56.2 43.6,67.5 45.0,53.8 46.4,55.6 47.9,68.1 49.3,72.3 50.7,43.4 52.1,64.9 53.6,59.6 55.0,43.3 56.4,64.5 57.8,61.0 59.3,54.1 60.7,75.3 62.1,64.2 63.5,60.2 64.9,65.3 66.4,64.3 67.8,67.4 69.2,73.2 70.6,60.2 72.1,62.1 73.5,69.7 74.9,70.1 76.3,69.4 77.8,75.9 79.2,58.2 80.6,45.9 82.0,59.2 83.5,67.4 84.9,56.4 86.3,66.0 87.7,74.0 89.2,69.2 90.6,65.0 92.0,69.4"/>
+<text class="aif-idx" x="8.0" y="18.0">1,1</text>
+<rect class="aif-cell aif-cell--on" x="101.0" y="1.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="108.0" y1="59.6" x2="192.0" y2="59.6"/>
+<polyline class="g-curve g-curve--sel" points="108.0,61.4 109.4,49.9 110.8,61.7 112.3,69.4 113.7,55.6 115.1,63.8 116.5,58.6 118.0,49.1 119.4,48.7 120.8,49.1 122.2,62.5 123.7,15.9 125.1,53.7 126.5,65.8 127.9,65.0 129.4,54.2 130.8,61.4 132.2,48.8 133.6,41.2 135.1,60.9 136.5,40.1 137.9,40.4 139.3,52.7 140.7,42.7 142.2,49.4 143.6,71.1 145.0,46.3 146.4,59.5 147.9,51.0 149.3,66.5 150.7,67.0 152.1,46.1 153.6,38.0 155.0,60.6 156.4,55.3 157.8,38.3 159.3,40.4 160.7,69.3 162.1,51.3 163.5,47.6 164.9,53.5 166.4,61.7 167.8,51.9 169.2,61.3 170.6,55.1 172.1,54.2 173.5,56.7 174.9,53.4 176.3,77.2 177.8,52.6 179.2,51.2 180.6,83.3 182.0,50.6 183.5,26.7 184.9,56.7 186.3,57.5 187.7,41.5 189.2,49.8 190.6,45.1 192.0,55.1"/>
+<text class="aif-idx aif-idx--on" x="108.0" y="18.0">1,2</text>
+<rect class="aif-cell" x="201.0" y="1.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="208.0" y1="59.6" x2="292.0" y2="59.6"/>
+<polyline class="g-curve g-curve--muted" points="208.0,59.6 209.4,54.9 210.8,62.8 212.3,69.4 213.7,51.5 215.1,41.6 216.5,52.4 218.0,61.1 219.4,45.5 220.8,43.1 222.2,47.6 223.7,34.7 225.1,58.9 226.5,54.6 227.9,62.5 229.4,54.2 230.8,67.2 232.2,50.2 233.6,60.6 235.1,43.3 236.5,60.2 237.9,65.7 239.3,63.9 240.7,65.3 242.2,62.7 243.6,52.4 245.0,55.2 246.4,53.3 247.9,76.9 249.3,71.7 250.7,57.0 252.1,60.4 253.6,47.3 255.0,56.6 256.4,67.2 257.8,54.6 259.3,42.9 260.7,60.4 262.1,64.9 263.5,61.7 264.9,63.2 266.4,44.4 267.8,52.3 269.2,54.4 270.6,52.4 272.1,51.6 273.5,67.8 274.9,57.1 276.3,58.6 277.8,61.6 279.2,60.4 280.6,58.4 282.0,59.8 283.5,75.3 284.9,41.6 286.3,62.2 287.7,53.9 289.2,45.8 290.6,61.6 292.0,78.3"/>
+<text class="aif-idx" x="208.0" y="18.0">1,3</text>
+<rect class="aif-cell" x="301.0" y="1.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="308.0" y1="59.6" x2="392.0" y2="59.6"/>
+<polyline class="g-curve g-curve--muted" points="308.0,56.0 309.4,62.4 310.8,62.7 312.3,55.7 313.7,61.4 315.1,72.2 316.5,56.2 318.0,47.6 319.4,34.6 320.8,32.6 322.2,31.1 323.7,39.8 325.1,47.0 326.5,43.1 327.9,46.9 329.4,49.9 330.8,54.6 332.2,57.1 333.6,50.8 335.1,48.5 336.5,56.3 337.9,53.9 339.3,39.3 340.7,60.3 342.2,44.4 343.6,36.0 345.0,51.5 346.4,56.3 347.9,57.4 349.3,52.0 350.7,62.0 352.1,42.6 353.6,58.0 355.0,55.6 356.4,41.9 357.8,50.1 359.3,57.3 360.7,64.5 362.1,34.0 363.5,30.7 364.9,47.4 366.4,51.0 367.8,55.6 369.2,58.4 370.6,56.4 372.1,65.7 373.5,41.4 374.9,37.5 376.3,49.7 377.8,38.3 379.2,66.8 380.6,56.2 382.0,35.1 383.5,53.7 384.9,51.5 386.3,46.1 387.7,49.0 389.2,59.3 390.6,49.5 392.0,62.4"/>
+<text class="aif-idx" x="308.0" y="18.0">1,4</text>
+<rect class="aif-cell" x="401.0" y="1.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="408.0" y1="59.6" x2="492.0" y2="59.6"/>
+<polyline class="g-curve g-curve--muted" points="408.0,66.0 409.4,61.4 410.8,59.6 412.3,51.3 413.7,59.8 415.1,53.9 416.5,58.2 418.0,48.8 419.4,51.6 420.8,34.6 422.2,65.7 423.7,46.2 425.1,43.3 426.5,53.5 427.9,36.6 429.4,61.0 430.8,55.9 432.2,47.7 433.6,58.1 435.1,57.8 436.5,61.6 437.9,55.9 439.3,65.2 440.7,56.4 442.2,46.5 443.6,56.7 445.0,70.0 446.4,64.0 447.9,56.4 449.3,55.7 450.7,43.6 452.1,71.2 453.6,62.0 455.0,55.1 456.4,57.1 457.8,55.2 459.3,39.3 460.7,56.7 462.1,48.7 463.5,73.0 464.9,53.0 466.4,54.6 467.8,71.4 469.2,64.6 470.6,70.7 472.1,52.0 473.5,52.0 474.9,49.9 476.3,57.4 477.8,63.1 479.2,63.9 480.6,62.1 482.0,61.4 483.5,76.9 484.9,61.0 486.3,71.8 487.7,52.4 489.2,51.9 490.6,50.5 492.0,43.0"/>
+<text class="aif-idx" x="408.0" y="18.0">1,5</text>
+<rect class="aif-cell" x="501.0" y="1.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="508.0" y1="59.6" x2="592.0" y2="59.6"/>
+<polyline class="g-curve g-curve--muted" points="508.0,43.6 509.4,73.6 510.8,62.1 512.3,70.6 513.7,48.1 515.1,57.7 516.5,65.0 518.0,65.2 519.4,47.6 520.8,40.5 522.2,49.2 523.7,56.4 525.1,53.1 526.5,62.9 527.9,54.2 529.4,52.6 530.8,71.0 532.2,43.4 533.6,57.7 535.1,71.4 536.5,55.5 537.9,82.0 539.3,48.7 540.7,53.9 542.2,74.4 543.6,41.9 545.0,66.8 546.4,83.8 547.9,64.7 549.3,70.1 550.7,53.7 552.1,58.5 553.6,56.3 555.0,73.9 556.4,59.9 557.8,64.9 559.3,52.4 560.7,59.2 562.1,52.8 563.5,56.7 564.9,61.1 566.4,64.9 567.8,59.5 569.2,66.8 570.6,72.2 572.1,57.4 573.5,60.0 574.9,78.6 576.3,47.6 577.8,47.2 579.2,62.0 580.6,53.4 582.0,67.5 583.5,71.5 584.9,72.2 586.3,55.1 587.7,43.7 589.2,80.1 590.6,62.8 592.0,66.3"/>
+<text class="aif-idx" x="508.0" y="18.0">1,6</text>
+<rect class="aif-cell" x="601.0" y="1.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="608.0" y1="59.6" x2="692.0" y2="59.6"/>
+<polyline class="g-curve g-curve--muted" points="608.0,69.0 609.4,60.2 610.8,62.2 612.3,54.5 613.7,52.1 615.1,57.1 616.5,53.4 618.0,51.6 619.4,43.7 620.8,50.9 622.2,24.6 623.7,43.4 625.1,40.9 626.5,31.4 627.9,53.8 629.4,53.4 630.8,38.6 632.2,51.6 633.6,46.5 635.1,58.0 636.5,58.8 637.9,39.8 639.3,51.9 640.7,32.8 642.2,43.4 643.6,42.5 645.0,60.7 646.4,48.5 647.9,60.3 649.3,62.0 650.7,67.9 652.1,60.6 653.6,57.1 655.0,61.3 656.4,54.9 657.8,53.7 659.3,56.9 660.7,57.3 662.1,43.4 663.5,60.2 664.9,51.3 666.4,60.0 667.8,47.9 669.2,61.7 670.6,46.9 672.1,57.3 673.5,50.1 674.9,56.4 676.3,47.7 677.8,42.2 679.2,65.3 680.6,62.1 682.0,48.4 683.5,48.5 684.9,53.5 686.3,58.8 687.7,56.6 689.2,62.7 690.6,62.5 692.0,63.6"/>
+<text class="aif-idx" x="608.0" y="18.0">1,7</text>
+<rect class="aif-cell" x="1.0" y="101.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="8.0" y1="159.6" x2="92.0" y2="159.6"/>
+<polyline class="g-curve g-curve--muted" points="8.0,141.9 9.4,181.2 10.8,150.6 12.3,159.8 13.7,164.7 15.1,157.7 16.5,174.4 18.0,144.0 19.4,162.1 20.8,140.7 22.2,152.8 23.7,156.0 25.1,153.8 26.5,171.7 27.9,153.1 29.4,168.2 30.8,176.9 32.2,175.4 33.6,174.8 35.1,166.1 36.5,170.8 37.9,161.4 39.3,170.3 40.7,153.4 42.2,162.0 43.6,169.3 45.0,154.9 46.4,145.8 47.9,161.4 49.3,163.8 50.7,162.1 52.1,161.8 53.6,181.5 55.0,181.2 56.4,180.4 57.8,153.5 59.3,160.0 60.7,171.9 62.1,165.7 63.5,169.2 64.9,158.9 66.4,151.0 67.8,160.4 69.2,148.0 70.6,191.0 72.1,174.8 73.5,148.7 74.9,161.0 76.3,154.5 77.8,161.8 79.2,177.1 80.6,176.1 82.0,161.7 83.5,154.9 84.9,154.9 86.3,174.7 87.7,164.7 89.2,153.9 90.6,167.1 92.0,170.1"/>
+<text class="aif-idx" x="8.0" y="118.0">2,1</text>
+<rect class="aif-cell" x="101.0" y="101.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="108.0" y1="159.6" x2="192.0" y2="159.6"/>
+<polyline class="g-curve g-curve--muted" points="108.0,156.2 109.4,153.5 110.8,143.3 112.3,163.6 113.7,181.6 115.1,167.1 116.5,155.2 118.0,147.4 119.4,128.5 120.8,155.7 122.2,150.1 123.7,144.3 125.1,169.6 126.5,158.2 127.9,150.6 129.4,145.8 130.8,154.5 132.2,128.1 133.6,157.0 135.1,176.2 136.5,163.9 137.9,138.9 139.3,155.3 140.7,168.6 142.2,153.1 143.6,138.2 145.0,163.9 146.4,166.8 147.9,166.1 149.3,165.8 150.7,157.3 152.1,153.8 153.6,143.1 155.0,170.8 156.4,168.6 157.8,148.3 159.3,155.2 160.7,145.1 162.1,156.6 163.5,159.9 164.9,139.8 166.4,168.5 167.8,157.7 169.2,141.6 170.6,154.2 172.1,149.4 173.5,162.1 174.9,141.5 176.3,158.1 177.8,153.1 179.2,148.5 180.6,147.4 182.0,170.1 183.5,159.5 184.9,150.2 186.3,169.2 187.7,171.8 189.2,141.4 190.6,159.5 192.0,149.1"/>
+<text class="aif-idx" x="108.0" y="118.0">2,2</text>
+<rect class="aif-cell aif-cell--on" x="201.0" y="101.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="208.0" y1="159.6" x2="292.0" y2="159.6"/>
+<polyline class="g-curve g-curve--sel" points="208.0,151.7 209.4,170.6 210.8,153.9 212.3,162.4 213.7,159.5 215.1,171.9 216.5,159.3 218.0,146.3 219.4,119.5 220.8,137.2 222.2,144.7 223.7,150.8 225.1,148.0 226.5,154.6 227.9,155.3 229.4,160.0 230.8,149.9 232.2,162.2 233.6,155.7 235.1,151.6 236.5,152.4 237.9,159.1 239.3,154.2 240.7,157.4 242.2,144.9 243.6,159.2 245.0,161.8 246.4,165.0 247.9,174.0 249.3,163.6 250.7,155.9 252.1,159.6 253.6,165.3 255.0,156.7 256.4,182.0 257.8,147.3 259.3,159.2 260.7,160.6 262.1,167.6 263.5,159.1 264.9,148.1 266.4,155.5 267.8,165.8 269.2,151.9 270.6,149.8 272.1,169.2 273.5,170.0 274.9,158.8 276.3,151.9 277.8,146.3 279.2,153.1 280.6,147.2 282.0,148.0 283.5,168.6 284.9,154.4 286.3,155.6 287.7,158.9 289.2,150.1 290.6,159.8 292.0,176.1"/>
+<text class="aif-idx aif-idx--on" x="208.0" y="118.0">2,3</text>
+<rect class="aif-cell" x="301.0" y="101.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="308.0" y1="159.6" x2="392.0" y2="159.6"/>
+<polyline class="g-curve g-curve--muted" points="308.0,168.8 309.4,156.4 310.8,158.0 312.3,152.4 313.7,162.7 315.1,147.4 316.5,147.4 318.0,124.2 319.4,143.4 320.8,143.6 322.2,144.9 323.7,134.4 325.1,141.6 326.5,159.2 327.9,157.3 329.4,143.1 330.8,162.8 332.2,165.7 333.6,153.4 335.1,167.0 336.5,159.5 337.9,175.3 339.3,149.8 340.7,156.9 342.2,170.7 343.6,154.9 345.0,149.2 346.4,165.0 347.9,170.4 349.3,154.1 350.7,156.9 352.1,155.7 353.6,159.5 355.0,161.8 356.4,159.6 357.8,158.5 359.3,145.4 360.7,158.6 362.1,143.6 363.5,168.2 364.9,170.0 366.4,163.8 367.8,147.0 369.2,157.8 370.6,167.0 372.1,150.9 373.5,163.2 374.9,172.8 376.3,157.5 377.8,155.6 379.2,159.9 380.6,168.5 382.0,147.3 383.5,158.4 384.9,162.4 386.3,163.8 387.7,156.0 389.2,157.1 390.6,171.0 392.0,165.7"/>
+<text class="aif-idx" x="308.0" y="118.0">2,4</text>
+<rect class="aif-cell" x="401.0" y="101.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="408.0" y1="159.6" x2="492.0" y2="159.6"/>
+<polyline class="g-curve g-curve--muted" points="408.0,149.8 409.4,163.4 410.8,163.6 412.3,153.1 413.7,168.1 415.1,162.0 416.5,166.8 418.0,147.2 419.4,150.3 420.8,155.3 422.2,153.1 423.7,149.8 425.1,165.3 426.5,147.2 427.9,153.4 429.4,166.3 430.8,161.0 432.2,154.8 433.6,171.5 435.1,151.2 436.5,153.0 437.9,165.6 439.3,165.7 440.7,156.4 442.2,174.1 443.6,172.5 445.0,166.8 446.4,169.2 447.9,169.3 449.3,173.3 450.7,153.3 452.1,172.2 453.6,140.8 455.0,142.6 456.4,142.6 457.8,157.8 459.3,170.4 460.7,147.3 462.1,148.3 463.5,169.6 464.9,165.2 466.4,171.2 467.8,153.4 469.2,169.4 470.6,150.6 472.1,158.8 473.5,160.0 474.9,164.9 476.3,159.2 477.8,184.0 479.2,170.4 480.6,167.4 482.0,151.3 483.5,163.9 484.9,161.3 486.3,176.2 487.7,173.3 489.2,161.7 490.6,161.6 492.0,163.2"/>
+<text class="aif-idx" x="408.0" y="118.0">2,5</text>
+<rect class="aif-cell" x="501.0" y="101.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="508.0" y1="159.6" x2="592.0" y2="159.6"/>
+<polyline class="g-curve g-curve--muted" points="508.0,158.5 509.4,153.5 510.8,158.4 512.3,176.4 513.7,151.3 515.1,173.2 516.5,156.7 518.0,162.8 519.4,140.0 520.8,133.0 522.2,137.1 523.7,151.3 525.1,145.2 526.5,141.9 527.9,151.3 529.4,153.0 530.8,153.1 532.2,160.0 533.6,148.5 535.1,144.7 536.5,153.1 537.9,148.3 539.3,173.2 540.7,159.6 542.2,157.0 543.6,156.3 545.0,159.2 546.4,150.9 547.9,150.9 549.3,146.5 550.7,158.0 552.1,157.8 553.6,149.7 555.0,169.6 556.4,152.7 557.8,163.4 559.3,134.6 560.7,171.4 562.1,164.3 563.5,161.4 564.9,164.3 566.4,167.9 567.8,144.4 569.2,168.6 570.6,174.8 572.1,151.6 573.5,170.7 574.9,153.4 576.3,155.2 577.8,180.2 579.2,152.7 580.6,155.1 582.0,145.6 583.5,147.7 584.9,162.1 586.3,152.6 587.7,148.7 589.2,167.0 590.6,141.2 592.0,151.6"/>
+<text class="aif-idx" x="508.0" y="118.0">2,6</text>
+<rect class="aif-cell" x="601.0" y="101.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="608.0" y1="159.6" x2="692.0" y2="159.6"/>
+<polyline class="g-curve g-curve--muted" points="608.0,163.8 609.4,159.8 610.8,166.3 612.3,156.7 613.7,151.6 615.1,170.7 616.5,145.5 618.0,140.0 619.4,133.5 620.8,145.8 622.2,143.3 623.7,143.7 625.1,141.5 626.5,151.5 627.9,145.6 629.4,147.7 630.8,168.5 632.2,152.0 633.6,157.3 635.1,169.0 636.5,166.5 637.9,174.0 639.3,147.7 640.7,156.0 642.2,142.9 643.6,160.0 645.0,151.6 646.4,149.0 647.9,149.1 649.3,167.4 650.7,150.2 652.1,159.6 653.6,148.7 655.0,143.1 656.4,169.0 657.8,149.5 659.3,154.9 660.7,144.5 662.1,156.2 663.5,142.3 664.9,153.7 666.4,152.0 667.8,156.9 669.2,158.4 670.6,150.9 672.1,167.5 673.5,148.4 674.9,142.5 676.3,155.6 677.8,147.7 679.2,153.3 680.6,137.8 682.0,167.0 683.5,156.6 684.9,142.3 686.3,133.3 687.7,159.2 689.2,148.5 690.6,154.9 692.0,155.9"/>
+<text class="aif-idx" x="608.0" y="118.0">2,7</text>
+<rect class="aif-cell aif-cell--on" x="1.0" y="201.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="8.0" y1="259.6" x2="92.0" y2="259.6"/>
+<polyline class="g-curve g-curve--sel" points="8.0,262.4 9.4,255.3 10.8,265.4 12.3,249.1 13.7,265.7 15.1,251.7 16.5,252.6 18.0,244.3 19.4,233.9 20.8,248.5 22.2,232.1 23.7,221.4 25.1,253.9 26.5,236.8 27.9,228.6 29.4,250.2 30.8,256.9 32.2,252.4 33.6,249.7 35.1,244.3 36.5,248.4 37.9,253.1 39.3,250.2 40.7,255.6 42.2,249.8 43.6,256.2 45.0,247.4 46.4,237.3 47.9,259.1 49.3,249.9 50.7,254.5 52.1,256.7 53.6,252.7 55.0,273.0 56.4,254.1 57.8,253.8 59.3,233.3 60.7,238.6 62.1,242.9 63.5,240.2 64.9,240.5 66.4,242.0 67.8,260.7 69.2,245.1 70.6,252.8 72.1,242.0 73.5,257.7 74.9,252.6 76.3,244.1 77.8,255.2 79.2,245.5 80.6,272.8 82.0,258.0 83.5,248.3 84.9,252.7 86.3,255.5 87.7,249.5 89.2,236.5 90.6,244.8 92.0,256.3"/>
+<text class="aif-idx aif-idx--on" x="8.0" y="218.0">3,1</text>
+<rect class="aif-cell" x="101.0" y="201.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="108.0" y1="259.6" x2="192.0" y2="259.6"/>
+<polyline class="g-curve g-curve--muted" points="108.0,262.9 109.4,266.3 110.8,248.1 112.3,259.5 113.7,261.4 115.1,255.7 116.5,254.1 118.0,239.1 119.4,234.4 120.8,237.9 122.2,243.6 123.7,240.7 125.1,256.9 126.5,260.0 127.9,234.8 129.4,259.5 130.8,255.3 132.2,251.0 133.6,250.9 135.1,243.8 136.5,239.1 137.9,254.9 139.3,249.9 140.7,255.3 142.2,258.4 143.6,254.8 145.0,255.3 146.4,258.6 147.9,229.9 149.3,253.5 150.7,249.9 152.1,268.3 153.6,247.3 155.0,251.6 156.4,248.3 157.8,229.7 159.3,267.1 160.7,258.2 162.1,260.2 163.5,250.8 164.9,254.2 166.4,273.5 167.8,263.6 169.2,253.5 170.6,250.5 172.1,274.6 173.5,249.9 174.9,246.5 176.3,255.7 177.8,236.6 179.2,254.1 180.6,243.4 182.0,255.5 183.5,258.8 184.9,252.3 186.3,249.7 187.7,250.8 189.2,244.1 190.6,256.0 192.0,252.6"/>
+<text class="aif-idx" x="108.0" y="218.0">3,2</text>
+<rect class="aif-cell" x="201.0" y="201.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="208.0" y1="259.6" x2="292.0" y2="259.6"/>
+<polyline class="g-curve g-curve--muted" points="208.0,255.1 209.4,262.2 210.8,268.5 212.3,258.6 213.7,253.7 215.1,252.8 216.5,256.9 218.0,261.3 219.4,255.1 220.8,235.7 222.2,244.3 223.7,265.6 225.1,241.8 226.5,266.7 227.9,260.3 229.4,244.0 230.8,228.9 232.2,265.7 233.6,264.6 235.1,261.8 236.5,264.7 237.9,262.4 239.3,271.0 240.7,254.4 242.2,262.0 243.6,272.6 245.0,263.9 246.4,265.8 247.9,251.9 249.3,256.2 250.7,256.4 252.1,243.4 253.6,264.3 255.0,256.6 256.4,243.3 257.8,263.9 259.3,262.1 260.7,249.1 262.1,266.4 263.5,258.4 264.9,254.1 266.4,255.6 267.8,261.6 269.2,277.1 270.6,277.6 272.1,263.6 273.5,258.5 274.9,267.2 276.3,260.0 277.8,253.0 279.2,277.6 280.6,249.9 282.0,269.9 283.5,264.7 284.9,251.9 286.3,261.7 287.7,265.0 289.2,263.5 290.6,255.9 292.0,268.3"/>
+<text class="aif-idx" x="208.0" y="218.0">3,3</text>
+<rect class="aif-cell" x="301.0" y="201.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="308.0" y1="259.6" x2="392.0" y2="259.6"/>
+<polyline class="g-curve g-curve--muted" points="308.0,257.1 309.4,265.6 310.8,271.4 312.3,249.1 313.7,254.8 315.1,272.2 316.5,268.1 318.0,269.7 319.4,248.4 320.8,258.6 322.2,229.4 323.7,250.3 325.1,235.4 326.5,273.9 327.9,258.8 329.4,255.1 330.8,262.0 332.2,265.6 333.6,253.7 335.1,267.4 336.5,270.7 337.9,263.5 339.3,266.1 340.7,273.2 342.2,269.7 343.6,262.0 345.0,264.5 346.4,261.6 347.9,242.0 349.3,259.6 350.7,259.5 352.1,257.7 353.6,256.9 355.0,272.3 356.4,241.2 357.8,249.8 359.3,253.0 360.7,268.2 362.1,255.9 363.5,269.3 364.9,249.4 366.4,268.8 367.8,247.3 369.2,248.5 370.6,257.3 372.1,262.8 373.5,264.0 374.9,250.1 376.3,247.2 377.8,263.5 379.2,243.3 380.6,249.5 382.0,262.5 383.5,268.3 384.9,270.4 386.3,260.2 387.7,242.0 389.2,262.8 390.6,252.0 392.0,267.9"/>
+<text class="aif-idx" x="308.0" y="218.0">3,4</text>
+<rect class="aif-cell" x="401.0" y="201.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="408.0" y1="259.6" x2="492.0" y2="259.6"/>
+<polyline class="g-curve g-curve--muted" points="408.0,242.5 409.4,261.6 410.8,272.6 412.3,262.7 413.7,258.8 415.1,284.8 416.5,241.1 418.0,245.6 419.4,257.8 420.8,252.0 422.2,247.9 423.7,255.7 425.1,260.3 426.5,240.8 427.9,266.7 429.4,256.6 430.8,262.4 432.2,267.5 433.6,265.2 435.1,266.3 436.5,270.3 437.9,261.0 439.3,270.6 440.7,266.1 442.2,264.0 443.6,246.7 445.0,269.2 446.4,252.8 447.9,267.4 449.3,272.1 450.7,251.3 452.1,266.4 453.6,266.1 455.0,271.7 456.4,270.7 457.8,263.4 459.3,259.9 460.7,276.9 462.1,248.4 463.5,264.0 464.9,238.2 466.4,273.0 467.8,259.6 469.2,260.3 470.6,244.4 472.1,256.0 473.5,259.3 474.9,263.2 476.3,263.6 477.8,258.6 479.2,268.3 480.6,254.1 482.0,262.0 483.5,254.2 484.9,251.7 486.3,271.9 487.7,257.7 489.2,262.1 490.6,258.6 492.0,246.1"/>
+<text class="aif-idx" x="408.0" y="218.0">3,5</text>
+<rect class="aif-cell aif-cell--on" x="501.0" y="201.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="508.0" y1="259.6" x2="592.0" y2="259.6"/>
+<polyline class="g-curve g-curve--sel" points="508.0,245.8 509.4,250.5 510.8,269.4 512.3,266.4 513.7,266.0 515.1,265.4 516.5,259.1 518.0,252.8 519.4,233.2 520.8,236.4 522.2,233.0 523.7,208.0 525.1,265.8 526.5,261.4 527.9,260.4 529.4,258.1 530.8,256.4 532.2,265.6 533.6,260.6 535.1,258.4 536.5,259.2 537.9,252.1 539.3,251.0 540.7,266.0 542.2,285.6 543.6,248.3 545.0,240.2 546.4,260.2 547.9,268.1 549.3,263.1 550.7,254.2 552.1,256.2 553.6,262.7 555.0,254.2 556.4,258.6 557.8,246.2 559.3,242.0 560.7,263.4 562.1,261.1 563.5,265.8 564.9,253.5 566.4,253.1 567.8,258.0 569.2,253.5 570.6,262.2 572.1,256.2 573.5,251.5 574.9,251.3 576.3,257.8 577.8,258.4 579.2,247.3 580.6,239.0 582.0,279.5 583.5,258.0 584.9,262.4 586.3,266.1 587.7,244.3 589.2,249.8 590.6,262.7 592.0,259.5"/>
+<text class="aif-idx aif-idx--on" x="508.0" y="218.0">3,6</text>
+<rect class="aif-cell" x="601.0" y="201.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="608.0" y1="259.6" x2="692.0" y2="259.6"/>
+<polyline class="g-curve g-curve--muted" points="608.0,262.9 609.4,258.8 610.8,249.1 612.3,265.4 613.7,261.8 615.1,244.5 616.5,254.2 618.0,246.2 619.4,252.7 620.8,254.4 622.2,248.4 623.7,244.1 625.1,256.7 626.5,239.0 627.9,247.6 629.4,253.7 630.8,250.9 632.2,262.5 633.6,263.4 635.1,271.7 636.5,255.3 637.9,264.7 639.3,244.3 640.7,249.4 642.2,258.6 643.6,254.2 645.0,267.8 646.4,265.3 647.9,260.0 649.3,248.4 650.7,254.6 652.1,266.8 653.6,258.0 655.0,256.9 656.4,251.3 657.8,272.5 659.3,275.1 660.7,249.1 662.1,271.7 663.5,262.4 664.9,262.5 666.4,244.3 667.8,271.2 669.2,267.2 670.6,275.7 672.1,249.5 673.5,266.7 674.9,259.5 676.3,254.1 677.8,243.7 679.2,258.6 680.6,273.9 682.0,264.9 683.5,261.3 684.9,253.9 686.3,260.9 687.7,260.9 689.2,244.9 690.6,266.8 692.0,272.9"/>
+<text class="aif-idx" x="608.0" y="218.0">3,7</text>
+<rect class="aif-cell" x="1.0" y="301.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="8.0" y1="359.6" x2="92.0" y2="359.6"/>
+<polyline class="g-curve g-curve--muted" points="8.0,360.3 9.4,361.6 10.8,368.9 12.3,348.5 13.7,358.6 15.1,362.0 16.5,350.1 18.0,364.9 19.4,356.3 20.8,346.1 22.2,325.4 23.7,341.4 25.1,352.0 26.5,336.4 27.9,359.6 29.4,357.3 30.8,371.5 32.2,370.8 33.6,349.7 35.1,363.8 36.5,372.8 37.9,360.0 39.3,361.1 40.7,369.4 42.2,368.8 43.6,358.9 45.0,348.0 46.4,367.2 47.9,380.8 49.3,349.5 50.7,367.0 52.1,362.4 53.6,356.2 55.0,365.4 56.4,357.4 57.8,365.4 59.3,354.1 60.7,360.3 62.1,354.2 63.5,355.1 64.9,368.8 66.4,365.6 67.8,371.1 69.2,357.1 70.6,359.3 72.1,366.1 73.5,349.0 74.9,356.3 76.3,347.7 77.8,361.6 79.2,365.0 80.6,360.4 82.0,381.9 83.5,356.3 84.9,350.8 86.3,371.9 87.7,361.8 89.2,364.9 90.6,382.5 92.0,350.8"/>
+<text class="aif-idx" x="8.0" y="318.0">4,1</text>
+<rect class="aif-cell" x="101.0" y="301.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="108.0" y1="359.6" x2="192.0" y2="359.6"/>
+<polyline class="g-curve g-curve--muted" points="108.0,349.8 109.4,360.0 110.8,357.8 112.3,356.2 113.7,374.4 115.1,363.1 116.5,361.6 118.0,332.9 119.4,332.5 120.8,360.6 122.2,353.3 123.7,354.6 125.1,354.8 126.5,354.9 127.9,349.8 129.4,366.5 130.8,359.8 132.2,357.1 133.6,355.1 135.1,367.4 136.5,365.6 137.9,346.7 139.3,358.6 140.7,345.8 142.2,377.6 143.6,369.9 145.0,366.3 146.4,353.7 147.9,345.5 149.3,356.9 150.7,359.2 152.1,340.9 153.6,377.6 155.0,366.5 156.4,372.2 157.8,356.3 159.3,357.0 160.7,355.6 162.1,377.5 163.5,355.6 164.9,343.0 166.4,358.9 167.8,358.1 169.2,366.4 170.6,354.5 172.1,361.4 173.5,367.5 174.9,383.8 176.3,356.0 177.8,349.2 179.2,363.1 180.6,350.1 182.0,348.0 183.5,363.5 184.9,360.2 186.3,359.8 187.7,354.1 189.2,339.7 190.6,334.6 192.0,358.5"/>
+<text class="aif-idx" x="108.0" y="318.0">4,2</text>
+<rect class="aif-cell" x="201.0" y="301.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="208.0" y1="359.6" x2="292.0" y2="359.6"/>
+<polyline class="g-curve g-curve--muted" points="208.0,367.5 209.4,347.3 210.8,359.8 212.3,362.4 213.7,361.1 215.1,366.7 216.5,347.4 218.0,350.2 219.4,347.4 220.8,336.2 222.2,329.0 223.7,340.7 225.1,337.3 226.5,341.5 227.9,353.7 229.4,359.2 230.8,346.3 232.2,354.5 233.6,359.6 235.1,342.3 236.5,354.5 237.9,343.3 239.3,355.7 240.7,352.4 242.2,347.0 243.6,347.2 245.0,369.4 246.4,364.6 247.9,352.7 249.3,358.1 250.7,358.6 252.1,371.5 253.6,345.1 255.0,339.8 256.4,357.4 257.8,340.4 259.3,363.9 260.7,355.9 262.1,345.4 263.5,358.2 264.9,348.3 266.4,342.7 267.8,356.3 269.2,343.4 270.6,370.7 272.1,364.5 273.5,356.0 274.9,378.4 276.3,349.7 277.8,355.7 279.2,360.6 280.6,353.5 282.0,362.4 283.5,354.5 284.9,360.9 286.3,348.1 287.7,366.7 289.2,366.3 290.6,352.0 292.0,374.7"/>
+<text class="aif-idx" x="208.0" y="318.0">4,3</text>
+<rect class="aif-cell" x="301.0" y="301.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="308.0" y1="359.6" x2="392.0" y2="359.6"/>
+<polyline class="g-curve g-curve--muted" points="308.0,361.0 309.4,350.2 310.8,357.0 312.3,364.2 313.7,365.7 315.1,377.1 316.5,358.4 318.0,356.3 319.4,363.5 320.8,344.9 322.2,342.6 323.7,362.0 325.1,353.8 326.5,346.7 327.9,353.8 329.4,381.8 330.8,369.7 332.2,362.4 333.6,353.8 335.1,357.4 336.5,369.0 337.9,351.6 339.3,367.8 340.7,361.0 342.2,354.2 343.6,349.0 345.0,363.8 346.4,374.4 347.9,350.1 349.3,362.5 350.7,384.7 352.1,381.6 353.6,362.2 355.0,380.8 356.4,364.7 357.8,369.9 359.3,352.8 360.7,365.3 362.1,381.9 363.5,361.0 364.9,380.2 366.4,365.8 367.8,358.6 369.2,366.7 370.6,357.7 372.1,375.7 373.5,351.7 374.9,388.7 376.3,376.4 377.8,363.8 379.2,363.5 380.6,355.9 382.0,372.5 383.5,371.0 384.9,377.5 386.3,369.2 387.7,367.4 389.2,358.1 390.6,366.0 392.0,363.2"/>
+<text class="aif-idx" x="308.0" y="318.0">4,4</text>
+<rect class="aif-cell" x="401.0" y="301.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="408.0" y1="359.6" x2="492.0" y2="359.6"/>
+<polyline class="g-curve g-curve--muted" points="408.0,366.8 409.4,357.4 410.8,362.5 412.3,356.7 413.7,354.5 415.1,351.0 416.5,374.6 418.0,357.5 419.4,335.5 420.8,343.3 422.2,347.6 423.7,325.7 425.1,358.4 426.5,340.2 427.9,371.7 429.4,347.2 430.8,362.7 432.2,357.3 433.6,359.6 435.1,344.0 436.5,364.5 437.9,365.3 439.3,346.6 440.7,357.1 442.2,363.5 443.6,363.1 445.0,358.0 446.4,358.5 447.9,353.1 449.3,358.6 450.7,362.0 452.1,360.0 453.6,355.2 455.0,374.1 456.4,357.1 457.8,362.1 459.3,367.8 460.7,369.6 462.1,353.8 463.5,363.5 464.9,362.4 466.4,350.6 467.8,352.3 469.2,345.6 470.6,352.3 472.1,353.8 473.5,355.6 474.9,361.0 476.3,338.6 477.8,361.8 479.2,351.6 480.6,364.2 482.0,358.5 483.5,344.9 484.9,370.7 486.3,360.6 487.7,362.1 489.2,365.2 490.6,359.5 492.0,365.2"/>
+<text class="aif-idx" x="408.0" y="318.0">4,5</text>
+<rect class="aif-cell" x="501.0" y="301.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="508.0" y1="359.6" x2="592.0" y2="359.6"/>
+<polyline class="g-curve g-curve--muted" points="508.0,365.4 509.4,376.8 510.8,353.7 512.3,355.3 513.7,346.9 515.1,355.9 516.5,352.8 518.0,353.9 519.4,358.2 520.8,344.9 522.2,350.2 523.7,354.4 525.1,364.7 526.5,326.1 527.9,341.8 529.4,358.8 530.8,345.6 532.2,361.0 533.6,359.2 535.1,359.2 536.5,360.2 537.9,368.9 539.3,354.6 540.7,374.8 542.2,360.4 543.6,354.2 545.0,373.2 546.4,369.4 547.9,366.8 549.3,353.1 550.7,351.5 552.1,349.4 553.6,351.0 555.0,380.1 556.4,343.7 557.8,363.5 559.3,356.3 560.7,357.5 562.1,356.2 563.5,364.7 564.9,354.9 566.4,358.9 567.8,364.7 569.2,368.5 570.6,368.6 572.1,374.4 573.5,334.6 574.9,370.3 576.3,374.7 577.8,363.4 579.2,360.7 580.6,370.8 582.0,351.9 583.5,356.4 584.9,367.4 586.3,372.2 587.7,359.6 589.2,358.9 590.6,367.8 592.0,373.3"/>
+<text class="aif-idx" x="508.0" y="318.0">4,6</text>
+<rect class="aif-cell" x="601.0" y="301.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="608.0" y1="359.6" x2="692.0" y2="359.6"/>
+<polyline class="g-curve g-curve--muted" points="608.0,360.0 609.4,345.2 610.8,360.2 612.3,364.3 613.7,368.5 615.1,360.6 616.5,356.7 618.0,339.3 619.4,332.9 620.8,355.7 622.2,344.7 623.7,345.4 625.1,335.7 626.5,358.0 627.9,341.8 629.4,366.0 630.8,360.6 632.2,361.7 633.6,359.3 635.1,362.0 636.5,364.3 637.9,361.4 639.3,352.3 640.7,351.7 642.2,347.9 643.6,356.3 645.0,341.9 646.4,347.0 647.9,341.2 649.3,343.8 650.7,350.6 652.1,344.5 653.6,365.7 655.0,354.1 656.4,349.2 657.8,363.6 659.3,349.2 660.7,351.6 662.1,369.4 663.5,371.4 664.9,363.2 666.4,362.2 667.8,361.1 669.2,344.3 670.6,366.4 672.1,341.8 673.5,363.4 674.9,369.7 676.3,368.8 677.8,360.4 679.2,344.9 680.6,356.2 682.0,368.1 683.5,349.7 684.9,344.7 686.3,360.9 687.7,353.5 689.2,367.5 690.6,366.5 692.0,356.0"/>
+<text class="aif-idx" x="608.0" y="318.0">4,7</text>
+<rect class="aif-cell" x="1.0" y="401.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="8.0" y1="459.6" x2="92.0" y2="459.6"/>
+<polyline class="g-curve g-curve--muted" points="8.0,467.2 9.4,455.5 10.8,459.6 12.3,462.7 13.7,453.0 15.1,456.9 16.5,451.0 18.0,468.3 19.4,457.3 20.8,461.6 22.2,455.1 23.7,450.6 25.1,458.2 26.5,444.7 27.9,455.1 29.4,452.4 30.8,465.3 32.2,455.1 33.6,466.4 35.1,459.5 36.5,449.0 37.9,452.4 39.3,474.1 40.7,458.6 42.2,467.0 43.6,455.5 45.0,461.3 46.4,473.5 47.9,465.0 49.3,467.4 50.7,468.5 52.1,454.4 53.6,480.7 55.0,460.9 56.4,442.9 57.8,451.9 59.3,457.4 60.7,462.4 62.1,477.2 63.5,473.0 64.9,457.3 66.4,450.6 67.8,468.8 69.2,456.2 70.6,472.1 72.1,462.5 73.5,458.6 74.9,475.7 76.3,462.4 77.8,453.4 79.2,463.4 80.6,452.3 82.0,464.7 83.5,456.9 84.9,464.7 86.3,458.8 87.7,440.8 89.2,458.0 90.6,460.2 92.0,460.9"/>
+<text class="aif-idx" x="8.0" y="418.0">5,1</text>
+<rect class="aif-cell" x="101.0" y="401.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="108.0" y1="459.6" x2="192.0" y2="459.6"/>
+<polyline class="g-curve g-curve--muted" points="108.0,464.6 109.4,457.5 110.8,450.1 112.3,462.8 113.7,463.1 115.1,440.2 116.5,442.2 118.0,443.1 119.4,436.1 120.8,452.6 122.2,441.9 123.7,462.2 125.1,463.4 126.5,458.0 127.9,473.5 129.4,460.7 130.8,463.1 132.2,449.9 133.6,450.5 135.1,454.6 136.5,473.5 137.9,451.3 139.3,462.0 140.7,449.1 142.2,468.1 143.6,463.5 145.0,471.9 146.4,457.5 147.9,455.1 149.3,475.5 150.7,459.2 152.1,454.9 153.6,464.5 155.0,449.2 156.4,463.1 157.8,464.5 159.3,465.0 160.7,439.1 162.1,440.2 163.5,473.5 164.9,451.7 166.4,449.8 167.8,464.2 169.2,457.5 170.6,469.7 172.1,479.7 173.5,456.3 174.9,458.4 176.3,455.5 177.8,469.2 179.2,447.7 180.6,454.2 182.0,455.7 183.5,459.2 184.9,464.3 186.3,455.2 187.7,460.6 189.2,449.5 190.6,465.0 192.0,453.3"/>
+<text class="aif-idx" x="108.0" y="418.0">5,2</text>
+<rect class="aif-cell" x="201.0" y="401.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="208.0" y1="459.6" x2="292.0" y2="459.6"/>
+<polyline class="g-curve g-curve--muted" points="208.0,474.1 209.4,455.1 210.8,471.1 212.3,444.8 213.7,453.0 215.1,457.5 216.5,464.6 218.0,451.7 219.4,459.8 220.8,459.8 222.2,466.1 223.7,466.4 225.1,447.0 226.5,460.0 227.9,459.2 229.4,473.5 230.8,465.4 232.2,465.6 233.6,458.0 235.1,471.4 236.5,461.3 237.9,449.7 239.3,447.6 240.7,473.2 242.2,481.8 243.6,458.9 245.0,451.3 246.4,476.6 247.9,461.3 249.3,471.4 250.7,462.9 252.1,481.6 253.6,462.4 255.0,461.6 256.4,463.9 257.8,450.1 259.3,468.1 260.7,464.9 262.1,458.2 263.5,458.5 264.9,462.4 266.4,465.6 267.8,453.0 269.2,446.3 270.6,466.0 272.1,469.9 273.5,472.6 274.9,475.8 276.3,459.1 277.8,479.5 279.2,465.6 280.6,456.7 282.0,454.1 283.5,447.0 284.9,461.0 286.3,464.9 287.7,451.7 289.2,451.0 290.6,454.5 292.0,472.8"/>
+<text class="aif-idx" x="208.0" y="418.0">5,3</text>
+<rect class="aif-cell" x="301.0" y="401.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="308.0" y1="459.6" x2="392.0" y2="459.6"/>
+<polyline class="g-curve g-curve--muted" points="308.0,440.4 309.4,465.4 310.8,470.1 312.3,457.7 313.7,464.3 315.1,448.8 316.5,457.8 318.0,457.8 319.4,440.4 320.8,449.2 322.2,450.9 323.7,436.9 325.1,437.1 326.5,442.5 327.9,448.4 329.4,445.8 330.8,454.6 332.2,453.4 333.6,453.7 335.1,454.6 336.5,449.2 337.9,448.5 339.3,452.4 340.7,453.8 342.2,448.3 343.6,469.0 345.0,465.8 346.4,446.1 347.9,444.7 349.3,444.0 350.7,468.6 352.1,459.1 353.6,469.4 355.0,452.8 356.4,462.9 357.8,476.6 359.3,441.9 360.7,455.9 362.1,455.1 363.5,462.7 364.9,453.1 366.4,454.9 367.8,460.3 369.2,453.9 370.6,459.5 372.1,454.9 373.5,452.4 374.9,459.3 376.3,452.3 377.8,467.9 379.2,448.5 380.6,455.7 382.0,453.0 383.5,467.5 384.9,458.8 386.3,442.3 387.7,463.1 389.2,470.6 390.6,482.6 392.0,441.2"/>
+<text class="aif-idx" x="308.0" y="418.0">5,4</text>
+<rect class="aif-cell" x="401.0" y="401.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="408.0" y1="459.6" x2="492.0" y2="459.6"/>
+<polyline class="g-curve g-curve--muted" points="408.0,458.9 409.4,466.4 410.8,457.4 412.3,450.5 413.7,464.9 415.1,450.9 416.5,456.3 418.0,438.6 419.4,442.3 420.8,442.0 422.2,443.6 423.7,449.1 425.1,439.4 426.5,443.1 427.9,443.8 429.4,442.9 430.8,452.8 432.2,456.7 433.6,454.2 435.1,452.6 436.5,455.9 437.9,448.1 439.3,450.2 440.7,471.5 442.2,438.7 443.6,449.5 445.0,446.7 446.4,458.6 447.9,442.6 449.3,454.4 450.7,458.9 452.1,453.7 453.6,454.2 455.0,462.0 456.4,451.7 457.8,442.6 459.3,455.2 460.7,450.6 462.1,443.7 463.5,460.7 464.9,459.9 466.4,428.6 467.8,446.1 469.2,481.9 470.6,437.2 472.1,435.4 473.5,442.0 474.9,460.6 476.3,461.4 477.8,462.9 479.2,449.8 480.6,465.6 482.0,460.9 483.5,441.6 484.9,461.1 486.3,452.8 487.7,450.1 489.2,468.3 490.6,452.4 492.0,473.3"/>
+<text class="aif-idx" x="408.0" y="418.0">5,5</text>
+<rect class="aif-cell" x="501.0" y="401.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="508.0" y1="459.6" x2="592.0" y2="459.6"/>
+<polyline class="g-curve g-curve--muted" points="508.0,457.5 509.4,465.6 510.8,439.3 512.3,463.9 513.7,471.8 515.1,461.6 516.5,471.2 518.0,451.2 519.4,442.7 520.8,469.0 522.2,432.1 523.7,458.1 525.1,457.7 526.5,454.5 527.9,450.5 529.4,455.5 530.8,460.6 532.2,473.0 533.6,467.2 535.1,458.2 536.5,449.8 537.9,459.8 539.3,457.7 540.7,467.5 542.2,462.7 543.6,465.0 545.0,458.9 546.4,454.5 547.9,462.5 549.3,458.1 550.7,461.4 552.1,455.7 553.6,462.2 555.0,458.1 556.4,467.6 557.8,455.9 559.3,477.6 560.7,454.9 562.1,466.3 563.5,459.1 564.9,462.5 566.4,468.9 567.8,457.3 569.2,470.6 570.6,465.3 572.1,460.9 573.5,463.4 574.9,458.1 576.3,469.7 577.8,470.4 579.2,451.5 580.6,447.4 582.0,463.6 583.5,468.5 584.9,461.4 586.3,459.9 587.7,463.8 589.2,468.5 590.6,452.1 592.0,466.3"/>
+<text class="aif-idx" x="508.0" y="418.0">5,6</text>
+<rect class="aif-cell" x="601.0" y="401.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="608.0" y1="459.6" x2="692.0" y2="459.6"/>
+<polyline class="g-curve g-curve--muted" points="608.0,458.6 609.4,464.6 610.8,460.3 612.3,448.1 613.7,466.4 615.1,448.4 616.5,450.8 618.0,427.5 619.4,445.8 620.8,433.7 622.2,461.1 623.7,448.0 625.1,423.4 626.5,439.4 627.9,443.1 629.4,451.5 630.8,471.1 632.2,454.6 633.6,449.2 635.1,435.8 636.5,435.1 637.9,449.5 639.3,481.5 640.7,448.4 642.2,437.5 643.6,451.0 645.0,458.4 646.4,462.5 647.9,436.4 649.3,477.7 650.7,469.6 652.1,460.4 653.6,445.4 655.0,452.7 656.4,447.7 657.8,445.4 659.3,478.2 660.7,457.0 662.1,448.8 663.5,458.1 664.9,456.9 666.4,469.9 667.8,458.8 669.2,460.3 670.6,473.6 672.1,457.4 673.5,437.5 674.9,451.9 676.3,463.5 677.8,459.1 679.2,455.5 680.6,441.5 682.0,459.9 683.5,459.9 684.9,453.3 686.3,452.8 687.7,450.8 689.2,448.4 690.6,465.6 692.0,464.9"/>
+<text class="aif-idx" x="608.0" y="418.0">5,7</text>
+<rect class="aif-cell aif-cell--on" x="1.0" y="501.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="8.0" y1="559.6" x2="92.0" y2="559.6"/>
+<polyline class="g-curve g-curve--sel" points="8.0,551.9 9.4,575.3 10.8,558.1 12.3,550.1 13.7,562.8 15.1,544.3 16.5,541.2 18.0,530.8 19.4,530.7 20.8,520.3 22.2,545.2 23.7,546.3 25.1,540.4 26.5,539.6 27.9,542.6 29.4,550.6 30.8,563.8 32.2,552.3 33.6,543.4 35.1,536.5 36.5,553.4 37.9,552.1 39.3,555.5 40.7,548.7 42.2,551.2 43.6,554.9 45.0,558.9 46.4,549.1 47.9,543.3 49.3,552.8 50.7,533.7 52.1,554.1 53.6,557.8 55.0,557.4 56.4,550.1 57.8,559.3 59.3,550.6 60.7,536.1 62.1,544.8 63.5,545.9 64.9,565.8 66.4,551.6 67.8,566.0 69.2,547.6 70.6,539.6 72.1,537.2 73.5,545.4 74.9,543.4 76.3,547.9 77.8,549.0 79.2,545.8 80.6,548.0 82.0,559.5 83.5,539.7 84.9,537.3 86.3,563.9 87.7,555.7 89.2,549.0 90.6,527.1 92.0,530.8"/>
+<text class="aif-idx aif-idx--on" x="8.0" y="518.0">6,1</text>
+<rect class="aif-cell" x="101.0" y="501.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="108.0" y1="559.6" x2="192.0" y2="559.6"/>
+<polyline class="g-curve g-curve--muted" points="108.0,559.2 109.4,542.2 110.8,563.4 112.3,551.0 113.7,582.3 115.1,562.1 116.5,563.2 118.0,544.8 119.4,557.5 120.8,554.9 122.2,561.1 123.7,556.9 125.1,543.4 126.5,565.8 127.9,547.4 129.4,562.0 130.8,572.6 132.2,558.5 133.6,560.9 135.1,547.3 136.5,561.4 137.9,568.9 139.3,556.3 140.7,569.2 142.2,554.6 143.6,571.4 145.0,564.3 146.4,577.7 147.9,566.5 149.3,561.4 150.7,567.6 152.1,567.0 153.6,567.6 155.0,565.4 156.4,572.2 157.8,568.1 159.3,574.8 160.7,571.5 162.1,567.8 163.5,556.9 164.9,562.0 166.4,562.5 167.8,558.5 169.2,551.3 170.6,561.0 172.1,566.5 173.5,551.6 174.9,572.2 176.3,567.5 177.8,565.2 179.2,558.8 180.6,565.4 182.0,559.8 183.5,559.1 184.9,555.7 186.3,549.7 187.7,558.8 189.2,567.8 190.6,563.5 192.0,578.9"/>
+<text class="aif-idx" x="108.0" y="518.0">6,2</text>
+<rect class="aif-cell" x="201.0" y="501.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="208.0" y1="559.6" x2="292.0" y2="559.6"/>
+<polyline class="g-curve g-curve--muted" points="208.0,563.6 209.4,570.0 210.8,560.6 212.3,551.5 213.7,552.6 215.1,542.7 216.5,567.6 218.0,549.2 219.4,550.5 220.8,555.2 222.2,553.3 223.7,561.8 225.1,542.2 226.5,548.3 227.9,548.4 229.4,564.9 230.8,557.4 232.2,565.4 233.6,544.1 235.1,559.6 236.5,562.8 237.9,557.8 239.3,558.8 240.7,570.6 242.2,572.9 243.6,564.2 245.0,548.7 246.4,565.8 247.9,552.4 249.3,560.4 250.7,557.8 252.1,561.6 253.6,559.5 255.0,563.6 256.4,565.4 257.8,558.0 259.3,554.1 260.7,573.6 262.1,561.7 263.5,545.4 264.9,560.7 266.4,550.9 267.8,575.4 269.2,551.7 270.6,556.7 272.1,566.0 273.5,560.6 274.9,567.0 276.3,559.3 277.8,574.4 279.2,547.7 280.6,540.2 282.0,552.0 283.5,553.3 284.9,563.8 286.3,547.9 287.7,549.1 289.2,542.0 290.6,538.4 292.0,557.4"/>
+<text class="aif-idx" x="208.0" y="518.0">6,3</text>
+<rect class="aif-cell" x="301.0" y="501.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="308.0" y1="559.6" x2="392.0" y2="559.6"/>
+<polyline class="g-curve g-curve--muted" points="308.0,556.4 309.4,551.3 310.8,553.9 312.3,565.4 313.7,570.8 315.1,554.4 316.5,551.9 318.0,549.7 319.4,558.1 320.8,539.3 322.2,556.9 323.7,545.4 325.1,555.5 326.5,561.6 327.9,551.5 329.4,557.3 330.8,551.6 332.2,559.1 333.6,553.8 335.1,568.8 336.5,563.4 337.9,542.2 339.3,547.3 340.7,542.2 342.2,562.7 343.6,553.8 345.0,552.0 346.4,568.3 347.9,565.2 349.3,562.7 350.7,545.5 352.1,552.0 353.6,571.4 355.0,548.7 356.4,566.5 357.8,560.6 359.3,562.4 360.7,554.6 362.1,555.6 363.5,544.1 364.9,572.5 366.4,558.9 367.8,563.1 369.2,550.3 370.6,556.2 372.1,569.7 373.5,556.4 374.9,567.6 376.3,562.2 377.8,561.1 379.2,552.4 380.6,570.3 382.0,566.5 383.5,563.6 384.9,562.1 386.3,563.8 387.7,550.8 389.2,565.2 390.6,553.1 392.0,578.4"/>
+<text class="aif-idx" x="308.0" y="518.0">6,4</text>
+<rect class="aif-cell" x="401.0" y="501.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="408.0" y1="559.6" x2="492.0" y2="559.6"/>
+<polyline class="g-curve g-curve--muted" points="408.0,569.4 409.4,553.5 410.8,548.7 412.3,559.1 413.7,567.4 415.1,587.0 416.5,558.0 418.0,549.9 419.4,533.3 420.8,552.4 422.2,547.0 423.7,571.4 425.1,544.5 426.5,564.6 427.9,565.6 429.4,561.3 430.8,560.7 432.2,556.0 433.6,568.3 435.1,559.3 436.5,582.0 437.9,562.2 439.3,572.3 440.7,563.8 442.2,578.7 443.6,582.0 445.0,573.9 446.4,566.8 447.9,574.7 449.3,565.2 450.7,574.7 452.1,572.9 453.6,562.9 455.0,576.5 456.4,563.6 457.8,554.5 459.3,563.2 460.7,559.9 462.1,571.4 463.5,592.0 464.9,580.1 466.4,549.7 467.8,557.4 469.2,562.4 470.6,555.7 472.1,574.4 473.5,553.0 474.9,558.1 476.3,565.4 477.8,565.4 479.2,555.5 480.6,581.5 482.0,556.4 483.5,588.0 484.9,568.6 486.3,568.3 487.7,567.6 489.2,567.2 490.6,554.4 492.0,570.8"/>
+<text class="aif-idx" x="408.0" y="518.0">6,5</text>
+<rect class="aif-cell" x="501.0" y="501.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="508.0" y1="559.6" x2="592.0" y2="559.6"/>
+<polyline class="g-curve g-curve--muted" points="508.0,554.6 509.4,546.5 510.8,554.4 512.3,571.5 513.7,571.1 515.1,558.8 516.5,557.1 518.0,561.8 519.4,538.3 520.8,534.7 522.2,543.8 523.7,543.8 525.1,564.3 526.5,535.8 527.9,553.3 529.4,564.3 530.8,558.6 532.2,550.6 533.6,544.8 535.1,564.7 536.5,548.0 537.9,568.1 539.3,559.9 540.7,564.9 542.2,552.8 543.6,558.6 545.0,568.5 546.4,574.8 547.9,563.1 549.3,563.5 550.7,581.1 552.1,547.3 553.6,530.8 555.0,556.7 556.4,567.8 557.8,547.4 559.3,558.5 560.7,570.6 562.1,549.9 563.5,556.4 564.9,563.8 566.4,560.3 567.8,564.0 569.2,565.0 570.6,583.0 572.1,546.1 573.5,549.8 574.9,559.9 576.3,550.3 577.8,567.4 579.2,546.3 580.6,562.1 582.0,546.6 583.5,564.9 584.9,570.3 586.3,544.1 587.7,563.6 589.2,560.4 590.6,552.1 592.0,560.7"/>
+<text class="aif-idx" x="508.0" y="518.0">6,6</text>
+<rect class="aif-cell" x="601.0" y="501.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="608.0" y1="559.6" x2="692.0" y2="559.6"/>
+<polyline class="g-curve g-curve--muted" points="608.0,555.5 609.4,567.0 610.8,564.9 612.3,563.6 613.7,547.3 615.1,566.4 616.5,536.6 618.0,540.2 619.4,535.1 620.8,538.3 622.2,536.0 623.7,544.5 625.1,540.4 626.5,558.1 627.9,544.7 629.4,558.5 630.8,552.6 632.2,559.9 633.6,546.7 635.1,546.6 636.5,543.3 637.9,550.5 639.3,552.1 640.7,554.8 642.2,549.2 643.6,554.2 645.0,556.3 646.4,548.4 647.9,556.3 649.3,565.8 650.7,563.4 652.1,557.4 653.6,569.4 655.0,566.7 656.4,570.0 657.8,550.5 659.3,574.7 660.7,555.6 662.1,575.7 663.5,557.4 664.9,547.2 666.4,558.9 667.8,565.3 669.2,567.6 670.6,561.3 672.1,568.8 673.5,551.6 674.9,554.5 676.3,560.6 677.8,551.7 679.2,556.3 680.6,553.1 682.0,562.2 683.5,550.5 684.9,558.9 686.3,554.4 687.7,547.3 689.2,544.9 690.6,562.0 692.0,565.7"/>
+<text class="aif-idx" x="608.0" y="518.0">6,7</text>
+<rect class="aif-cell" x="1.0" y="601.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="8.0" y1="659.6" x2="92.0" y2="659.6"/>
+<polyline class="g-curve g-curve--muted" points="8.0,654.5 9.4,656.9 10.8,654.5 12.3,668.1 13.7,664.2 15.1,650.5 16.5,669.3 18.0,640.5 19.4,658.0 20.8,643.4 22.2,640.4 23.7,651.6 25.1,655.6 26.5,640.1 27.9,663.6 29.4,641.4 30.8,654.4 32.2,661.7 33.6,659.3 35.1,649.7 36.5,655.1 37.9,639.7 39.3,656.0 40.7,662.8 42.2,659.5 43.6,668.9 45.0,647.6 46.4,658.1 47.9,670.6 49.3,662.4 50.7,666.1 52.1,659.3 53.6,658.4 55.0,649.9 56.4,652.0 57.8,654.9 59.3,660.2 60.7,670.1 62.1,649.2 63.5,647.6 64.9,659.8 66.4,660.7 67.8,662.0 69.2,660.7 70.6,662.2 72.1,644.9 73.5,670.6 74.9,641.6 76.3,672.5 77.8,650.5 79.2,653.4 80.6,656.9 82.0,660.9 83.5,650.8 84.9,646.3 86.3,648.8 87.7,661.7 89.2,663.5 90.6,650.8 92.0,663.2"/>
+<text class="aif-idx" x="8.0" y="618.0">7,1</text>
+<rect class="aif-cell" x="101.0" y="601.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="108.0" y1="659.6" x2="192.0" y2="659.6"/>
+<polyline class="g-curve g-curve--muted" points="108.0,656.6 109.4,654.8 110.8,663.5 112.3,665.4 113.7,657.7 115.1,673.0 116.5,660.9 118.0,657.8 119.4,650.9 120.8,641.2 122.2,659.8 123.7,658.2 125.1,674.0 126.5,658.5 127.9,659.2 129.4,659.6 130.8,676.1 132.2,655.5 133.6,674.3 135.1,673.9 136.5,677.9 137.9,665.8 139.3,656.9 140.7,655.9 142.2,653.4 143.6,671.1 145.0,660.3 146.4,671.0 147.9,677.2 149.3,659.2 150.7,653.8 152.1,668.1 153.6,653.0 155.0,670.0 156.4,652.6 157.8,676.8 159.3,665.0 160.7,680.0 162.1,673.6 163.5,663.4 164.9,667.8 166.4,665.2 167.8,668.8 169.2,661.1 170.6,652.4 172.1,672.6 173.5,673.3 174.9,663.1 176.3,679.7 177.8,657.5 179.2,671.4 180.6,675.1 182.0,670.0 183.5,655.6 184.9,663.9 186.3,676.9 187.7,663.1 189.2,654.2 190.6,665.2 192.0,677.3"/>
+<text class="aif-idx" x="108.0" y="618.0">7,2</text>
+<rect class="aif-cell" x="201.0" y="601.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="208.0" y1="659.6" x2="292.0" y2="659.6"/>
+<polyline class="g-curve g-curve--muted" points="208.0,661.1 209.4,660.4 210.8,667.5 212.3,659.9 213.7,649.1 215.1,685.8 216.5,663.9 218.0,667.8 219.4,664.3 220.8,653.4 222.2,655.1 223.7,643.6 225.1,642.3 226.5,663.9 227.9,647.3 229.4,672.1 230.8,670.4 232.2,652.8 233.6,675.9 235.1,658.9 236.5,660.0 237.9,670.8 239.3,667.2 240.7,659.2 242.2,660.6 243.6,664.5 245.0,658.4 246.4,674.4 247.9,673.5 249.3,669.3 250.7,666.7 252.1,672.1 253.6,648.4 255.0,668.2 256.4,673.5 257.8,654.6 259.3,653.9 260.7,667.9 262.1,652.7 263.5,660.0 264.9,677.2 266.4,658.2 267.8,660.0 269.2,659.5 270.6,653.9 272.1,663.5 273.5,666.8 274.9,652.8 276.3,666.5 277.8,672.2 279.2,656.9 280.6,651.6 282.0,667.1 283.5,665.2 284.9,665.3 286.3,679.3 287.7,662.5 289.2,660.7 290.6,658.6 292.0,668.9"/>
+<text class="aif-idx" x="208.0" y="618.0">7,3</text>
+<rect class="aif-cell aif-cell--on" x="301.0" y="601.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="308.0" y1="659.6" x2="392.0" y2="659.6"/>
+<polyline class="g-curve g-curve--sel" points="308.0,665.3 309.4,651.9 310.8,664.5 312.3,665.0 313.7,651.6 315.1,632.6 316.5,655.9 318.0,644.8 319.4,650.2 320.8,639.0 322.2,618.7 323.7,631.2 325.1,661.1 326.5,651.6 327.9,655.1 329.4,653.8 330.8,657.7 332.2,648.5 333.6,646.9 335.1,652.3 336.5,660.6 337.9,650.8 339.3,649.5 340.7,657.5 342.2,650.5 343.6,659.2 345.0,638.6 346.4,651.9 347.9,649.8 349.3,641.5 350.7,644.1 352.1,658.6 353.6,664.9 355.0,655.2 356.4,650.1 357.8,662.1 359.3,658.1 360.7,654.2 362.1,656.6 363.5,656.9 364.9,657.3 366.4,650.5 367.8,658.2 369.2,656.9 370.6,664.3 372.1,651.5 373.5,653.5 374.9,651.7 376.3,662.4 377.8,664.7 379.2,645.1 380.6,653.4 382.0,661.4 383.5,667.4 384.9,640.4 386.3,660.6 387.7,636.1 389.2,633.2 390.6,660.9 392.0,648.1"/>
+<text class="aif-idx aif-idx--on" x="308.0" y="618.0">7,4</text>
+<rect class="aif-cell" x="401.0" y="601.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="408.0" y1="659.6" x2="492.0" y2="659.6"/>
+<polyline class="g-curve g-curve--muted" points="408.0,665.4 409.4,667.0 410.8,648.1 412.3,655.6 413.7,662.0 415.1,661.7 416.5,649.1 418.0,647.0 419.4,652.7 420.8,649.8 422.2,640.7 423.7,631.5 425.1,659.5 426.5,664.7 427.9,666.8 429.4,664.3 430.8,672.5 432.2,651.9 433.6,636.6 435.1,650.1 436.5,665.7 437.9,655.9 439.3,664.2 440.7,660.7 442.2,671.4 443.6,666.5 445.0,681.5 446.4,652.0 447.9,635.4 449.3,675.4 450.7,642.3 452.1,653.3 453.6,681.1 455.0,657.1 456.4,650.1 457.8,652.3 459.3,671.7 460.7,658.5 462.1,675.9 463.5,661.1 464.9,648.7 466.4,653.7 467.8,666.1 469.2,654.6 470.6,648.3 472.1,671.7 473.5,667.4 474.9,641.1 476.3,646.7 477.8,664.0 479.2,662.9 480.6,674.8 482.0,667.5 483.5,655.6 484.9,649.5 486.3,670.3 487.7,658.5 489.2,663.1 490.6,653.9 492.0,662.2"/>
+<text class="aif-idx" x="408.0" y="618.0">7,5</text>
+<rect class="aif-cell" x="501.0" y="601.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="508.0" y1="659.6" x2="592.0" y2="659.6"/>
+<polyline class="g-curve g-curve--muted" points="508.0,658.6 509.4,665.0 510.8,654.8 512.3,655.9 513.7,663.8 515.1,644.5 516.5,657.3 518.0,632.2 519.4,626.4 520.8,639.0 522.2,640.1 523.7,643.0 525.1,628.1 526.5,646.9 527.9,642.7 529.4,664.2 530.8,657.7 532.2,657.1 533.6,658.4 535.1,646.9 536.5,651.3 537.9,667.8 539.3,659.2 540.7,659.5 542.2,643.4 543.6,645.8 545.0,647.9 546.4,652.4 547.9,654.8 549.3,666.7 550.7,642.7 552.1,654.2 553.6,640.5 555.0,651.5 556.4,657.8 557.8,675.8 559.3,667.4 560.7,655.6 562.1,661.3 563.5,659.9 564.9,657.5 566.4,646.1 567.8,640.2 569.2,645.5 570.6,667.5 572.1,644.0 573.5,651.3 574.9,658.6 576.3,677.3 577.8,656.4 579.2,668.1 580.6,644.9 582.0,663.2 583.5,648.3 584.9,644.8 586.3,656.7 587.7,663.4 589.2,646.2 590.6,651.2 592.0,665.3"/>
+<text class="aif-idx" x="508.0" y="618.0">7,6</text>
+<rect class="aif-cell" x="601.0" y="601.0" width="98.0" height="98.0"/>
+<line class="aif-zero" x1="608.0" y1="659.6" x2="692.0" y2="659.6"/>
+<polyline class="g-curve g-curve--muted" points="608.0,677.1 609.4,658.0 610.8,644.4 612.3,653.8 613.7,665.0 615.1,662.0 616.5,659.3 618.0,648.8 619.4,635.1 620.8,646.5 622.2,633.7 623.7,644.9 625.1,662.7 626.5,635.8 627.9,670.3 629.4,658.4 630.8,662.4 632.2,667.9 633.6,674.3 635.1,645.8 636.5,659.8 637.9,659.1 639.3,673.2 640.7,647.0 642.2,659.9 643.6,650.8 645.0,660.6 646.4,672.6 647.9,656.4 649.3,657.4 650.7,674.6 652.1,668.8 653.6,656.9 655.0,660.0 656.4,667.8 657.8,659.2 659.3,661.4 660.7,657.1 662.1,665.3 663.5,666.7 664.9,660.0 666.4,688.4 667.8,666.1 669.2,671.5 670.6,668.1 672.1,648.0 673.5,672.2 674.9,658.5 676.3,670.3 677.8,647.9 679.2,663.4 680.6,652.1 682.0,679.5 683.5,664.9 684.9,662.7 686.3,671.9 687.7,665.6 689.2,642.7 690.6,653.0 692.0,673.0"/>
+<text class="aif-idx" x="608.0" y="618.0">7,7</text>
+<!-- /gen:aif-grid -->
+        </svg>
+      </div>
+    </section>
+
+    <section class="vp" aria-label="Averaged AIF preview" data-od-id="vp-aif-average">
+      <div class="vp__head">
+        <span class="vp__role">Averaged AIF</span>
+        <span class="dense t2">6 voxels · live preview</span>
+        <span class="spacer"></span>
+        <button class="ibtn ibtn--sm" aria-label="Graph menu (right-click)"><svg class="ic ic--sm"><use href="#i-more"/></svg></button>
+      </div>
+      <div class="vp__body">
+        <svg class="graph" viewBox="0 0 640 452" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Averaged AIF peaks at 2.22 per second at 23.1 s; contralateral tissue peaks at 0.67 per second at 16.8 s">
+<!-- gen:aif-average -->
+<g class="g-grid">
+<line x1="56.0" y1="404.0" x2="620.0" y2="404.0"/>
+<line x1="56.0" y1="351.4" x2="620.0" y2="351.4"/>
+<line x1="56.0" y1="298.9" x2="620.0" y2="298.9"/>
+<line x1="56.0" y1="246.3" x2="620.0" y2="246.3"/>
+<line x1="56.0" y1="193.7" x2="620.0" y2="193.7"/>
+<line x1="56.0" y1="141.1" x2="620.0" y2="141.1"/>
+<line x1="56.0" y1="88.6" x2="620.0" y2="88.6"/>
+<line x1="56.0" y1="36.0" x2="620.0" y2="36.0"/>
+<line x1="56.0" y1="36.0" x2="56.0" y2="404.0"/>
+<line x1="145.5" y1="36.0" x2="145.5" y2="404.0"/>
+<line x1="235.0" y1="36.0" x2="235.0" y2="404.0"/>
+<line x1="324.6" y1="36.0" x2="324.6" y2="404.0"/>
+<line x1="414.1" y1="36.0" x2="414.1" y2="404.0"/>
+<line x1="503.6" y1="36.0" x2="503.6" y2="404.0"/>
+<line x1="593.1" y1="36.0" x2="593.1" y2="404.0"/>
+</g>
+<line class="g-zero" x1="56.0" y1="351.4" x2="620.0" y2="351.4"/>
+<line class="g-axis" x1="56.0" y1="36.0" x2="56.0" y2="404.0"/>
+<line class="g-axis" x1="56.0" y1="404.0" x2="620.0" y2="404.0"/>
+<g class="g-tick" text-anchor="end"><text x="50.0" y="408.0">−0.5</text><text x="50.0" y="355.4">0</text><text x="50.0" y="302.9">0.5</text><text x="50.0" y="250.3">1</text><text x="50.0" y="197.7">1.5</text><text x="50.0" y="145.1">2</text><text x="50.0" y="92.6">2.5</text><text x="50.0" y="40.0">3</text></g>
+<g class="g-tick" text-anchor="middle"><text x="56.0" y="420.0">0</text><text x="145.5" y="420.0">20</text><text x="235.0" y="420.0">40</text><text x="324.6" y="420.0">60</text><text x="414.1" y="420.0">80</text><text x="503.6" y="420.0">100</text><text x="593.1" y="420.0">120</text></g>
+<text class="g-title" x="338.0" y="442.0" text-anchor="middle">Time [s]</text>
+<text class="g-title" x="16" y="220.0" text-anchor="middle" transform="rotate(-90 16 220.0)">ΔR2* [1/s]</text>
+<line class="g-marker" x1="159.4" y1="30.0" x2="159.4" y2="404.0"/>
+<text class="g-marker-label" x="163.4" y="28.0">Peak 2.22 1/s · 23.1 s</text>
+<polyline class="g-curve g-curve--contra" points="56.0,350.8 65.4,348.9 74.8,345.5 84.2,352.1 93.6,359.9 103.0,330.4 112.4,345.1 121.8,307.4 131.2,281.0 140.6,286.1 150.0,322.3 159.4,320.0 168.8,337.7 178.2,338.9 187.6,341.4 197.0,347.7 206.4,346.4 215.8,352.0 225.2,358.2 234.6,364.4 244.0,347.0 253.4,336.9 262.8,359.5 272.2,339.7 281.6,348.2 291.0,344.0 300.4,342.3 309.8,358.2 319.2,346.2 328.6,335.8 338.0,349.3 347.4,353.5 356.8,351.5 366.2,358.3 375.6,348.6 385.0,347.5 394.4,355.1 403.8,352.3 413.2,354.2 422.6,351.0 432.0,336.2 441.4,354.4 450.8,336.9 460.2,343.2 469.6,349.1 479.0,362.6 488.4,346.0 497.8,340.9 507.2,349.3 516.6,350.2 526.0,358.7 535.4,348.4 544.8,351.4 554.2,355.8 563.6,361.3 573.0,350.4 582.4,351.5 591.8,347.2 601.2,342.1 610.6,343.4"/>
+<polyline class="g-curve g-curve--aif" points="56.0,327.0 65.4,346.0 74.8,370.9 84.2,357.4 93.6,355.8 103.0,316.3 112.4,312.1 121.8,238.0 131.2,172.2 140.6,190.5 150.0,197.4 159.4,118.2 168.8,307.4 178.2,290.8 187.6,287.4 197.0,312.3 206.4,336.8 215.8,316.2 225.2,275.1 234.6,283.1 244.0,296.1 253.4,288.0 262.8,294.8 272.2,313.8 281.6,318.1 291.0,340.3 300.4,270.2 309.8,307.4 319.2,335.4 328.6,325.8 338.0,290.3 347.4,317.8 356.8,330.9 366.2,350.7 375.6,342.0 385.0,287.2 394.4,257.6 403.8,306.5 413.2,309.3 422.6,298.1 432.0,302.1 441.4,296.5 450.8,355.3 460.2,299.0 469.6,308.3 479.0,291.1 488.4,322.2 497.8,292.9 507.2,330.8 516.6,311.4 526.0,263.0 535.4,333.4 544.8,350.7 554.2,289.2 563.6,283.3 573.0,353.5 582.4,260.4 591.8,238.3 601.2,279.0 610.6,310.9"/>
+<!-- /gen:aif-average -->
+        </svg>
+        <div class="legend" style="top: var(--nm-space-8); right: var(--nm-space-4)" aria-label="Curves">
+          <span class="check"><span class="legend__line" style="--c: var(--nm-color-text-primary)"></span>Averaged AIF</span>
+          <span class="check"><span class="legend__line legend__line--linked" style="--c: var(--nm-color-text-secondary)"></span>Tissue · ROI1-mirror</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="statusbar" data-od-id="statusbar">
+    <span class="sb-item"><svg class="ic"><use href="#i-jobs"/></svg>Jobs <b>0 running</b></span>
+    <span class="sb-sep"></span>
+    <span class="sb-item"><span class="dot dot--warning"></span><b>AIF not applied</b> · maps use the automatic AIF</span>
+    <span class="sb-sep"></span>
+    <span class="sb-item"><svg class="ic"><use href="#i-engine"/></svg>Engine <span class="dot dot--success"></span><b>connected</b> · local</span>
+    <span class="sb-sep"></span>
+    <span class="sb-item">Licence <b>active</b></span>
+    <span class="spacer"></span>
+    <span class="sb-item"><svg class="ic"><use href="#i-display"/></svg><b>Diagnostic display</b></span>
+    <span class="sb-sep"></span>
+    <span class="sb-item"><span class="kbd">?</span> shortcuts</span>
+  </footer>
+</div>
+</body>
+</html>

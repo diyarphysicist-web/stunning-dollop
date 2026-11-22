@@ -1,0 +1,59 @@
+<!-- NeuroMR-PRO icon set: original 20 px outline icons, 1.5 px stroke (shell.css §2).
+     Single source for screens from batch 2 on; inject_plots.py inlines it at <!-- gen:sprite -->. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-directory" viewBox="0 0 20 20"><path d="M2.5 5h5.5l1.5 1.75h8v9.75h-15z"/><path d="M2.5 9h15"/></symbol>
+  <symbol id="i-viewer" viewBox="0 0 20 20"><rect x="2.5" y="2.5" width="15" height="15" rx="1.5"/><path d="M10 6v8M6 10h8"/></symbol>
+  <symbol id="i-analysis" viewBox="0 0 20 20"><path d="M2.5 16.5h15"/><path d="M3 13.5l3.5-5 3 3L13 4.5l4 7"/></symbol>
+  <symbol id="i-reports" viewBox="0 0 20 20"><path d="M5 2.5h7l3.5 3.5v11.5H5z"/><path d="M12 2.5V6h3.5M7.5 10h5M7.5 13h5"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 20 20"><path d="M3.5 5h2M9 5h7.5M3.5 10h8M15 10h1.5M3.5 15h4M11 15h5.5"/><circle cx="7.25" cy="5" r="1.75"/><circle cx="13.25" cy="10" r="1.75"/><circle cx="9.25" cy="15" r="1.75"/></symbol>
+  <symbol id="i-scroll" viewBox="0 0 20 20"><rect x="5" y="7" width="10" height="6" rx="1"/><path d="M10 2.5v2.5M8.25 4.25L10 2.5l1.75 1.75M10 17.5V15M8.25 15.75L10 17.5l1.75-1.75"/></symbol>
+  <symbol id="i-pan" viewBox="0 0 20 20"><path d="M10 2.5v15M2.5 10h15M8 4.5l2-2 2 2M8 15.5l2 2 2-2M4.5 8l-2 2 2 2M15.5 8l2 2-2 2"/></symbol>
+  <symbol id="i-zoom" viewBox="0 0 20 20"><circle cx="8.5" cy="8.5" r="5.25"/><path d="M12.4 12.4l4.6 4.6M6.25 8.5h4.5M8.5 6.25v4.5"/></symbol>
+  <symbol id="i-wl" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7"/><path d="M10 3a7 7 0 0 1 0 14z" fill="currentColor"/></symbol>
+  <symbol id="i-mask" viewBox="0 0 20 20"><path d="M4 7c2-4 9.5-4.5 12-1s1 9.5-4.5 9.5S2 11.5 4 7z" stroke-dasharray="2 2"/><circle cx="10" cy="10" r="1.5"/></symbol>
+  <symbol id="i-ellipse" viewBox="0 0 20 20"><ellipse cx="10" cy="10" rx="7.25" ry="5.25"/><path d="M10 8.5v3M8.5 10h3"/></symbol>
+  <symbol id="i-spline" viewBox="0 0 20 20"><path d="M3.5 14.5C5 7 8 7 10 10s5 3 6.5-4.5"/><circle cx="3.5" cy="14.5" r="1.25"/><circle cx="10" cy="10" r="1.25"/><circle cx="16.5" cy="5.5" r="1.25"/></symbol>
+  <symbol id="i-freehand" viewBox="0 0 20 20"><path d="M5 13.5C2.5 9.5 5 4.5 10 4.5s7.5 4 5 7.5-7 2.5-8 .5 1.5-4 4-2"/></symbol>
+  <symbol id="i-mirror" viewBox="0 0 20 20"><path d="M10 2.5v15" stroke-dasharray="2 2.25"/><path d="M7.5 6L3 10l4.5 4zM12.5 6L17 10l-4.5 4z"/></symbol>
+  <symbol id="i-reset" viewBox="0 0 20 20"><path d="M4 10a6 6 0 1 0 1.75-4.25"/><path d="M4 3v3.5h3.5"/></symbol>
+  <symbol id="i-layout" viewBox="0 0 20 20"><rect x="3" y="3" width="14" height="14" rx="1"/><path d="M10 3v14M3 10h14"/></symbol>
+  <symbol id="i-undo" viewBox="0 0 20 20"><path d="M7 4.5L3.5 8 7 11.5"/><path d="M3.5 8H12a4.25 4.25 0 0 1 0 8.5H8.5"/></symbol>
+  <symbol id="i-redo" viewBox="0 0 20 20"><path d="M13 4.5L16.5 8 13 11.5"/><path d="M16.5 8H8a4.25 4.25 0 0 0 0 8.5h3.5"/></symbol>
+  <symbol id="i-bookmark" viewBox="0 0 20 20"><path d="M5.5 3h9v14L10 13.5 5.5 17z"/></symbol>
+  <symbol id="i-series" viewBox="0 0 20 20"><rect x="3" y="6" width="10.5" height="11" rx="1"/><path d="M6.5 3h10.5v11"/><path d="M8.25 9v5M5.75 11.5h5"/></symbol>
+  <symbol id="i-table-save" viewBox="0 0 20 20"><path d="M17 11V3.5H3v10h7"/><path d="M3 7h14M8 3.5v10"/><path d="M14.5 12.5v5M12.5 15.5l2 2 2-2"/></symbol>
+  <symbol id="i-check" viewBox="0 0 20 20"><path d="M4.5 10.5l3.5 3.5 7.5-8"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 20 20"><rect x="4.5" y="9" width="11" height="8" rx="1"/><path d="M7 9V6.5a3 3 0 0 1 6 0V9"/></symbol>
+  <symbol id="i-chev-down" viewBox="0 0 20 20"><path d="M6 8l4 4 4-4"/></symbol>
+  <symbol id="i-chev-right" viewBox="0 0 20 20"><path d="M8 6l4 4-4 4"/></symbol>
+  <symbol id="i-chev-left" viewBox="0 0 20 20"><path d="M12 6l-4 4 4 4"/></symbol>
+  <symbol id="i-link" viewBox="0 0 20 20"><path d="M8.25 11.75l3.5-3.5"/><path d="M9 6.25l1.5-1.5a3 3 0 0 1 4.25 4.25l-1.5 1.5M11 13.75l-1.5 1.5a3 3 0 0 1-4.25-4.25l1.5-1.5"/></symbol>
+  <symbol id="i-close" viewBox="0 0 20 20"><path d="M5.5 5.5l9 9M14.5 5.5l-9 9"/></symbol>
+  <symbol id="i-more" viewBox="0 0 20 20"><circle cx="5" cy="10" r="0.75"/><circle cx="10" cy="10" r="0.75"/><circle cx="15" cy="10" r="0.75"/></symbol>
+  <symbol id="i-info" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7"/><path d="M10 9v4.5M10 6.5v.01"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 20 20"><path d="M10 3l7.5 13.5h-15z"/><path d="M10 8.25v3.75M10 14.25v.01"/></symbol>
+  <symbol id="i-collapse" viewBox="0 0 20 20"><rect x="3" y="3.5" width="14" height="13" rx="1"/><path d="M8 3.5v13M13.5 8l-2 2 2 2"/></symbol>
+  <symbol id="i-engine" viewBox="0 0 20 20"><rect x="5" y="5" width="10" height="10" rx="1"/><path d="M8 2.5V5M12 2.5V5M8 15v2.5M12 15v2.5M2.5 8H5M2.5 12H5M15 8h2.5M15 12h2.5"/></symbol>
+  <symbol id="i-display" viewBox="0 0 20 20"><rect x="2.5" y="3.5" width="15" height="10" rx="1"/><path d="M7 17h6M10 13.5V17"/></symbol>
+  <symbol id="i-keyboard" viewBox="0 0 20 20"><rect x="2.5" y="5" width="15" height="10" rx="1"/><path d="M5.5 8h1M9.5 8h1M13.5 8h1M6.5 12h7"/></symbol>
+  <symbol id="i-search" viewBox="0 0 20 20"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></symbol>
+  <symbol id="i-user" viewBox="0 0 20 20"><circle cx="10" cy="7" r="3"/><path d="M4 17c1-3.5 3.25-5 6-5s5 1.5 6 5"/></symbol>
+  <symbol id="i-jobs" viewBox="0 0 20 20"><path d="M3 5.5h14M3 10h14M3 14.5h8"/></symbol>
+  <symbol id="i-min" viewBox="0 0 20 20"><path d="M5.5 10h9"/></symbol>
+  <symbol id="i-max" viewBox="0 0 20 20"><rect x="5.5" y="5.5" width="9" height="9"/></symbol>
+  <symbol id="i-brand" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7.25"/><path d="M5.5 10h2l1.25-3 2.5 6 1.25-3h2"/></symbol>
+  <symbol id="i-arrow-up" viewBox="0 0 20 20"><path d="M10 16V4M5.5 8.5L10 4l4.5 4.5"/></symbol>
+  <symbol id="i-arrow-down" viewBox="0 0 20 20"><path d="M10 4v12M5.5 11.5L10 16l4.5-4.5"/></symbol>
+  <symbol id="i-arrow-left" viewBox="0 0 20 20"><path d="M16 10H4M8.5 5.5L4 10l4.5 4.5"/></symbol>
+  <symbol id="i-arrow-right" viewBox="0 0 20 20"><path d="M4 10h12M11.5 5.5L16 10l-4.5 4.5"/></symbol>
+  <symbol id="i-rot-ccw" viewBox="0 0 20 20"><path d="M5 7.5A6 6 0 1 1 4 11"/><path d="M4.5 3.5V7.5h4"/></symbol>
+  <symbol id="i-rot-cw" viewBox="0 0 20 20"><path d="M15 7.5A6 6 0 1 0 16 11"/><path d="M15.5 3.5V7.5h-4"/></symbol>
+  <symbol id="i-translate" viewBox="0 0 20 20"><rect x="6.5" y="6.5" width="7" height="7" rx="0.5"/><path d="M10 2.5v2.5M10 15v2.5M2.5 10H5M15 10h2.5"/></symbol>
+  <symbol id="i-rotate" viewBox="0 0 20 20"><rect x="6.5" y="6.5" width="7" height="7" rx="0.5" transform="rotate(15 10 10)"/><path d="M3.5 7a7 7 0 0 1 6.5-4.5M16.5 13a7 7 0 0 1-6.5 4.5"/></symbol>
+  <symbol id="i-seed" viewBox="0 0 20 20"><circle cx="10" cy="10" r="3"/><path d="M10 2.5V6M10 14v3.5M2.5 10H6M14 10h3.5"/></symbol>
+  <symbol id="i-exclude" viewBox="0 0 20 20"><ellipse cx="10" cy="10" rx="7" ry="5.5" stroke-dasharray="2 2"/><path d="M7.5 7.5l5 5M12.5 7.5l-5 5"/></symbol>
+  <symbol id="i-box" viewBox="0 0 20 20"><rect x="4" y="4" width="12" height="12"/><path d="M8 4v12M12 4v12M4 8h12M4 12h12" stroke-opacity="0.6"/></symbol>
+  <symbol id="i-run" viewBox="0 0 20 20"><path d="M6.5 4.5v11l9-5.5z"/></symbol>
+  <symbol id="i-crosshair" viewBox="0 0 20 20"><path d="M10 2.5v5M10 12.5v5M2.5 10h5M12.5 10h5"/></symbol>
+  <symbol id="i-hatch" viewBox="0 0 20 20"><rect x="3" y="3" width="14" height="14" rx="1"/><path d="M3 9l6-6M3 15L15 3M9 17l8-8"/></symbol>
+</svg>
