@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>NeuroMR-PRO · Analysis Workspace shell</title>
+<meta name="viewport" content="width=1920, height=1080">
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/luts.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+
+<!-- Icon sprite: original 20 px outline set, 1.5 px stroke (see shell.css §2) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-directory" viewBox="0 0 20 20"><path d="M2.5 5h5.5l1.5 1.75h8v9.75h-15z"/><path d="M2.5 9h15"/></symbol>
+  <symbol id="i-viewer" viewBox="0 0 20 20"><rect x="2.5" y="2.5" width="15" height="15" rx="1.5"/><path d="M10 6v8M6 10h8"/></symbol>
+  <symbol id="i-analysis" viewBox="0 0 20 20"><path d="M2.5 16.5h15"/><path d="M3 13.5l3.5-5 3 3L13 4.5l4 7"/></symbol>
+  <symbol id="i-reports" viewBox="0 0 20 20"><path d="M5 2.5h7l3.5 3.5v11.5H5z"/><path d="M12 2.5V6h3.5M7.5 10h5M7.5 13h5"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 20 20"><path d="M3.5 5h2M9 5h7.5M3.5 10h8M15 10h1.5M3.5 15h4M11 15h5.5"/><circle cx="7.25" cy="5" r="1.75"/><circle cx="13.25" cy="10" r="1.75"/><circle cx="9.25" cy="15" r="1.75"/></symbol>
+  <symbol id="i-scroll" viewBox="0 0 20 20"><rect x="5" y="7" width="10" height="6" rx="1"/><path d="M10 2.5v2.5M8.25 4.25L10 2.5l1.75 1.75M10 17.5V15M8.25 15.75L10 17.5l1.75-1.75"/></symbol>
+  <symbol id="i-pan" viewBox="0 0 20 20"><path d="M10 2.5v15M2.5 10h15M8 4.5l2-2 2 2M8 15.5l2 2 2-2M4.5 8l-2 2 2 2M15.5 8l2 2-2 2"/></symbol>
+  <symbol id="i-zoom" viewBox="0 0 20 20"><circle cx="8.5" cy="8.5" r="5.25"/><path d="M12.4 12.4l4.6 4.6M6.25 8.5h4.5M8.5 6.25v4.5"/></symbol>
+  <symbol id="i-wl" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7"/><path d="M10 3a7 7 0 0 1 0 14z" fill="currentColor"/></symbol>
+  <symbol id="i-mask" viewBox="0 0 20 20"><path d="M4 7c2-4 9.5-4.5 12-1s1 9.5-4.5 9.5S2 11.5 4 7z" stroke-dasharray="2 2"/><circle cx="10" cy="10" r="1.5"/></symbol>
+  <symbol id="i-ellipse" viewBox="0 0 20 20"><ellipse cx="10" cy="10" rx="7.25" ry="5.25"/><path d="M10 8.5v3M8.5 10h3"/></symbol>
+  <symbol id="i-spline" viewBox="0 0 20 20"><path d="M3.5 14.5C5 7 8 7 10 10s5 3 6.5-4.5"/><circle cx="3.5" cy="14.5" r="1.25"/><circle cx="10" cy="10" r="1.25"/><circle cx="16.5" cy="5.5" r="1.25"/></symbol>
+  <symbol id="i-freehand" viewBox="0 0 20 20"><path d="M5 13.5C2.5 9.5 5 4.5 10 4.5s7.5 4 5 7.5-7 2.5-8 .5 1.5-4 4-2"/></symbol>
+  <symbol id="i-mirror" viewBox="0 0 20 20"><path d="M10 2.5v15" stroke-dasharray="2 2.25"/><path d="M7.5 6L3 10l4.5 4zM12.5 6L17 10l-4.5 4z"/></symbol>
+  <symbol id="i-reset" viewBox="0 0 20 20"><path d="M4 10a6 6 0 1 0 1.75-4.25"/><path d="M4 3v3.5h3.5"/></symbol>
+  <symbol id="i-layout" viewBox="0 0 20 20"><rect x="3" y="3" width="14" height="14" rx="1"/><path d="M10 3v14M3 10h14"/></symbol>
+  <symbol id="i-undo" viewBox="0 0 20 20"><path d="M7 4.5L3.5 8 7 11.5"/><path d="M3.5 8H12a4.25 4.25 0 0 1 0 8.5H8.5"/></symbol>
+  <symbol id="i-redo" viewBox="0 0 20 20"><path d="M13 4.5L16.5 8 13 11.5"/><path d="M16.5 8H8a4.25 4.25 0 0 0 0 8.5h3.5"/></symbol>
+  <symbol id="i-bookmark" viewBox="0 0 20 20"><path d="M5.5 3h9v14L10 13.5 5.5 17z"/></symbol>
+  <symbol id="i-series" viewBox="0 0 20 20"><rect x="3" y="6" width="10.5" height="11" rx="1"/><path d="M6.5 3h10.5v11"/><path d="M8.25 9v5M5.75 11.5h5"/></symbol>
+  <symbol id="i-table-save" viewBox="0 0 20 20"><path d="M17 11V3.5H3v10h7"/><path d="M3 7h14M8 3.5v10"/><path d="M14.5 12.5v5M12.5 15.5l2 2 2-2"/></symbol>
+  <symbol id="i-check" viewBox="0 0 20 20"><path d="M4.5 10.5l3.5 3.5 7.5-8"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 20 20"><rect x="4.5" y="9" width="11" height="8" rx="1"/><path d="M7 9V6.5a3 3 0 0 1 6 0V9"/></symbol>
+  <symbol id="i-chev-down" viewBox="0 0 20 20"><path d="M6 8l4 4 4-4"/></symbol>
+  <symbol id="i-chev-right" viewBox="0 0 20 20"><path d="M8 6l4 4-4 4"/></symbol>
+  <symbol id="i-chev-left" viewBox="0 0 20 20"><path d="M12 6l-4 4 4 4"/></symbol>
+  <symbol id="i-link" viewBox="0 0 20 20"><path d="M8.25 11.75l3.5-3.5"/><path d="M9 6.25l1.5-1.5a3 3 0 0 1 4.25 4.25l-1.5 1.5M11 13.75l-1.5 1.5a3 3 0 0 1-4.25-4.25l1.5-1.5"/></symbol>
+  <symbol id="i-close" viewBox="0 0 20 20"><path d="M5.5 5.5l9 9M14.5 5.5l-9 9"/></symbol>
+  <symbol id="i-more" viewBox="0 0 20 20"><circle cx="5" cy="10" r="0.75"/><circle cx="10" cy="10" r="0.75"/><circle cx="15" cy="10" r="0.75"/></symbol>
+  <symbol id="i-info" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7"/><path d="M10 9v4.5M10 6.5v.01"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 20 20"><path d="M10 3l7.5 13.5h-15z"/><path d="M10 8.25v3.75M10 14.25v.01"/></symbol>
+  <symbol id="i-collapse" viewBox="0 0 20 20"><rect x="3" y="3.5" width="14" height="13" rx="1"/><path d="M8 3.5v13M13.5 8l-2 2 2 2"/></symbol>
+  <symbol id="i-engine" viewBox="0 0 20 20"><rect x="5" y="5" width="10" height="10" rx="1"/><path d="M8 2.5V5M12 2.5V5M8 15v2.5M12 15v2.5M2.5 8H5M2.5 12H5M15 8h2.5M15 12h2.5"/></symbol>
+  <symbol id="i-display" viewBox="0 0 20 20"><rect x="2.5" y="3.5" width="15" height="10" rx="1"/><path d="M7 17h6M10 13.5V17"/></symbol>
+  <symbol id="i-keyboard" viewBox="0 0 20 20"><rect x="2.5" y="5" width="15" height="10" rx="1"/><path d="M5.5 8h1M9.5 8h1M13.5 8h1M6.5 12h7"/></symbol>
+  <symbol id="i-search" viewBox="0 0 20 20"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></symbol>
+  <symbol id="i-user" viewBox="0 0 20 20"><circle cx="10" cy="7" r="3"/><path d="M4 17c1-3.5 3.25-5 6-5s5 1.5 6 5"/></symbol>
+  <symbol id="i-jobs" viewBox="0 0 20 20"><path d="M3 5.5h14M3 10h14M3 14.5h8"/></symbol>
+  <symbol id="i-min" viewBox="0 0 20 20"><path d="M5.5 10h9"/></symbol>
+  <symbol id="i-max" viewBox="0 0 20 20"><rect x="5.5" y="5.5" width="9" height="9"/></symbol>
+  <symbol id="i-brand" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7.25"/><path d="M5.5 10h2l1.25-3 2.5 6 1.25-3h2"/></symbol>
+</svg>
+
+<div class="app">
+
+  <!-- ============ Top bar · patient banner + global actions (48) ============ -->
+  <header class="topbar" data-od-id="topbar">
+    <div class="brand"><svg class="ic brand__mark"><use href="#i-brand"/></svg>NeuroMR-PRO</div>
+    <div class="banner" data-od-id="patient-banner" aria-label="Patient">
+      <span class="banner__name">PHANTOM^SYNTHETIC</span>
+      <span class="bf"><span class="bf__k">ID</span><span class="bf__v mono">NMR-PHANTOM-001</span></span>
+      <span class="bf"><span class="bf__k">Sex</span><span class="bf__v">O</span></span>
+      <span class="bf"><span class="bf__k">Age</span><span class="bf__v">56 y</span><span class="bf__k">(DOB 1970-01-01)</span></span>
+      <span class="bf"><span class="bf__k">Study</span><span class="bf__v">2026-01-01</span></span>
+      <span class="bf"><span class="bf__k">Modality</span><span class="bf__v">MR · 3.0 T</span></span>
+      <span class="bf"><span class="bf__k">Acc</span><span class="bf__v mono">PHANTOM0001</span></span>
+    </div>
+    <div class="topbar__actions">
+      <button class="ibtn" aria-label="Search studies (Ctrl+K)"><svg class="ic"><use href="#i-search"/></svg></button>
+      <button class="ibtn" aria-label="Keyboard shortcuts (?)"><svg class="ic"><use href="#i-keyboard"/></svg></button>
+      <button class="ibtn" aria-label="Account and sign out"><svg class="ic"><use href="#i-user"/></svg></button>
+      <div class="winctl">
+        <button aria-label="Minimise"><svg class="ic ic--sm"><use href="#i-min"/></svg></button>
+        <button aria-label="Maximise"><svg class="ic ic--sm"><use href="#i-max"/></svg></button>
+        <button class="winctl__close" aria-label="Close"><svg class="ic ic--sm"><use href="#i-close"/></svg></button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============ Activity rail (56) ============ -->
+  <nav class="rail" aria-label="Activities" data-od-id="activity-rail">
+    <button class="rail__item" aria-label="Directory (Ctrl+1)"><svg class="ic"><use href="#i-directory"/></svg>Directory</button>
+    <button class="rail__item" aria-label="Viewer (Ctrl+2)"><svg class="ic"><use href="#i-viewer"/></svg>Viewer</button>
+    <button class="rail__item is-active" aria-current="page" aria-label="Analysis (Ctrl+3)"><svg class="ic"><use href="#i-analysis"/></svg>Analysis</button>
+    <button class="rail__item" aria-label="Results and reports (Ctrl+4)"><svg class="ic"><use href="#i-reports"/></svg>Reports</button>
+    <button class="rail__item rail__end" aria-label="Settings (Ctrl+,)"><svg class="ic"><use href="#i-settings"/></svg>Settings</button>
+  </nav>
+
+  <!-- ============ Task panel (300, collapsible) ============ -->
+  <aside class="panel" aria-label="Task guidance" data-od-id="task-panel">
+    <div class="panel__switch">
+      <div class="seg" role="tablist" aria-label="Left panel" data-od-id="panel-switcher">
+        <button class="seg__item" role="tab">Series</button>
+        <button class="seg__item is-selected" role="tab" aria-selected="true">Package</button>
+        <button class="seg__item" role="tab">Key Images</button>
+        <button class="seg__item" role="tab">Bookmarks</button>
+      </div>
+    </div>
+    <div class="panel__head">
+      <div class="panel__head-row"><h1 class="panel__title" data-od-id="package-title">Analysis package</h1><button class="ibtn ibtn--sm" aria-label="Collapse panel (Ctrl+B)"><svg class="ic ic--sm"><use href="#i-collapse"/></svg></button></div>
+      <p class="dense t2">Template · sample input DSC perf SNR50</p>
+      <div style="display:flex; flex-direction:column; align-items:flex-start; gap: var(--nm-space-1); margin-top: var(--nm-space-2)">
+        <span class="anno anno--static">Panel switcher · 4 tabs · 28</span>
+        <span class="anno anno--static">Task guidance · 300 (collapsible)</span>
+      </div>
+    </div>
+
+    <div class="panel__body">
+      <ol class="steps" data-od-id="task-steps">
+        <li class="step step--done" data-od-id="step-input">
+          <div class="step__row">
+            <span class="badge" aria-label="Step 1, done"><svg class="ic"><use href="#i-check"/></svg></span>
+            <span class="step__title">Select input series</span>
+            <span class="step__state t3">Done</span>
+            <span class="step__sum">DSC perf SNR50 · 60 dyn · 4 slices</span>
+          </div>
+        </li>
+        <li class="step step--stale" data-od-id="step-motion">
+          <div class="step__row">
+            <span class="badge">2</span>
+            <span class="step__title">Motion correction</span>
+            <span class="step__state"><span class="dot dot--warning"></span><button class="link dense">Recompute</button></span>
+            <span class="step__sum">Input changed after the last run</span>
+          </div>
+        </li>
+        <li class="step step--current" aria-current="step" data-od-id="step-analysis">
+          <div class="step__row">
+            <span class="badge">3</span>
+            <span class="step__title">Analysis</span>
+            <span class="step__state">Current</span>
+          </div>
+          <div class="step__body">
+            <div class="field">
+              <span class="field__label">Method</span>
+              <div class="seg" role="radiogroup" aria-label="Method">
+                <button class="seg__item is-selected" role="radio" aria-checked="true">Model-free</button>
+                <button class="seg__item" role="radio">Gamma variate</button>
+              </div>
+            </div>
+            <label class="field">
+              <span class="field__label">Noise threshold</span>
+              <span class="input input--num"><span class="input__value">0.50</span><span class="input__suffix">1/s</span></span>
+            </label>
+            <div class="field">
+              <span class="field__label">Overlay opacity</span>
+              <div class="slider">
+                <span class="slider__track" style="--v: 70%"><span class="slider__fill"></span><span class="slider__thumb"></span></span>
+                <span class="input input--num input--dense"><span class="input__value">70</span><span class="input__suffix">%</span></span>
+              </div>
+            </div>
+            <label class="check is-checked"><span class="check__box"><svg class="ic"><use href="#i-check"/></svg></span>Exclude voxels outside the brain mask</label>
+            <div class="notice notice--info" role="note">
+              <svg class="ic"><use href="#i-info"/></svg>
+              <span class="notice__text">Steps can be revisited in any order once their inputs exist.</span>
+            </div>
+          </div>
+        </li>
+        <li class="step step--todo" data-od-id="step-generate">
+          <div class="step__row">
+            <span class="badge">4</span>
+            <span class="step__title">Generate maps</span>
+            <span class="step__state t3">Not started</span>
+          </div>
+        </li>
+        <li class="step step--blocked" data-od-id="step-report">
+          <div class="step__row">
+            <span class="badge">5</span>
+            <span class="step__title">Report</span>
+            <span class="step__state t3"><svg class="ic ic--sm"><use href="#i-lock"/></svg>Blocked</span>
+            <span class="step__reason">Needs maps from step 4.</span>
+          </div>
+        </li>
+      </ol>
+    </div>
+
+    <div class="panel__foot">
+      <button class="btn btn--primary btn--block">Continue <span class="kbd">Ctrl+Enter</span></button>
+    </div>
+  </aside>
+
+  <!-- ============ Toolbar (40) ============ -->
+  <div class="toolbar" role="toolbar" aria-label="Viewer tools" data-od-id="toolbar">
+    <button class="ibtn is-active" aria-pressed="true" aria-label="Scroll (S)"><svg class="ic"><use href="#i-scroll"/></svg></button>
+    <button class="ibtn" aria-label="Pan (P)"><svg class="ic"><use href="#i-pan"/></svg></button>
+    <button class="ibtn" aria-label="Zoom (Z)"><svg class="ic"><use href="#i-zoom"/></svg></button>
+    <button class="ibtn" aria-label="Window/Level (W)">
+      <svg class="ic"><use href="#i-wl"/></svg>
+      <span class="tip tip--below" role="tooltip">Window/Level <span class="kbd">W</span></span>
+    </button>
+    <button class="ibtn" aria-label="Mask (M)"><svg class="ic"><use href="#i-mask"/></svg></button>
+    <span class="tb-sep"></span>
+    <button class="ibtn" aria-label="Draw ROI: ellipse (E)"><svg class="ic"><use href="#i-ellipse"/></svg></button>
+    <button class="ibtn" aria-label="Draw ROI: spline (C)"><svg class="ic"><use href="#i-spline"/></svg></button>
+    <button class="ibtn" aria-label="Draw ROI: freehand (F)"><svg class="ic"><use href="#i-freehand"/></svg></button>
+    <span class="tb-sep"></span>
+    <button class="ibtn" aria-label="Mirror line (L)"><svg class="ic"><use href="#i-mirror"/></svg></button>
+    <button class="ibtn" aria-label="Reset view (R)"><svg class="ic"><use href="#i-reset"/></svg></button>
+    <span class="tb-sep"></span>
+    <button class="picker" aria-label="Layout 2×2 (Ctrl+L)"><svg class="ic"><use href="#i-layout"/></svg>2×2<svg class="ic ic--sm"><use href="#i-chev-down"/></svg></button>
+    <span class="tb-sep"></span>
+    <button class="ibtn" aria-label="Undo (Ctrl+Z)"><svg class="ic"><use href="#i-undo"/></svg></button>
+    <button class="ibtn" aria-label="Redo (Ctrl+Y)"><svg class="ic"><use href="#i-redo"/></svg></button>
+    <button class="ibtn" aria-label="Bookmarks (B)"><svg class="ic"><use href="#i-bookmark"/></svg></button>
+    <span class="spacer"></span>
+    <span class="anno anno--static">Toolbar · 40</span>
+    <span class="spacer"></span>
+    <button class="btn btn--secondary btn--dense"><svg class="ic"><use href="#i-series"/></svg>Generate series <span class="kbd">Ctrl+G</span></button>
+    <button class="btn btn--secondary btn--dense"><svg class="ic"><use href="#i-table-save"/></svg>Save tables <span class="kbd">Ctrl+S</span></button>
+    <button class="btn btn--ghost btn--dense"><svg class="ic"><use href="#i-reports"/></svg>Report <span class="kbd">Ctrl+P</span></button>
+  </div>
+
+  <!-- ============ Viewport grid 2×2 ============ -->
+  <main class="vgrid" aria-label="Viewports" data-od-id="viewport-grid">
+
+    <section class="vp is-active" aria-label="Viewport 1, source series" data-od-id="vp-source">
+      <div class="vp__head">
+        <span class="anno anno--static">Viewport 1 · Source series</span>
+        <div class="select"><span class="input__value">DSC perf SNR50</span><svg class="ic"><use href="#i-chev-down"/></svg></div>
+        <span class="stepper"><button class="ibtn ibtn--sm" aria-label="Previous dynamic (Left)"><svg class="ic ic--sm"><use href="#i-chev-left"/></svg></button>Dyn <b>1</b> / 60<button class="ibtn ibtn--sm" aria-label="Next dynamic (Right)"><svg class="ic ic--sm"><use href="#i-chev-right"/></svg></button></span>
+        <span class="spacer"></span>
+        <button class="ibtn ibtn--sm" aria-label="Viewport menu (right-click)"><svg class="ic ic--sm"><use href="#i-more"/></svg></button>
+      </div>
+      <div class="vp__body">
+        <div class="vp__stage">
+          <img src="../assets/img/dsc_source_dyn01.png" width="512" height="512" alt="DSC source image, dynamic 1 of 60, slice 2 of 4">
+        </div>
+        <div class="ov ov--tl">DSC perf SNR50 · Dyn 1/60 · Slice 2/4<br><span class="t2">t 0.0 s · TR 2.1 s · TE 30 ms</span></div>
+        <div class="ov ov--tr">PHANTOM^SYNTHETIC<br><span class="t2">NMR-PHANTOM-001 · 2026-01-01</span></div>
+        <div class="ov ov--bl">W 1595.2 · L 802.4 <span class="t2">a.u.</span></div>
+        <div class="ov ov--br">Zoom 100 %<br><span class="t2">2.0 × 2.0 mm · 64 × 64</span></div>
+        <span class="ov orient orient--n">A</span>
+        <span class="ov orient orient--s">P</span>
+        <span class="ov orient orient--w">R</span>
+        <span class="ov orient orient--e">L</span>
+      </div>
+    </section>
+
+    <section class="vp" aria-label="Viewport 2, live maps" data-od-id="vp-live-maps">
+      <div class="vp__head">
+        <span class="anno anno--static">Viewport 2 · Live maps</span>
+        <div class="tabs tabs--dense" role="tablist" aria-label="Map">
+          <button class="tab is-active" role="tab" aria-selected="true">relCBV</button>
+          <button class="tab" role="tab">relCBF</button>
+          <button class="tab" role="tab">MTT</button>
+          <button class="tab" role="tab">Tmax</button>
+        </div>
+        <span class="spacer"></span>
+        <button class="ibtn ibtn--sm" aria-label="Viewport menu (right-click)"><svg class="ic ic--sm"><use href="#i-more"/></svg></button>
+      </div>
+      <div class="vp__body">
+        <div class="vp__stage">
+          <img src="../assets/img/dsc_relcbv.png" width="512" height="512" alt="relCBV map, slice 2 of 4, Stroke LUT 0 to 12 ml/100 g">
+        </div>
+        <div class="ov ov--tl">relCBV [ml/100 g]<br><span class="t2">Model-free · Stroke LUT · Slice 2/4</span></div>
+        <div class="ov ov--tr">PHANTOM^SYNTHETIC<br><span class="t2">NMR-PHANTOM-001 · 2026-01-01</span></div>
+        <div class="ov ov--bl">Window 0–12 <span class="t2">ml/100 g</span></div>
+        <div class="ov ov--br">Zoom 100 %<br><span class="t2">2.0 × 2.0 mm · 64 × 64</span></div>
+        <div class="cbar" style="--lut: var(--nm-lut-stroke)">
+          <span>12</span>
+          <span class="cbar__ramp"></span>
+          <span>0</span>
+          <span class="cbar__meta">ml/100 g<br>W 0–12</span>
+        </div>
+        <span class="ov orient orient--n">A</span>
+        <span class="ov orient orient--s">P</span>
+        <span class="ov orient orient--w">R</span>
+        <span class="ov orient orient--e">L</span>
+      </div>
+    </section>
+
+    <section class="vp" aria-label="Viewport 3, table or anatomical" data-od-id="vp-table">
+      <div class="vp__head">
+        <span class="anno anno--static">Viewport 3 · Table ↔ Anatomical</span>
+        <div class="tabs tabs--dense" role="tablist">
+          <button class="tab is-active" role="tab" aria-selected="true">Table</button>
+          <button class="tab" role="tab">Anatomical</button>
+        </div>
+        <span class="spacer"></span>
+        <button class="ibtn ibtn--sm" aria-label="Table menu (right-click)"><svg class="ic ic--sm"><use href="#i-more"/></svg></button>
+      </div>
+      <div class="vp__body vp__body--panel" style="grid-template-rows: auto auto 1fr">
+        <div class="tbl-head"><h3>Region parameters</h3><span class="spacer"></span><span class="dense t3">Slice 2/4 · 0 ROIs</span></div>
+        <table class="tbl">
+          <colgroup><col style="width:18%"><col style="width:14%"><col style="width:19%"><col style="width:12%"><col style="width:12%"><col style="width:11%"><col style="width:14%"></colgroup>
+          <thead>
+            <tr>
+              <th>ROI<span class="unit">name</span></th>
+              <th class="num">relCBV<span class="unit">[ml/100 g]</span></th>
+              <th class="num">relCBF<span class="unit">[ml/100 g/min]</span></th>
+              <th class="num">MTT<span class="unit">[s]</span></th>
+              <th class="num">TTP<span class="unit">[s]</span></th>
+              <th class="num">T0<span class="unit">[s]</span></th>
+              <th class="num">Voxels<span class="unit">[vox]</span></th>
+            </tr>
+          </thead>
+        </table>
+        <div class="empty" data-od-id="table-empty-state">
+          <svg class="ic"><use href="#i-ellipse"/></svg>
+          <span class="empty__title">Draw an ROI to see results (E for ellipse, F for freehand)</span>
+          <span class="dense t3">Values appear per ROI with units; ratios appear when a mirror ROI is linked.</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="vp" aria-label="Viewport 4, graph or anatomical" data-od-id="vp-graph">
+      <div class="vp__head">
+        <span class="anno anno--static">Viewport 4 · Graph ↔ Anatomical</span>
+        <div class="tabs tabs--dense" role="tablist">
+          <button class="tab is-active" role="tab" aria-selected="true">Graph</button>
+          <button class="tab" role="tab">Anatomical</button>
+        </div>
+        <span class="spacer"></span>
+        <button class="ibtn ibtn--sm" aria-label="Graph menu (right-click)"><svg class="ic ic--sm"><use href="#i-more"/></svg></button>
+      </div>
+      <div class="vp__body">
+        <svg class="graph" viewBox="0 0 640 452" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Empty graph frame: ΔR2* in 1/s against time in s">
+          <g class="g-grid">
+            <line x1="56" y1="36" x2="620" y2="36"/><line x1="56" y1="102.9" x2="620" y2="102.9"/>
+            <line x1="56" y1="169.8" x2="620" y2="169.8"/><line x1="56" y1="236.7" x2="620" y2="236.7"/>
+            <line x1="56" y1="370.5" x2="620" y2="370.5"/>
+            <line x1="146.2" y1="36" x2="146.2" y2="404"/><line x1="236.5" y1="36" x2="236.5" y2="404"/>
+            <line x1="326.7" y1="36" x2="326.7" y2="404"/><line x1="417" y1="36" x2="417" y2="404"/>
+            <line x1="507.2" y1="36" x2="507.2" y2="404"/><line x1="597.4" y1="36" x2="597.4" y2="404"/>
+          </g>
+          <line class="g-zero" x1="56" y1="303.6" x2="620" y2="303.6"/>
+          <line class="g-axis" x1="56" y1="36" x2="56" y2="404"/>
+          <line class="g-axis" x1="56" y1="404" x2="620" y2="404"/>
+          <g class="g-tick" text-anchor="end">
+            <text x="50" y="40">0.8</text><text x="50" y="106.9">0.6</text><text x="50" y="173.8">0.4</text>
+            <text x="50" y="240.7">0.2</text><text x="50" y="307.6">0.0</text><text x="50" y="374.5">−0.2</text>
+          </g>
+          <g class="g-tick" text-anchor="middle">
+            <text x="56" y="420">0</text><text x="146.2" y="420">20</text><text x="236.5" y="420">40</text>
+            <text x="326.7" y="420">60</text><text x="417" y="420">80</text><text x="507.2" y="420">100</text><text x="597.4" y="420">120</text>
+          </g>
+          <text class="g-title" x="338" y="442" text-anchor="middle">Time [s]</text>
+          <text class="g-title" x="16" y="220" text-anchor="middle" transform="rotate(-90 16 220)">ΔR2* [1/s]</text>
+          <line class="g-marker" x1="56" y1="30" x2="56" y2="404"/>
+          <text class="g-marker-label" x="60" y="28">Dyn 1 · 0.0 s</text>
+        </svg>
+        <div class="empty" style="position:absolute; inset: 0">
+          <span class="dense t2">One curve per ROI, in the ROI colour.</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ Inspector (280, optional) ============ -->
+  <aside class="inspector" aria-label="Inspector" data-od-id="inspector">
+    <div class="inspector__head">
+      <h2 class="panel__title">Series</h2>
+      <span class="spacer"></span>
+      <button class="ibtn" aria-label="Close inspector (I)"><svg class="ic"><use href="#i-close"/></svg></button>
+    </div>
+    <div class="section">
+      <span class="anno anno--static" style="align-self:flex-start">Inspector · 280 (optional)</span>
+      <span class="eyebrow">DICOM · DSC perf SNR50</span>
+      <ul class="tags" data-od-id="dicom-tags">
+        <li><span class="tag">(0008,0060)</span><span class="name">Modality</span><span class="val">MR</span></li>
+        <li><span class="tag">(0018,0087)</span><span class="name">MagneticFieldStrength</span><span class="val">3.0 T</span></li>
+        <li><span class="tag">(0018,0080)</span><span class="name">RepetitionTime</span><span class="val">2100 ms</span></li>
+        <li><span class="tag">(0018,0081)</span><span class="name">EchoTime</span><span class="val">30 ms</span></li>
+        <li><span class="tag">(0028,0010)</span><span class="name">Rows × Columns</span><span class="val">64 × 64 px</span></li>
+        <li><span class="tag">(0028,0030)</span><span class="name">PixelSpacing</span><span class="val">2.0 \ 2.0 mm</span></li>
+        <li><span class="tag">(0020,0105)</span><span class="name">NumberOfTemporalPositions</span><span class="val">60 dyn</span></li>
+        <li><span class="tag">(0008,0050)</span><span class="name">AccessionNumber</span><span class="val">PHANTOM0001</span></li>
+      </ul>
+    </div>
+    <div class="section" style="border-bottom:0">
+      <span class="eyebrow">Settings</span>
+      <div class="kv"><dt>Non-default settings</dt><dd>None</dd></div>
+    </div>
+  </aside>
+
+  <!-- ============ Status bar (24) · jobs · engine · licence · display ============ -->
+  <footer class="statusbar" data-od-id="statusbar">
+    <span class="sb-item"><svg class="ic"><use href="#i-jobs"/></svg>Jobs <b>1 running</b></span>
+    <span class="sb-item progress">Caching dynamics <span class="progress__bar" style="--v: 64%"></span><span class="progress__pct">64 %</span><button class="link">Cancel</button></span>
+    <span class="sb-sep"></span>
+    <span class="sb-item"><svg class="ic"><use href="#i-engine"/></svg>Engine <span class="dot dot--success"></span><b>connected</b> · local</span>
+    <span class="sb-sep"></span>
+    <span class="sb-item">Licence <b>active</b></span>
+    <span class="spacer"></span>
+    <span class="anno anno--static">Status bar · jobs · engine · licence · display · 24</span>
+    <span class="spacer"></span>
+    <span class="sb-item"><svg class="ic"><use href="#i-display"/></svg><b>Diagnostic display</b></span>
+    <span class="sb-sep"></span>
+    <span class="sb-item"><span class="kbd">?</span> shortcuts</span>
+  </footer>
+
+  <!-- ============ Developer annotations positioned over shell regions ============ -->
+  <span class="anno" style="top: var(--nm-space-3); right: calc(var(--nm-size-topbar) * 3 + var(--nm-space-12) * 2 + var(--nm-space-6))">Top bar · patient banner + global actions · 48</span>
+  <span class="anno" style="top: 50%; left: calc((var(--nm-size-rail) - var(--nm-space-5)) / 2); writing-mode: vertical-rl; width: var(--nm-space-5); height: auto; padding: var(--nm-space-2) 0">Activity rail · 56</span>
+  <span class="anno" style="top: calc(var(--nm-size-topbar) + var(--nm-size-toolbar) + (100% - var(--nm-size-topbar) - var(--nm-size-toolbar) - var(--nm-size-statusbar)) / 2); left: calc(var(--nm-size-rail) + var(--nm-size-task-panel) + (100% - var(--nm-size-rail) - var(--nm-size-task-panel) - var(--nm-size-inspector)) / 2); transform: translate(-50%, -50%)">Viewport grid · 2×2 default · 1 px gutters</span>
+
+</div>
+</body>
+</html>
