@@ -46,3 +46,17 @@
 .layout-picker .menu__item { width: 100%; background: transparent; border: 0; font: inherit; text-align: left; }
 .inspector { overflow: auto; }
 .tags .val { overflow-wrap: anywhere; }
+
+/* ROIs (GEN-030…035): outlines in the ROI palette, a wide invisible stroke for picking, labels in HTML. */
+.roi-layer { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; overflow: visible; }
+.roi-layer__capture { fill: transparent; pointer-events: all; cursor: crosshair; }
+.roi-path { fill: none; stroke-width: 1.5; pointer-events: none; }
+.roi-path--draft { stroke: var(--nm-color-accent); stroke-dasharray: 4 3; }
+.roi-hit { fill: none; stroke: transparent; stroke-width: 10; pointer-events: stroke; cursor: move; }
+.roi-anchor { stroke: var(--nm-color-viewport); stroke-width: 1; pointer-events: all; cursor: grab; }
+.roi-label { position: absolute; z-index: 3; transform: translate(-50%, calc(-100% - var(--nm-space-1))); font-size: var(--nm-font-size-overlay); font-weight: var(--nm-font-weight-semibold); text-shadow: var(--nm-overlay-text-shadow); white-space: nowrap; cursor: default; user-select: none; }
+.roi-label--edit { width: calc(var(--nm-space-12) * 2); background: var(--nm-color-raised); color: var(--nm-color-text-primary); border: var(--nm-size-hairline) solid var(--nm-color-focus); font: inherit; font-size: var(--nm-font-size-overlay); padding: 0 var(--nm-space-1); }
+.roi-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--nm-space-2); }
+.roi-list li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: var(--nm-space-2); align-items: start; }
+.roi-list__body { display: flex; flex-direction: column; min-width: 0; }
+.roi-swatch { width: var(--nm-space-3); height: var(--nm-space-3); margin-top: var(--nm-space-1); border-radius: var(--nm-radius-sm); }

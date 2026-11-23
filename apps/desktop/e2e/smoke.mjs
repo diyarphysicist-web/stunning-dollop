@@ -186,6 +186,37 @@ try {
   // GEN-233: the inspector lists the current image's attributes.
   await win.locator("[data-testid=dicom-tags]").filter({ hasText: "RepetitionTime" }).waitFor();
   await shot(win, "desktop-viewer.png");
+
+  // GEN-030…034, GEN-236: ellipse from three clicks, freehand drag, statistics, undo/redo, rename, slice binding.
+  const c = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+  const labels = win.locator("[data-testid=viewport-0] [data-testid=roi-label]");
+  await win.keyboard.press("e");
+  for (const [dx, dy] of [[-40, 0], [40, 0], [0, 25]]) await win.mouse.click(c.x + dx, c.y + dy);
+  await labels.filter({ hasText: "ROI1" }).waitFor({ timeout: 5000 });
+  await win.locator("[data-testid=roi-stats] li[data-roi=ROI1] [data-testid=roi-mean]").waitFor({ timeout: 5000 });
+  await win.keyboard.press("f");
+  await win.mouse.move(c.x - 60, c.y - 60);
+  await win.mouse.down();
+  for (const [dx, dy] of [[-20, -60], [-20, -20], [-60, -20], [-60, -60]]) await win.mouse.move(c.x + dx, c.y + dy, { steps: 5 });
+  await win.mouse.up();
+  await labels.filter({ hasText: "ROI2" }).waitFor({ timeout: 5000 });
+  await win.keyboard.press("Control+z");
+  await labels.filter({ hasText: "ROI2" }).waitFor({ state: "detached", timeout: 5000 });
+  await win.keyboard.press("Control+y");
+  await labels.filter({ hasText: "ROI2" }).waitFor({ timeout: 5000 });
+  await labels.filter({ hasText: "ROI1" }).dblclick();
+  await win.keyboard.press("Control+a");
+  await win.keyboard.type("Lesion");
+  await win.keyboard.press("Enter");
+  await labels.filter({ hasText: "Lesion" }).waitFor({ timeout: 5000 });
+  await win.keyboard.press("s");
+  await shot(win, "desktop-viewer-roi.png");
+  // GEN-236: ROIs belong to their slice.
+  await win.keyboard.press("ArrowUp");
+  await labels.first().waitFor({ state: "detached", timeout: 5000 });
+  await win.locator("[data-testid=roi-stats]").filter({ hasText: "2 ROIs on other slices" }).waitFor({ timeout: 5000 });
+  await win.keyboard.press("ArrowDown");
+  await labels.filter({ hasText: "Lesion" }).waitFor({ timeout: 5000 });
   const software = await win.locator("[data-testid=software-rendering]").count();
   console.log(`viewer ok · ${software ? "software rendering (GEN-235)" : "GPU rendering"}`);
 

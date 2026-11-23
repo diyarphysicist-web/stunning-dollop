@@ -1,11 +1,12 @@
 import { Enums, type Types } from "@cornerstonejs/core";
 import type { ViewerStack } from "@neuromr/contracts";
 import { formatQuantity, t } from "@neuromr/i18n";
-import { dragWindow, initialWindow, markersFromScreenAxes, type Markers, type Vec3, type VoiRange } from "@neuromr/viewer";
+import { dragWindow, initialWindow, markersFromScreenAxes, roiMask, roiStats, type Markers, type RoiShape, type RoiStats, type Vec3, type VoiRange } from "@neuromr/viewer";
 import { ImageUnavailable, imageId, renderingEngine } from "@neuromr/viewer/cornerstone";
 import { Fragment, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { Icon } from "../Icon.js";
-import { currentSop, useViewer, type Pane } from "./store.js";
+import { RoiLayer } from "./RoiLayer.js";
+import { DRAW_TOOLS, currentSop, useViewer, type Pane } from "./store.js";
 import { flatten, scrollStep } from "./stack.js";
 
 type StackViewport = Types.IStackViewport;
@@ -18,6 +19,17 @@ interface View {
   zoom: number;
   voi: VoiRange | null;
   markers: Markers | null;
+}
+
+/** Voxel masks per ROI outline and image size; shapes are immutable, so the object is the key. */
+const masks = new WeakMap<RoiShape, { key: string; mask: Uint32Array }>();
+function maskOf(shape: RoiShape, width: number, height: number): Uint32Array {
+  const key = `${width}x${height}`;
+  const hit = masks.get(shape);
+  if (hit?.key === key) return hit.mask;
+  const mask = roiMask(shape, width, height);
+  masks.set(shape, { key, mask });
+  return mask;
 }
 
 const sub = (a: Types.Point3, b: Types.Point3): Vec3 => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
@@ -89,12 +101,13 @@ function ViewportMenu({ index, at, onClose }: { index: number; at: { x: number; 
     ["vp.menu.rotateCcw", "vp.key.rotateCcw", () => transform(index, "rotate-ccw")],
     ["vp.menu.resetView", "vp.key.resetView", () => reset(index, "view")],
     ["vp.menu.resetWindow", null, () => reset(index, "window")],
+    ["vp.menu.deleteLastRoi", "vp.key.undo", () => useViewer.getState().deleteLastRoi(index)],
   ];
   return (
     <div ref={ref} className="menu" role="menu" data-testid="viewport-menu" style={{ left: pos.x, top: pos.y }} onKeyDown={(e) => e.key === "Escape" && onClose()}>
       {items.map(([label, key, run], i) => (
         <Fragment key={label}>
-          {i === 4 && <div className="menu__sep" role="separator" />}
+          {(i === 4 || i === 6) && <div className="menu__sep" role="separator" />}
           <button
             role="menuitem"
             className="menu__item"
@@ -125,6 +138,7 @@ export function Viewport({ index }: { index: number }) {
   const [problem, setProblem] = useState<Problem | null>(null);
   const [shownStack, setShownStack] = useState<ViewerStack | null>(null);
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
+  const [tick, setTick] = useState(0);
   const firstWindow = useRef<VoiRange | null>(null);
   const stack = pane.stack;
   const flat = useMemo(() => (stack ? flatten(stack) : null), [stack]);
@@ -147,6 +161,7 @@ export function Viewport({ index }: { index: number }) {
     const update = () => {
       const vp = engine.getViewport<StackViewport>(viewportId);
       if (vp) setView(readView(vp));
+      setTick((n) => n + 1);
     };
     el.addEventListener(Enums.Events.CAMERA_MODIFIED, update);
     el.addEventListener(Enums.Events.VOI_MODIFIED, update);
@@ -222,9 +237,22 @@ export function Viewport({ index }: { index: number }) {
     vp.render();
   }, [pane.resetWindow]);
 
+  // GEN-236: statistics of the current image inside each ROI of this slice.
+  const rois = pane.rois;
+  useEffect(() => {
+    const vp = viewport();
+    const image = vp?.getCornerstoneImage();
+    if (!vp || !image || !sop || image.imageId !== imageId(sop)) return;
+    const values = image.getPixelData();
+    const stats: Record<string, RoiStats | null> = {};
+    for (const r of rois) if (r.slice === pane.slice) stats[r.id] = roiStats(values, maskOf(r.shape, image.width, image.height));
+    useViewer.getState().setStats(index, stats);
+    // tick follows IMAGE_RENDERED, so the stats switch with the image actually shown.
+  }, [rois, sop, tick]);
+
   const onPointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
     useViewer.getState().setActive(index);
-    if (e.button === 2 || !stack) return;
+    if (e.button === 2 || !stack || (e.button === 0 && DRAW_TOOLS.has(useViewer.getState().tool))) return;
     const vp = viewport();
     if (!vp) return;
     const target = e.currentTarget;
@@ -280,7 +308,7 @@ export function Viewport({ index }: { index: number }) {
 
   // GEN-023: wheel and two-finger scroll change slice; pinch (Ctrl+wheel) zooms.
   useEffect(() => {
-    const el = element.current;
+    const el = host.current;
     if (!el) return;
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
@@ -365,6 +393,7 @@ export function Viewport({ index }: { index: number }) {
             )}
           </>
         )}
+        {stack && ready && info && <RoiLayer index={index} pane={pane} tool={tool} plane={info} viewport={viewport} tick={tick} />}
         {menu && <ViewportMenu index={index} at={menu} onClose={() => setMenu(null)} />}
       </div>
     </section>

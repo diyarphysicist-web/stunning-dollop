@@ -52,6 +52,12 @@ const TOOLS: [Tool, string, MessageId][] = [
   ["window", "wl", "viewer.tool.window"],
 ];
 
+const DRAW: [Tool, string, MessageId][] = [
+  ["ellipse", "ellipse", "viewer.tool.ellipse"],
+  ["spline", "spline", "viewer.tool.spline"],
+  ["freehand", "freehand", "viewer.tool.freehand"],
+];
+
 const layoutName = (l: Layout) => t("viewer.layout.name", layoutSize(l));
 
 function LayoutPicker() {
@@ -89,17 +95,25 @@ function LayoutPicker() {
 function Toolbar() {
   const tool = useViewer((s) => s.tool);
   const active = useViewer((s) => s.active);
+  const canUndo = useViewer((s) => (s.panes[s.active]?.undo.length ?? 0) > 0);
+  const canRedo = useViewer((s) => (s.panes[s.active]?.redo.length ?? 0) > 0);
+  const toolButton = ([id, icon, label]: [Tool, string, MessageId]) => (
+    <button key={id} className={`ibtn${tool === id ? " is-active" : ""}`} aria-pressed={tool === id} aria-label={t(label)} title={t(label)} data-tool={id} onClick={() => useViewer.getState().setTool(id)}>
+      <Icon name={icon} />
+    </button>
+  );
   return (
     <div className="toolbar" role="toolbar" aria-label={t("viewer.toolbar")}>
-      {TOOLS.map(([id, icon, label]) => (
-        <button key={id} className={`ibtn${tool === id ? " is-active" : ""}`} aria-pressed={tool === id} aria-label={t(label)} title={t(label)} data-tool={id} onClick={() => useViewer.getState().setTool(id)}>
-          <Icon name={icon} />
-        </button>
-      ))}
+      {TOOLS.map(toolButton)}
+      <span className="tb-sep" />
+      {DRAW.map(toolButton)}
       <span className="tb-sep" />
       <button className="ibtn" aria-label={t("viewer.tool.reset")} title={t("viewer.tool.reset")} onClick={() => useViewer.getState().reset(active, "view")}><Icon name="reset" /></button>
       <span className="tb-sep" />
       <LayoutPicker />
+      <span className="tb-sep" />
+      <button className="ibtn" aria-label={t("viewer.undo")} title={t("viewer.undo")} disabled={!canUndo} onClick={() => useViewer.getState().undoRoi(active)}><Icon name="undo" /></button>
+      <button className="ibtn" aria-label={t("viewer.redo")} title={t("viewer.redo")} disabled={!canRedo} onClick={() => useViewer.getState().redoRoi(active)}><Icon name="redo" /></button>
     </div>
   );
 }
@@ -110,6 +124,48 @@ function attributeValue(a: DicomAttribute): string {
   return a.unit === "deg" ? `${v}${t("unit.deg")}` : t("inspector.value", { value: v, unit: t(`unit.${a.unit}`) });
 }
 
+const q = (v: number) => formatQuantity(v, { decimals: Math.abs(v) >= 100 ? 1 : 2 });
+
+/** ROI statistics of the active viewport's current image (GEN-236). */
+function RoiSection() {
+  const index = useViewer((s) => s.active);
+  const pane = useViewer((s) => s.panes[s.active]);
+  if (!pane?.stack) return null;
+  const here = pane.rois.filter((r) => r.slice === pane.slice);
+  const elsewhere = pane.rois.length - here.length;
+  const info = pane.stack.images[0];
+  const voxelArea = info?.pixelSpacing ? info.pixelSpacing[0] * info.pixelSpacing[1] : null;
+  const unit = t("vp.unit");
+  return (
+    <div className="section" data-testid="roi-stats">
+      <span className="eyebrow">{t("inspector.rois", { slice: pane.slice + 1 })}</span>
+      {here.length === 0 && <span className="t3 dense">{t("inspector.roisEmpty")}</span>}
+      <ul className="roi-list">
+        {here.map((r) => {
+          const st = pane.stats[r.id];
+          return (
+            <li key={r.id} data-roi={r.name}>
+              <span className="roi-swatch" style={{ background: `var(--nm-roi-${(r.color % 8) + 1})` }} />
+              <span className="roi-list__body">
+                <span className="strong">{r.name}</span>
+                {st && (
+                  <>
+                    <span className="dense" data-testid="roi-mean">{t("inspector.roi.mean", { mean: q(st.mean), sd: formatQuantity(st.sd, { decimals: Math.abs(st.mean) >= 100 ? 1 : 2 }), unit })}</span>
+                    <span className="dense t2">{t("inspector.roi.range", { min: q(st.min), max: q(st.max), unit })}</span>
+                    <span className="dense t2">{t("inspector.roi.size", { voxels: st.voxels, area: voxelArea === null ? "—" : formatQuantity(st.voxels * voxelArea, { decimals: 1 }) })}</span>
+                  </>
+                )}
+              </span>
+              <button className="ibtn ibtn--sm" aria-label={t("inspector.roi.delete", { name: r.name })} title={t("inspector.roi.delete", { name: r.name })} onClick={() => useViewer.getState().deleteRoi(index, r.id)}><Icon name="close" small /></button>
+            </li>
+          );
+        })}
+      </ul>
+      {elsewhere > 0 && <span className="t3 dense">{t("inspector.roi.otherSlices", { n: elsewhere })}</span>}
+    </div>
+  );
+}
+
 /** DICOM inspector (GEN-233) for the active viewport's current image. */
 function Inspector() {
   const attributes = useViewer((s) => s.attributes);
@@ -117,6 +173,7 @@ function Inspector() {
   return (
     <aside className="inspector" aria-label={t("inspector.label")}>
       <div className="inspector__head"><h2 className="panel__title">{t("inspector.title")}</h2></div>
+      {series !== undefined && <RoiSection />}
       <div className="section">
         {series === undefined ? (
           <span className="t3 dense">{t("inspector.empty")}</span>
@@ -145,15 +202,25 @@ function useViewerKeys() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const el = e.target as HTMLElement | null;
-      if (e.ctrlKey || e.metaKey || e.altKey || el?.closest("input, textarea, [role=menu]")) return;
+      if (el?.closest("input, textarea, [role=menu]")) return;
       const s = useViewer.getState();
+      // GEN-034: undo and redo of ROI create, edit and delete.
+      if ((e.ctrlKey || e.metaKey) && !e.altKey) {
+        const k = e.key.toLowerCase();
+        if (k === "z" && !e.shiftKey) s.undoRoi(s.active);
+        else if (k === "y" || (k === "z" && e.shiftKey)) s.redoRoi(s.active);
+        else return;
+        e.preventDefault();
+        return;
+      }
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
       const pane = s.panes[s.active];
       const oneAxis = !pane?.stack || pane.stack.axis === "none" || (pane.stack.grid[0]?.length ?? 1) <= 1;
       const steps: Record<string, [number, number]> = oneAxis
         ? { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [-1, 0], ArrowDown: [1, 0] }
         : { ArrowLeft: [0, -1], ArrowRight: [0, 1], ArrowUp: [-1, 0], ArrowDown: [1, 0] };
       const step = steps[e.key];
-      const tools: Record<string, Tool> = { s: "scroll", p: "pan", z: "zoom", w: "window" };
+      const tools: Record<string, Tool> = { s: "scroll", p: "pan", z: "zoom", w: "window", e: "ellipse", c: "spline", f: "freehand" };
       const views: Record<string, () => void> = {
         h: () => s.transform(s.active, "mirror"),
         v: () => s.transform(s.active, "flip"),
