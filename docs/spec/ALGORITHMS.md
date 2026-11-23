@@ -241,6 +241,8 @@ Two families of synthetic data are written by `scripts/make_phantoms.py`:
 
 Pure function of the series' instance headers (`packages/dicom/src/classify.ts`). The aggregation step first derives, per series: the SOP class, Image Type values, Scanning Sequence, keywords from Series Description and Protocol Name, echo time TE, repetition time TR, inversion time TI, flip angle, whether a contrast agent is recorded (Contrast/Bolus Agent), the distinct slice positions, and the number of *dynamics* (distinct Temporal Position Identifier values; else distinct Acquisition Number or Trigger Time values when every slice position repeats), *b-values* (Diffusion B Value), *gradient directions* (distinct unit vectors with b > 0, opposite vectors counted once) and *echoes* (distinct Echo Number, else distinct TE, at one slice position).
 
+Enhanced (multi-frame) instances are first split into frames (GEN-240) and aggregated like single-frame images. Their MR Pulse Sequence attributes stand in for Scanning Sequence when it is absent: Echo Pulse Sequence (0018,9008) SPIN → `SE`, GRADIENT → `GR`, BOTH → `SE` and `GR`; Echo Planar Pulse Sequence (0018,9018) YES adds `EP`; Inversion Recovery (0018,9009) YES adds `IR`. TI comes from Inversion Times (0018,9079) in the MR Modifier functional group when Inversion Time is absent; a contrast agent is recorded by Contrast/Bolus Agent or by an item of Contrast/Bolus Agent Sequence (0018,0012).
+
 Rules, applied in order; each assigns zero or more types, and a rule marked *final* stops the list:
 
 1. SOP class Secondary Capture (any of the `1.2.840.10008.5.1.4.1.1.7*` classes) → Secondary Capture. *Final.*
