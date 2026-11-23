@@ -72,6 +72,16 @@ const handlers: Handlers = {
     return imagePixels(d.index, sopInstanceUid, frame ?? 0, (path, f) => d.pixels.image(path, f));
   },
   "viewer:attributes": ({ sopInstanceUid }) => imageAttributes(requireDirectory().index, sopInstanceUid),
+  "session:get": ({ studyInstanceUid }) => requireDirectory().sessions.get(studyInstanceUid),
+  "session:save": ({ studyInstanceUid, session }) => {
+    requireDirectory().sessions.save(studyInstanceUid, session);
+    return { saved: true };
+  },
+  "bookmark:list": ({ studyInstanceUid }) => requireDirectory().sessions.bookmarks(studyInstanceUid),
+  "bookmark:save": ({ studyInstanceUid, session }) => requireDirectory().sessions.addBookmark(studyInstanceUid, session),
+  "bookmark:get": ({ id }) => requireDirectory().sessions.bookmark(id),
+  "bookmark:rename": ({ id, name }) => requireDirectory().sessions.rename(id, name),
+  "bookmark:delete": ({ id }) => ({ deleted: requireDirectory().sessions.remove(id) }),
 };
 
 async function dispatch<C extends IpcChannel>(channel: C, payload: unknown, event: IpcMainInvokeEvent): Promise<IpcResult<IpcResponse<C>>> {

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { DirectoryOverview, ImportProgress, ImportRequest, ImportStart, QuarantineEntry, SeriesQuery, SeriesRow, StudyQuery, StudyRow } from "./directory.js";
 import { EngineStatus } from "./engine.js";
+import { Bookmark, BookmarkRef, BookmarkRename, BookmarkSave, SessionSave, StudyRef, ViewerSession } from "./session.js";
 import { DicomAttribute, ImageQuery, StackQuery, ViewerPixels, ViewerStack } from "./viewer.js";
 
 /** Build and platform facts the renderer shows in the status bar and About (GEN-200 strings stay in the catalog). */
@@ -40,6 +41,14 @@ export const IPC = {
   "viewer:stack": { request: StackQuery, response: ViewerStack },
   "viewer:pixels": { request: ImageQuery, response: ViewerPixels },
   "viewer:attributes": { request: ImageQuery, response: z.array(DicomAttribute) },
+  // Viewer sessions (GEN-241) and bookmarks (GEN-242), kept per study in the local index.
+  "session:get": { request: StudyRef, response: ViewerSession.nullable() },
+  "session:save": { request: SessionSave, response: z.object({ saved: z.boolean() }) },
+  "bookmark:list": { request: StudyRef, response: z.array(Bookmark) },
+  "bookmark:save": { request: BookmarkSave, response: Bookmark },
+  "bookmark:get": { request: BookmarkRef, response: ViewerSession.nullable() },
+  "bookmark:rename": { request: BookmarkRename, response: Bookmark.nullable() },
+  "bookmark:delete": { request: BookmarkRef, response: z.object({ deleted: z.boolean() }) },
 } as const;
 
 /** Main → renderer pushes; each payload is validated in the renderer before use. */

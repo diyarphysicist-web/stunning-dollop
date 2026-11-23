@@ -3,7 +3,17 @@ import { describeSeries, expandFrames, type InstanceHeader, type SeriesFacts } f
 import Database from "better-sqlite3";
 import { thumbnailPng } from "../pixels/decode-image.js";
 
-const SCHEMA_VERSION = 1;
+const SCHEMA_VERSION = 2;
+
+/** Schema 2: Viewer sessions (GEN-241) and bookmarks (GEN-242), one JSON state per row. */
+const SESSIONS = `
+CREATE TABLE sessions (study_uid TEXT PRIMARY KEY, state TEXT NOT NULL, saved_at TEXT NOT NULL);
+CREATE TABLE bookmarks (
+  id INTEGER PRIMARY KEY AUTOINCREMENT, study_uid TEXT NOT NULL, name TEXT NOT NULL, state TEXT NOT NULL, saved_at TEXT NOT NULL,
+  UNIQUE (study_uid, name)
+);
+CREATE INDEX bookmarks_study ON bookmarks (study_uid);
+`;
 
 const SCHEMA = `
 CREATE TABLE studies (
@@ -39,6 +49,7 @@ CREATE TABLE quarantine (
 );
 CREATE TABLE meta (key TEXT PRIMARY KEY, value INTEGER NOT NULL);
 INSERT INTO meta (key, value) VALUES ('index_version', 0);
+${SESSIONS}
 `;
 
 interface StudyDbRow {
@@ -126,6 +137,13 @@ export class StudyIndex {
         this.db.exec(SCHEMA);
         this.db.pragma(`user_version = ${SCHEMA_VERSION}`);
       })();
+    } else if (version < SCHEMA_VERSION) {
+      // Migrations run in order, each in its own transaction with the version bump.
+      if (version < 2)
+        this.db.transaction(() => {
+          this.db.exec(SESSIONS);
+          this.db.pragma("user_version = 2");
+        })();
     } else if (version > SCHEMA_VERSION) {
       throw new Error(`The study index was written by a newer version of NeuroMR-PRO (schema ${version}).`);
     }

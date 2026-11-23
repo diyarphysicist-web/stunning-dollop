@@ -3,6 +3,7 @@ import { Worker } from "node:worker_threads";
 import { ImportProgress, type DirectoryOverview, type ImportStart } from "@neuromr/contracts";
 import { PixelService } from "../pixels/service.js";
 import type { ImportWorkerData } from "./import-worker.js";
+import { SessionStore } from "./sessions.js";
 import { StudyIndex } from "./study-index.js";
 
 /**
@@ -13,6 +14,8 @@ export class DirectoryService {
   readonly index: StudyIndex;
   /** Decodes stored images off the main thread: viewer frames and thumbnails (GEN-238). */
   readonly pixels: PixelService;
+  /** Viewer sessions and bookmarks (GEN-241, GEN-242). */
+  readonly sessions: SessionStore;
   private readonly dbPath: string;
   private readonly storeRoot: string;
   private worker: Worker | null = null;
@@ -27,6 +30,7 @@ export class DirectoryService {
     this.storeRoot = join(userData, "store");
     this.index = new StudyIndex(this.dbPath);
     this.pixels = new PixelService(pixelWorkerFile);
+    this.sessions = new SessionStore(this.index);
     this.recover();
   }
 

@@ -168,6 +168,7 @@ export const en = {
   "vp.failed": "The series could not be read from the local store. Import it again from the Directory.",
   "vp.unsupported": "This image's transfer syntax ({syntax}) cannot be decoded. Import an uncompressed copy to view it.",
   "vp.lossy": "Lossy compressed",
+  "bookmark.defaultName": "Bookmark {n}",
   "vp.missing": "The image file is missing from the local store. Import the series again from the Directory.",
   "vp.menu": "Viewport menu (right-click)",
   "vp.prev": "{axis, select, dynamic {Previous dynamic} echo {Previous echo} volume {Previous volume} other {Previous slice}} (Left)",
