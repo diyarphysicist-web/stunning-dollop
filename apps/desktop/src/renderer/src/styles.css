@@ -24,3 +24,25 @@
 .dialog--wide { width: calc(var(--nm-space-12) * 16); max-height: 80vh; }
 .dialog__body--scroll { overflow: auto; min-height: 0; }
 .tbl td.path-cell { white-space: normal; overflow-wrap: anywhere; text-overflow: clip; }
+
+/* Generic Viewer (GEN-230): Cornerstone draws into vp__canvas; overlays sit on top and ignore the pointer. */
+.vp__body { place-items: stretch; }
+.vp__canvas { position: absolute; inset: 0; touch-action: none; }
+.vp__canvas[data-tool="scroll"] { cursor: ns-resize; }
+.vp__canvas[data-tool="pan"] { cursor: grab; }
+.vp__canvas[data-tool="zoom"] { cursor: zoom-in; }
+.vp__canvas[data-tool="window"] { cursor: crosshair; }
+.vp__notice { position: absolute; inset: 0; z-index: 2; display: grid; place-items: center; padding: var(--nm-space-6); text-align: center; pointer-events: none; }
+.vp__series { font-size: var(--nm-font-size-dense); color: var(--nm-color-text-primary); overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.vp .menu__item { width: 100%; background: transparent; border: 0; font: inherit; text-align: left; }
+.vseries { display: flex; flex-direction: column; gap: var(--nm-space-1); list-style: none; margin: 0; padding: 0; }
+.vseries__item { display: flex; align-items: center; gap: var(--nm-space-2); width: 100%; padding: var(--nm-space-1); background: transparent; border: 0; border-radius: var(--nm-radius-md); color: var(--nm-color-text-primary); font: inherit; text-align: left; }
+.vseries__item:hover { background: var(--nm-color-hover); }
+.vseries__item.is-shown { background: var(--nm-color-accent-subtle); box-shadow: inset var(--nm-size-focus-ring) 0 0 var(--nm-color-accent); }
+.vseries__text { display: flex; flex-direction: column; min-width: 0; }
+.vseries__text .strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.layout-picker { position: relative; }
+.layout-picker .menu { top: 100%; left: 0; }
+.layout-picker .menu__item { width: 100%; background: transparent; border: 0; font: inherit; text-align: left; }
+.inspector { overflow: auto; }
+.tags .val { overflow-wrap: anywhere; }

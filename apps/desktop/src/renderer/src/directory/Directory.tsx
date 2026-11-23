@@ -4,6 +4,8 @@ import { useEffect, useRef, type KeyboardEvent, type MouseEvent } from "react";
 import { Icon } from "../Icon.js";
 import { dimensions, localTime, modalityLabel } from "./format.js";
 import { useDirectory } from "./store.js";
+import { useShell } from "../shell.js";
+import { useViewer } from "../viewer/store.js";
 
 /** Thumbnails are decorative: the series description next to them names the series. */
 const DECORATIVE = "";
@@ -170,6 +172,13 @@ function SeriesTable() {
   if (!study) return null;
   const importing = running !== null && series.some((s) => s.status === "importing");
   const onClick = (e: MouseEvent, uid: string) => clickSeries(uid, e.shiftKey ? "range" : e.ctrlKey || e.metaKey ? "toggle" : "single");
+  // GEN-230: double-click or Enter opens the selected series in the Viewer, one per viewport in selection order.
+  const openInViewer = (uid?: string) => {
+    const chosen = uid && !selected.includes(uid) ? [uid] : selected;
+    if (chosen.length === 0) return;
+    void useViewer.getState().open(chosen);
+    useShell.getState().show("viewer");
+  };
   const cols = ["5%", "5%", "22%", "20%", "8%", "16%", undefined];
   return (
     <section className="dir__block" aria-label={t("series.title")} style={{ borderBottom: 0 }}>
@@ -180,7 +189,7 @@ function SeriesTable() {
         <span className="dense t3">{t("series.multiHint")}</span>
       </div>
       <div className="dir__scroll">
-        <table className="tbl tbl--series" data-testid="series-list" aria-multiselectable="true">
+        <table className="tbl tbl--series" data-testid="series-list" aria-multiselectable="true" tabIndex={0} onKeyDown={(e) => e.key === "Enter" && openInViewer()}>
           <colgroup>{cols.map((w, i) => <col key={i} style={w ? { width: w } : undefined} />)}</colgroup>
           <thead>
             <tr><th /><th className="num">{t("series.number")}</th><th>{t("series.description")}</th><th>{t("series.type")}</th><th className="num">{t("series.images")}</th><th>{t("series.dimensions")}</th><th>{t("series.status")}</th></tr>
@@ -189,7 +198,7 @@ function SeriesTable() {
             {series.map((s) => {
               const isSel = selected.includes(s.seriesInstanceUid);
               return (
-                <tr key={s.seriesInstanceUid} className={isSel ? "is-selected" : undefined} aria-selected={isSel} onClick={(e) => onClick(e, s.seriesInstanceUid)}>
+                <tr key={s.seriesInstanceUid} className={isSel ? "is-selected" : undefined} aria-selected={isSel} onClick={(e) => onClick(e, s.seriesInstanceUid)} onDoubleClick={() => openInViewer(s.seriesInstanceUid)}>
                   <td><span className="thumb">{s.thumbnail && <img src={s.thumbnail} alt={DECORATIVE} />}</span></td>
                   <td className="num">{s.seriesNumber ?? ""}</td>
                   <td className="strong">{s.description}</td>

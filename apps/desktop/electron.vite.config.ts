@@ -3,7 +3,7 @@ import react from "@vitejs/plugin-react";
 import { defineConfig } from "electron-vite";
 
 // Workspace packages ship TypeScript sources, so they are bundled rather than externalised.
-const bundled = ["@neuromr/contracts", "@neuromr/ui", "@neuromr/i18n", "@neuromr/dicom", "zod"];
+const bundled = ["@neuromr/contracts", "@neuromr/ui", "@neuromr/i18n", "@neuromr/dicom", "@neuromr/viewer", "zod"];
 
 export default defineConfig({
   main: {

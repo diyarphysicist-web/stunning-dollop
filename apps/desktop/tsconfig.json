@@ -9,5 +9,5 @@
     "emitDeclarationOnly": true
   },
   "include": ["src", "electron.vite.config.ts"],
-  "references": [{ "path": "../../packages/contracts" }, { "path": "../../packages/ui" }, { "path": "../../packages/i18n" }, { "path": "../../packages/dicom" }]
+  "references": [{ "path": "../../packages/contracts" }, { "path": "../../packages/ui" }, { "path": "../../packages/i18n" }, { "path": "../../packages/dicom" }, { "path": "../../packages/viewer" }]
 }

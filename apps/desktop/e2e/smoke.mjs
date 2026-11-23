@@ -7,6 +7,8 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { _electron as electron } from "playwright";
 
+/* global document -- the viewer checks run inside the page (waitForFunction) */
+
 const appDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const outDir = resolve(process.argv[2] ?? join(appDir, "..", "..", "artifacts", "screens"));
 mkdirSync(outDir, { recursive: true });
@@ -139,6 +141,53 @@ try {
   await win.keyboard.type("phantom");
   await win.locator("[data-testid=study-list] tbody tr").first().waitFor();
   if (!existsSync(fixture)) throw new Error("fixture vanished");
+
+  // GEN-230…235: open two series from the Directory in the Viewer, one per viewport.
+  const seriesRows = win.locator("[data-testid=series-list] tbody tr");
+  await seriesRows.nth(0).click();
+  await seriesRows.nth(2).click({ modifiers: ["Control"] });
+  await win.locator("[data-testid=series-list]").press("Enter");
+  const vp0 = win.locator("[data-testid=viewport-0][data-state=ready]");
+  await vp0.waitFor({ timeout: 30000 });
+  await win.locator("[data-testid=viewport-1][data-state=ready]").waitFor({ timeout: 30000 });
+  if ((await win.locator(".vgrid").getAttribute("data-layout")) !== "1x2") throw new Error("two series should open side by side");
+  // SAFE-040: markers on all four edges of an axial image, radiological convention.
+  const markers = async () => Promise.all(["n", "e", "s", "w"].map((d) => win.locator(`[data-testid=viewport-0] [data-testid=orient-${d}]`).innerText()));
+  if ((await markers()).join("") !== "ALPR") throw new Error(`unexpected markers ${await markers()}`);
+  // GEN-021: ↓ moves to the next slice of the active viewport.
+  const position = win.locator("[data-testid=viewport-0] [data-testid=overlay-position]");
+  const before = await position.evaluate((el) => el.textContent);
+  await vp0.click();
+  await win.keyboard.press("ArrowDown");
+  await win.waitForFunction((b) => document.querySelector("[data-testid=viewport-0] [data-testid=overlay-position]")?.textContent !== b, before);
+  // GEN-130 + SAFE-040: mirroring swaps the left and right markers (read back from the rendered camera).
+  await win.keyboard.press("h");
+  await win.waitForFunction(() => document.querySelector("[data-testid=viewport-0] [data-testid=orient-w]")?.textContent === "L");
+  if ((await markers()).join("") !== "ARPL") throw new Error(`mirrored markers ${await markers()}`);
+  await win.keyboard.press("h");
+  await win.waitForFunction(() => document.querySelector("[data-testid=viewport-0] [data-testid=orient-w]")?.textContent === "R", null, { timeout: 5000 });
+  // "Rotate 90° clockwise" moves the patient's right (screen left) to the top.
+  await win.keyboard.press("]");
+  await win.waitForFunction(() => document.querySelector("[data-testid=viewport-0] [data-testid=orient-n]")?.textContent === "R", null, { timeout: 5000 }).catch(async () => {
+    throw new Error(`clockwise rotation shows ${await markers()}`);
+  });
+  await win.keyboard.press("[");
+  await win.waitForFunction(() => document.querySelector("[data-testid=viewport-0] [data-testid=orient-n]")?.textContent === "A", null, { timeout: 5000 });
+  // GEN-010: a Window/Level drag changes the window shown in the overlay.
+  const windowText = win.locator("[data-testid=viewport-0] [data-testid=overlay-window]");
+  const w0 = await windowText.innerText();
+  await win.keyboard.press("w");
+  const box = await vp0.locator(".vp__canvas").boundingBox();
+  await win.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await win.mouse.down();
+  await win.mouse.move(box.x + box.width / 2 + 60, box.y + box.height / 2 + 30, { steps: 4 });
+  await win.mouse.up();
+  if ((await windowText.innerText()) === w0) throw new Error("window drag did not change the window");
+  // GEN-233: the inspector lists the current image's attributes.
+  await win.locator("[data-testid=dicom-tags]").filter({ hasText: "RepetitionTime" }).waitFor();
+  await shot(win, "desktop-viewer.png");
+  const software = await win.locator("[data-testid=software-rendering]").count();
+  console.log(`viewer ok · ${software ? "software rendering (GEN-235)" : "GPU rendering"}`);
 
   if (errors.length) throw new Error(`renderer errors:\n${errors.join("\n")}`);
   console.log(`smoke ok · api ${security.api.join(", ")} · ${join(outDir, "desktop-shell.png")}`);

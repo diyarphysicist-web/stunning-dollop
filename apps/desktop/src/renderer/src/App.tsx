@@ -7,6 +7,8 @@ import { ageYears, modalityLabel } from "./directory/format.js";
 import { connectDirectory, useDirectory } from "./directory/store.js";
 import { EngineStatusItem, useEngineStatus } from "./EngineStatusItem.js";
 import { Icon, IconSprite } from "./Icon.js";
+import { useShell, type Activity } from "./shell.js";
+import { RenderingStatusItem, Viewer } from "./viewer/Viewer.js";
 
 /** SAFE-001: the patient of the selected study is always in view. */
 function PatientBanner() {
@@ -55,10 +57,21 @@ function TopBar({ maximized }: { maximized: boolean }) {
   );
 }
 
+const ACTIVITIES: [Activity, string, "rail.directory" | "rail.viewer", "rail.directory.hint" | "rail.viewer.hint"][] = [
+  ["directory", "directory", "rail.directory", "rail.directory.hint"],
+  ["viewer", "viewer", "rail.viewer", "rail.viewer.hint"],
+];
+
 function Rail() {
+  const activity = useShell((s) => s.activity);
   return (
     <nav className="rail" aria-label={t("rail.label")}>
-      <button className="rail__item is-active" aria-current="page" aria-label={t("rail.directory.hint")}><Icon name="directory" />{t("rail.directory")}</button>
+      {ACTIVITIES.map(([id, icon, label, hint]) => (
+        <button key={id} className={`rail__item${activity === id ? " is-active" : ""}`} aria-current={activity === id ? "page" : undefined} aria-label={t(hint)} title={t(hint)} data-activity={id} onClick={() => useShell.getState().show(id)}>
+          <Icon name={icon} />
+          {t(label)}
+        </button>
+      ))}
     </nav>
   );
 }
@@ -69,6 +82,7 @@ function StatusBar({ info, failed, engine }: { info: AppInfo | null; failed: boo
       <span className="sb-item"><span className="dot dot--idle" /><b>{t("status.noStudy")}</b></span>
       <span className="sb-sep" />
       <ImportStatusItem />
+      <RenderingStatusItem />
       <EngineStatusItem status={engine} />
       <span className="spacer" />
       {failed && <span className="sb-item"><span className="dot dot--critical" />{t("error.bridge")}</span>}
@@ -88,18 +102,30 @@ export function App() {
     void invoke("window:control", { action: "query" }).then((r) => r.ok && setWin(r.value));
     const offWindow = window.neuromr.onWindowState(setWin);
     const offDirectory = connectDirectory();
+    // Ctrl+1…2 switch activities (COMPONENTS.md: activity rail).
+    const onKey = (e: KeyboardEvent) => {
+      if (!(e.ctrlKey || e.metaKey) || e.altKey || e.shiftKey) return;
+      const next = ({ "1": "directory", "2": "viewer" } as const)[e.key as "1" | "2"];
+      if (next) {
+        e.preventDefault();
+        useShell.getState().show(next);
+      }
+    };
+    window.addEventListener("keydown", onKey);
     return () => {
+      window.removeEventListener("keydown", onKey);
       offWindow();
       offDirectory();
     };
   }, []);
 
+  const activity = useShell((s) => s.activity);
   return (
-    <div className="app app--no-inspector">
+    <div className={activity === "directory" ? "app app--no-inspector" : "app"} data-activity={activity}>
       <IconSprite />
       <TopBar maximized={win.maximized} />
       <Rail />
-      <Directory />
+      {activity === "directory" ? <Directory /> : <Viewer />}
       <StatusBar info={info} failed={failed} engine={engine} />
     </div>
   );
