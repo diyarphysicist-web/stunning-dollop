@@ -2,7 +2,7 @@ import { Enums, type Types } from "@cornerstonejs/core";
 import type { ViewerStack } from "@neuromr/contracts";
 import { formatQuantity, t } from "@neuromr/i18n";
 import { dragWindow, initialWindow, markersFromScreenAxes, roiMask, roiStats, type Markers, type RoiShape, type RoiStats, type Vec3, type VoiRange } from "@neuromr/viewer";
-import { ImageUnavailable, imageId, renderingEngine } from "@neuromr/viewer/cornerstone";
+import { fitCamera, ImageUnavailable, imageId, renderingEngine, setViewPan, setViewZoom, viewPan, viewZoom } from "@neuromr/viewer/cornerstone";
 import { Fragment, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { Icon } from "../Icon.js";
 import { cellLabel } from "./PresetDialog.js";
@@ -39,15 +39,19 @@ const sub = (a: Types.Point3, b: Types.Point3): Vec3 => [a[0] - b[0], a[1] - b[1
 function screenMarkers(vp: StackViewport): Markers | null {
   const { width, height } = vp.canvas;
   if (!width || !height) return null;
-  const o = vp.canvasToWorld([width / 2, height / 2]);
-  const right = sub(vp.canvasToWorld([width / 2 + 1, height / 2]), o);
-  const down = sub(vp.canvasToWorld([width / 2, height / 2 + 1]), o);
+  // On the CPU path (GEN-235) there is no world mapping until the first image is drawn.
+  const o = vp.canvasToWorld([width / 2, height / 2]) as Types.Point3 | undefined;
+  const r = vp.canvasToWorld([width / 2 + 1, height / 2]) as Types.Point3 | undefined;
+  const d = vp.canvasToWorld([width / 2, height / 2 + 1]) as Types.Point3 | undefined;
+  if (!o || !r || !d) return null;
+  const right = sub(r, o);
+  const down = sub(d, o);
   if (Math.hypot(...right) === 0 || Math.hypot(...down) === 0) return null;
   return markersFromScreenAxes(right, down);
 }
 
 function readView(vp: StackViewport): View {
-  return { zoom: vp.getZoom(), voi: vp.getProperties().voiRange ?? null, markers: screenMarkers(vp) };
+  return { zoom: viewZoom(vp), voi: vp.getProperties().voiRange ?? null, markers: screenMarkers(vp) };
 }
 
 /** The series' initial window from the image now shown (GEN-232). */
@@ -178,10 +182,10 @@ export function Viewport({ index }: { index: number }) {
       const vp = engine.getViewport<StackViewport>(viewportId);
       if (!vp || !tracking.current) return;
       const voi = vp.getProperties().voiRange;
-      const pan = vp.getPan();
+      const pan = viewPan(vp);
       useViewer.getState().noteCamera(index, {
-        zoom: vp.getZoom(),
-        pan: [pan[0], pan[1]],
+        zoom: viewZoom(vp),
+        pan,
         window: voi ? { lower: voi.lower, upper: voi.upper } : null,
       });
     };
@@ -213,12 +217,12 @@ export function Viewport({ index }: { index: number }) {
         if (!live) return;
         firstWindow.current = startWindow(vp, stack, sop);
         if (firstWindow.current) vp.setProperties({ voiRange: firstWindow.current });
-        vp.resetCamera();
+        fitCamera(vp);
         // GEN-241: the series comes back with the zoom, pan and window it was left with.
         const saved = useViewer.getState().panes[index]?.restore;
         if (saved?.window) vp.setProperties({ voiRange: saved.window });
-        if (saved?.zoom) vp.setZoom(saved.zoom);
-        if (saved?.pan) vp.setPan(saved.pan);
+        if (saved?.zoom) setViewZoom(vp, saved.zoom);
+        if (saved?.pan) setViewPan(vp, saved.pan);
         tracking.current = true;
         vp.render();
         setShownStack(stack);
@@ -256,7 +260,7 @@ export function Viewport({ index }: { index: number }) {
   useEffect(() => {
     const vp = viewport();
     if (!vp || pane.resetView === 0) return;
-    vp.resetCamera();
+    fitCamera(vp);
     vp.render();
   }, [pane.resetView]);
   useEffect(() => {
@@ -314,7 +318,7 @@ export function Viewport({ index }: { index: number }) {
           });
         vp.render();
       } else if (tool === "zoom") {
-        vp.setZoom(vp.getZoom() * Math.exp(-dy * 0.01));
+        setViewZoom(vp, viewZoom(vp) * Math.exp(-dy * 0.01));
         vp.render();
       } else {
         const voi = vp.getProperties().voiRange;
@@ -343,7 +347,7 @@ export function Viewport({ index }: { index: number }) {
       e.preventDefault();
       const vp = viewport();
       if (e.ctrlKey && vp) {
-        vp.setZoom(vp.getZoom() * Math.exp(-e.deltaY * 0.01));
+        setViewZoom(vp, viewZoom(vp) * Math.exp(-e.deltaY * 0.01));
         vp.render();
       } else if (Math.abs(e.deltaY) >= 1) useViewer.getState().step(index, Math.sign(e.deltaY), 0);
     };

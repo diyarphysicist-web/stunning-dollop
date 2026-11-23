@@ -75,7 +75,9 @@ export function PresetDialog() {
   };
   const onDialogKey = (e: KeyboardEvent) => {
     e.stopPropagation();
-    if (e.key === "Enter" && !(e.target as HTMLElement).closest("input, button")) void p.apply(selected);
+    // Escape also here: this handler stops propagation, so the window listener only sees keys from outside the dialog.
+    if (e.key === "Escape" && !(e.target as HTMLElement).closest("input")) p.close();
+    else if (e.key === "Enter" && !(e.target as HTMLElement).closest("input, button")) void p.apply(selected);
   };
   return (
     <div className="scrim" onKeyDown={onDialogKey}>

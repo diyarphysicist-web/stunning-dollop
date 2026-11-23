@@ -97,8 +97,8 @@ function watchCrash(win) {
 const CHROMIUM_FLAGS = process.env.CI ? ["--disable-gpu", "--disable-gpu-compositing"] : [];
 
 /** Launches the built app and returns it once its window is shown at 1920 × 1080 and has painted. */
-async function launch(env = {}) {
-  const app = await electron.launch({ args: [appDir, ...CHROMIUM_FLAGS], cwd: appDir, env: { ...process.env, NEUROMR_USER_DATA: mkdtempSync(join(tmpdir(), "neuromr-smoke-")), ...env } });
+async function launch(env = {}, extraArgs = []) {
+  const app = await electron.launch({ args: [appDir, ...CHROMIUM_FLAGS, ...extraArgs], cwd: appDir, env: { ...process.env, NEUROMR_USER_DATA: mkdtempSync(join(tmpdir(), "neuromr-smoke-")), ...env } });
   const win = await app.firstWindow();
   watchCrash(win);
   const deadline = Date.now() + 15000;
@@ -432,5 +432,55 @@ try {
     console.log("roi curves and copy ok");
   } finally {
     await again.close();
+  }
+}
+
+// GEN-235: without WebGL the viewer draws on the CPU with the same overlays, and the status bar says so.
+{
+  const { app: cpu, win: w } = await launch({ NEUROMR_USER_DATA: profile, NEUROMR_DISABLE_WEBGL: "1" });
+  try {
+    const webgl = await w.evaluate(() => Boolean(document.createElement("canvas").getContext("webgl2") ?? document.createElement("canvas").getContext("webgl")));
+    if (webgl) throw new Error("WebGL is still available; the CPU path is not exercised");
+    const row = w.locator("[data-testid=study-list] tbody tr").filter({ hasText: "validation" });
+    await row.waitFor({ timeout: 15000 });
+    await row.dblclick();
+    const vp = w.locator("[data-testid=viewport-0]");
+    await w.locator("[data-testid=viewport-0][data-state=ready] [data-testid=overlay-position]").waitFor({ timeout: 30000 });
+    await w.locator("[data-testid=software-rendering]").waitFor({ timeout: 10000 });
+    for (const edge of ["n", "e", "s", "w"]) {
+      const text = (await vp.locator(`[data-testid=orient-${edge}]`).innerText()).trim();
+      if (!/^[APRLHF]+$/.test(text)) throw new Error(`orientation marker ${edge} missing in software mode: "${text}"`);
+    }
+    await vp.locator("[data-testid=roi-label]").filter({ hasText: "Lesion" }).waitFor({ timeout: 10000 });
+    // Geometry matches the GPU path: ROIs keep their size (the scale bug drew them about 1 px wide) and sit
+    // inside the drawn image, near its centre like the Lesion drawn on the GPU path.
+    const geo = await vp.evaluate((el) => {
+      const canvas = el.querySelector(".vp__canvas").getBoundingClientRect();
+      const boxes = [...el.querySelectorAll(".roi-path")].map((p) => p.getBoundingClientRect());
+      return { canvas: [canvas.width, canvas.height, canvas.left, canvas.top], boxes: boxes.map((b) => [b.width, b.height, b.left + b.width / 2 - canvas.left, b.top + b.height / 2 - canvas.top]) };
+    });
+    if (geo.boxes.length !== 2 || geo.boxes.some(([bw, bh, cx, cy]) => bw < 15 || bh < 15 || Math.abs(cx - geo.canvas[0] / 2) > geo.canvas[0] / 6 || Math.abs(cy - geo.canvas[1] / 2) > geo.canvas[1] / 6))
+      throw new Error(`ROI geometry wrong in software mode: ${JSON.stringify(geo)}`);
+    // The image is really drawn: the canvas has non-black pixels.
+    const drawn = await vp.locator("canvas").first().evaluate((c) => {
+      const copy = document.createElement("canvas");
+      copy.width = c.width;
+      copy.height = c.height;
+      const ctx = copy.getContext("2d");
+      ctx.drawImage(c, 0, 0);
+      const d = ctx.getImageData(0, 0, c.width, c.height).data;
+      for (let i = 0; i < d.length; i += 4) if (d[i] + d[i + 1] + d[i + 2] > 30) return true;
+      return false;
+    });
+    if (!drawn) throw new Error("software mode drew nothing");
+    // Stepping changes the position overlay as on the GPU path.
+    const before = await vp.locator("[data-testid=overlay-position]").innerText();
+    await vp.locator(".vp__canvas").click();
+    await w.keyboard.press("ArrowRight");
+    await w.waitForFunction((b) => document.querySelector("[data-testid=viewport-0] [data-testid=overlay-position]")?.textContent !== b, before, { timeout: 5000 });
+    await shot(w, "desktop-viewer-software.png");
+    console.log("software rendering ok");
+  } finally {
+    await cpu.close();
   }
 }

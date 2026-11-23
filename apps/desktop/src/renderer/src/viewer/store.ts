@@ -235,10 +235,12 @@ export const useViewer = create<ViewerState>((set, get) => {
       if (firstSeries) await get().open([firstSeries], studyUid);
     },
 
-    noteCamera(i, camera) {
+    noteCamera(i, reported) {
       const uid = get().panes[i]?.seriesUid;
       const cur = uid ? get().viewsBySeries[uid] : undefined;
       if (!uid || !cur) return;
+      // Software rendering reports no pan (GEN-235); the pan saved earlier stays.
+      const camera = { ...reported, pan: reported.pan ?? cur.pan };
       const same = cur.zoom === camera.zoom && cur.pan?.[0] === camera.pan?.[0] && cur.pan?.[1] === camera.pan?.[1] && cur.window?.lower === camera.window?.lower && cur.window?.upper === camera.window?.upper;
       if (!same) set({ viewsBySeries: { ...get().viewsBySeries, [uid]: { ...cur, ...camera } } });
     },

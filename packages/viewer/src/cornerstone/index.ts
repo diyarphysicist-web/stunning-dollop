@@ -158,3 +158,33 @@ export function purge(keep: ReadonlySet<string>): void {
     inverted.delete(sop);
   }
 }
+
+/** Fit scale of each viewport on the CPU path, where Cornerstone's zoom is absolute (GEN-235). */
+const fitScale = new WeakMap<object, number>();
+
+/** Fits the image to the viewport; on the CPU path also records the fit scale so zoom reads relative to fit. */
+export function fitCamera(vp: Types.IStackViewport): void {
+  vp.resetCamera();
+  fitScale.set(vp, softwareRendering() ? vp.getZoom() || 1 : 1);
+}
+
+/** Zoom relative to fit (1 = fit) on both rendering paths. */
+export const viewZoom = (vp: Types.IStackViewport): number => vp.getZoom() / (fitScale.get(vp) ?? 1);
+
+export function setViewZoom(vp: Types.IStackViewport, zoom: number): void {
+  vp.setZoom(zoom * (fitScale.get(vp) ?? 1));
+}
+
+/**
+ * Pan as it is saved in a session, or null on the CPU path, where Cornerstone reads pan as an image
+ * translation but sets it as a focal point, so it cannot be restored faithfully.
+ */
+export const viewPan = (vp: Types.IStackViewport): [number, number] | null => {
+  if (softwareRendering()) return null;
+  const p = vp.getPan();
+  return [p[0], p[1]];
+};
+
+export function setViewPan(vp: Types.IStackViewport, pan: [number, number]): void {
+  if (!softwareRendering()) vp.setPan(pan);
+}

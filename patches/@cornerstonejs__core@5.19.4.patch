@@ -1,0 +1,20 @@
+diff --git a/dist/esm/RenderingEngine/helpers/cpuFallback/rendering/cssPixelConversion.js b/dist/esm/RenderingEngine/helpers/cpuFallback/rendering/cssPixelConversion.js
+index 0d842922dd522a795bd12a9bfc44705d568bc68d..6bb51f7377872f742e6e1fa5500b72b073331a56 100644
+--- a/dist/esm/RenderingEngine/helpers/cpuFallback/rendering/cssPixelConversion.js
++++ b/dist/esm/RenderingEngine/helpers/cpuFallback/rendering/cssPixelConversion.js
+@@ -1,11 +1,8 @@
+-function getDevicePixelRatio() {
+-    return (typeof window !== 'undefined' && window.devicePixelRatio) || 1;
+-}
++// NeuroMR-PRO patch: the CPU fallback sizes its canvas in CSS pixels (resize.js setCanvasSize), so CSS and
++// canvas coordinates are the same; scaling by devicePixelRatio put every coordinate off by that factor.
+ export function deviceToCssPixels(point) {
+-    const devicePixelRatio = getDevicePixelRatio();
+-    return [point[0] / devicePixelRatio, point[1] / devicePixelRatio];
++    return [point[0], point[1]];
+ }
+ export function cssToDevicePixels(point) {
+-    const devicePixelRatio = getDevicePixelRatio();
+-    return [point[0] * devicePixelRatio, point[1] * devicePixelRatio];
++    return [point[0], point[1]];
+ }

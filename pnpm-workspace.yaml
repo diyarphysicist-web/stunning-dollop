@@ -1,10 +1,13 @@
 packages:
-  - "apps/*"
-  - "packages/*"
+  - apps/*
+  - packages/*
+
 onlyBuiltDependencies:
   - electron
   - esbuild
-# dcmjs (via Cornerstone metadata) pins adm-zip 0.5.17, which has known ZIP-parsing flaws; 0.6.1 fixes them.
-# The renderer never runs dcmjs' ZIP code, but the production tree should not carry the advisory.
+
 overrides:
   adm-zip: 0.6.1
+
+patchedDependencies:
+  '@cornerstonejs/core@5.19.4': patches/@cornerstonejs__core@5.19.4.patch

@@ -33,6 +33,8 @@ function createMainWindow(): BrowserWindow {
       nodeIntegration: false,
       webSecurity: true,
       spellcheck: false,
+      // GEN-235 test hook: the smoke run checks the CPU rendering path on machines that do have WebGL.
+      webgl: process.env["NEUROMR_DISABLE_WEBGL"] !== "1",
     },
   });
   lockNavigation(win, isAppUrl);

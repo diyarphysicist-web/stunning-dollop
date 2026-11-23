@@ -24,8 +24,8 @@ Rule: nothing GPL or AGPL ships in the product. Status `in use` = present in a l
 | Zustand | 5.x | MIT | State | planned (2a) | — |
 | TanStack Table | 8.x | MIT | Result tables | planned (2a) | — |
 | Radix UI | latest | MIT | Accessible primitives | planned (2a) | — |
-| uPlot | 1.x | MIT | Curves and graphs | planned (2a) | — |
-| Cornerstone3D | 3.x | MIT | Viewports, MPR, tools | planned (2a) | — |
+| uPlot | 1.6.x | MIT | Curves and graphs (ROI curves, GEN-245) | in use | — |
+| Cornerstone3D (`@cornerstonejs/core`) | 5.19.x | MIT | Viewports (StackViewport) | in use | CPU fallback sizes its canvas in CSS pixels but scaled coordinates by devicePixelRatio, so on high-DPI screens images, ROIs and markers were misplaced; fixed by `patches/@cornerstonejs__core@5.19.4.patch` (identity conversions), checked by the software-rendering smoke run. CPU `getPan`/`setPan` use different units, so the Viewer does not save pan in software mode; CPU zoom is absolute, normalised to fit by `fitCamera`/`viewZoom`. |
 | dicom-parser, dcmjs | latest | MIT | Client DICOM parsing | planned (2a) | — |
 | VTK.js | latest | BSD-3-Clause | 3D rendering, streamlines | planned (6) | — |
 | better-sqlite3 | latest | MIT | Study index | planned (2a) | Native module, rebuild per Electron ABI |
