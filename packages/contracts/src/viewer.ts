@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { RoiShapeSchema } from "./session.js";
 
 const Uid = z.string().min(1).max(64);
 /** An image: SOP Instance UID, plus ":frame" for a frame of a multi-frame instance (GEN-240). */
@@ -94,3 +95,16 @@ export type DicomAttribute = z.infer<typeof DicomAttribute>;
 
 export const StackQuery = z.object({ seriesInstanceUid: Uid }).strict();
 export const ImageQuery = z.object({ sopInstanceUid: Uid, frame: z.number().int().nonnegative().optional() }).strict();
+
+/** ROIs whose mean curves over the second axis are wanted (GEN-245); shapes as in sessions. */
+export const RoiCurveQuery = z
+  .object({
+    seriesInstanceUid: Uid,
+    rois: z.array(z.object({ id: z.string().min(1).max(80), slice: z.number().int().nonnegative(), shape: RoiShapeSchema })).max(100),
+  })
+  .strict();
+export type RoiCurveQuery = z.infer<typeof RoiCurveQuery>;
+
+/** Mean inside each ROI for every point of the second axis; null where an image is missing or cannot be decoded. */
+export const RoiCurves = z.array(z.object({ id: z.string(), values: z.array(finite.nullable()) }));
+export type RoiCurves = z.infer<typeof RoiCurves>;

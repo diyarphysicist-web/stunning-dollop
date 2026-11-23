@@ -109,6 +109,9 @@ interface ViewerState {
   deleteLastRoi(pane: number): void;
   /** Viewport waiting for the Reset all confirmation (GEN-244), or null. */
   confirmReset: number | null;
+  /** The ROI curves panel is open (GEN-245). */
+  curvesOpen: boolean;
+  toggleCurves(): void;
   askResetAll(pane: number | null): void;
   /** GEN-244: resets zoom, pan, transform and window and removes every ROI of the series, as one undo step. */
   resetAll(pane: number): void;
@@ -312,6 +315,8 @@ export const useViewer = create<ViewerState>((set, get) => {
     },
 
     confirmReset: null,
+    curvesOpen: false,
+    toggleCurves: () => set({ curvesOpen: !get().curvesOpen }),
     askResetAll(i) {
       set({ confirmReset: i });
     },

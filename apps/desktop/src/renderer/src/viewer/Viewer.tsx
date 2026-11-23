@@ -7,6 +7,8 @@ import { Icon } from "../Icon.js";
 import { activeStudy, useBookmarks } from "./bookmarks.js";
 import { layoutName, PresetDialog } from "./PresetDialog.js";
 import { usePresets } from "./presets.js";
+import { copyText, RoiCurvesPanel } from "./RoiCurves.js";
+import { roiTableTsv } from "./curves.js";
 import { LAYOUTS, cellCount, layoutSize, type Layout } from "./stack.js";
 import { paneRois, useViewer, type Tool } from "./store.js";
 import { Viewport } from "./Viewport.js";
@@ -214,6 +216,7 @@ function Toolbar() {
   const active = useViewer((s) => s.active);
   const canUndo = useViewer((s) => paneRois(s, s.active).undo.length > 0);
   const canRedo = useViewer((s) => paneRois(s, s.active).redo.length > 0);
+  const curvesOpen = useViewer((s) => s.curvesOpen);
   const toolButton = ([id, icon, label]: [Tool, string, MessageId]) => (
     <button key={id} className={`ibtn${tool === id ? " is-active" : ""}`} aria-pressed={tool === id} aria-label={t(label)} title={t(label)} data-tool={id} onClick={() => useViewer.getState().setTool(id)}>
       <Icon name={icon} />
@@ -228,6 +231,7 @@ function Toolbar() {
       <button className="ibtn" aria-label={t("viewer.tool.reset")} title={t("viewer.tool.reset")} onClick={() => useViewer.getState().reset(active, "view")}><Icon name="reset" /></button>
       <span className="tb-sep" />
       <LayoutPicker />
+      <button className={`ibtn${curvesOpen ? " is-active" : ""}`} aria-pressed={curvesOpen} aria-label={t("curves.toggle")} title={t("curves.toggle")} data-testid="curves-toggle" onClick={() => useViewer.getState().toggleCurves()}><Icon name="analysis" /></button>
       <span className="tb-sep" />
       <button className="ibtn" aria-label={t("viewer.undo")} title={t("viewer.undo")} disabled={!canUndo} onClick={() => useViewer.getState().undoRoi(active)}><Icon name="undo" /></button>
       <button className="ibtn" aria-label={t("viewer.redo")} title={t("viewer.redo")} disabled={!canRedo} onClick={() => useViewer.getState().redoRoi(active)}><Icon name="redo" /></button>
@@ -254,8 +258,21 @@ function RoiSection() {
   const info = pane.stack.images[0];
   const voxelArea = info?.pixelSpacing ? info.pixelSpacing[0] * info.pixelSpacing[1] : null;
   const unit = t("vp.unit");
+  const copy = () => void copyText(roiTableTsv(here.map((r) => ({ name: r.name, stats: pane.stats[r.id] ?? null })), unit, voxelArea));
   return (
-    <div className="section" data-testid="roi-stats">
+    <div
+      className="section"
+      data-testid="roi-stats"
+      tabIndex={0}
+      aria-label={t("copy.copyTable")}
+      onKeyDown={(e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "c" && !window.getSelection()?.toString()) {
+          e.preventDefault();
+          e.stopPropagation();
+          copy();
+        }
+      }}
+    >
       <span className="eyebrow">{t("inspector.rois", { slice: pane.slice + 1 })}</span>
       {here.length === 0 && <span className="t3 dense">{t("inspector.roisEmpty")}</span>}
       <ul className="roi-list">
@@ -350,6 +367,7 @@ function useViewerKeys() {
         "]": () => s.transform(s.active, "rotate-cw"),
         "[": () => s.transform(s.active, "rotate-ccw"),
         r: () => s.reset(s.active, "view"),
+        g: () => s.toggleCurves(),
       };
       const key = e.key.toLowerCase();
       if (step) s.step(s.active, step[0], step[1]);
@@ -366,14 +384,18 @@ function useViewerKeys() {
 /** The Viewer activity (GEN-230): Series tab, toolbar, viewport grid and DICOM inspector. */
 export function Viewer() {
   const layout = useViewer((s) => s.layout);
+  const curvesOpen = useViewer((s) => s.curvesOpen);
   useViewerKeys();
   return (
     <>
       <SeriesPanel />
       <Toolbar />
-      <main className="vgrid" aria-label={t("viewer.grid")} style={GRID_STYLE(layout)} data-layout={layout}>
-        {Array.from({ length: cellCount(layout) }, (_, i) => <Viewport key={i} index={i} />)}
-      </main>
+      <div className="vstage">
+        <main className="vgrid" aria-label={t("viewer.grid")} style={GRID_STYLE(layout)} data-layout={layout}>
+          {Array.from({ length: cellCount(layout) }, (_, i) => <Viewport key={i} index={i} />)}
+        </main>
+        {curvesOpen && <RoiCurvesPanel />}
+      </div>
       <Inspector />
       <ResetAllDialog />
       <PresetDialog />

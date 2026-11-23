@@ -404,6 +404,32 @@ try {
     await w.keyboard.press("Escape");
     await w.locator("[data-testid=preset-dialog]").waitFor({ state: "detached", timeout: 5000 });
     console.log("layout presets ok");
+
+    // GEN-245: G opens the ROI curves of the active viewport's series; GEN-246: Ctrl+C copies the focused table.
+    await w.locator("[data-testid=viewport-0] .vp__canvas").click();
+    await w.keyboard.press("g");
+    await w.locator("[data-testid=curves-plot] canvas").waitFor({ timeout: 15000 });
+    await w.locator("[data-testid=curves-average]").click();
+    await shot(w, "desktop-viewer-curves.png");
+    await w.locator("[data-testid=roi-curves] .eyebrow").click();
+    await w.keyboard.press("Control+c");
+    const readClipboard = () => again.evaluate(({ clipboard }) => clipboard.readText());
+    let copied = "";
+    for (let i = 0; i < 20 && !copied.includes("Lesion"); i++) {
+      await new Promise((r) => setTimeout(r, 100));
+      copied = await readClipboard();
+    }
+    const lines = copied.trim().split(/\r?\n/);
+    if (lines[0] !== "Time [s]\tLesion [a.u.]\tROI2 [a.u.]\tAverage [a.u.]" || lines.length !== 13) throw new Error(`curve copy is wrong:\n${copied}`);
+    if (lines.slice(1).some((l) => l.split("\t").slice(1).some((v) => v === "" || !Number.isFinite(Number(v))))) throw new Error(`curve copy has gaps:\n${copied}`);
+    await w.locator("[data-testid=roi-stats] .eyebrow").click();
+    await w.keyboard.press("Control+c");
+    for (let i = 0; i < 20 && !copied.startsWith("ROI\t"); i++) {
+      await new Promise((r) => setTimeout(r, 100));
+      copied = await readClipboard();
+    }
+    if (!copied.startsWith("ROI\tMean [a.u.]") || !copied.includes("\nLesion\t")) throw new Error(`ROI table copy is wrong:\n${copied}`);
+    console.log("roi curves and copy ok");
   } finally {
     await again.close();
   }

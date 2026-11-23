@@ -1,8 +1,9 @@
 import { type ImportProgress, type IpcChannel, type IpcParsedRequest, type IpcResponse, type IpcResult, isIpcChannel, parseRequest, parseResponse } from "@neuromr/contracts";
 import { t } from "@neuromr/i18n";
-import { BrowserWindow, app, dialog, ipcMain, type IpcMainInvokeEvent, type OpenDialogOptions } from "electron";
+import { BrowserWindow, app, clipboard, dialog, ipcMain, type IpcMainInvokeEvent, type OpenDialogOptions } from "electron";
 import type { DirectoryService } from "./directory/service.js";
 import type { EngineSupervisor } from "./engine/supervisor.js";
+import { roiCurves } from "./viewer/curves.js";
 import { imageAttributes, imagePixels, seriesStack } from "./viewer/viewer.js";
 
 export const INVOKE_CHANNEL = "neuromr:invoke";
@@ -41,6 +42,10 @@ const handlers: Handlers = {
     arch: process.arch,
     electron: process.versions.electron,
   }),
+  "clipboard:write-text": ({ text }) => {
+    clipboard.writeText(text);
+    return { written: true };
+  },
   "window:control": ({ action }, event) => {
     const win = BrowserWindow.fromWebContents(event.sender);
     if (win) {
@@ -70,6 +75,10 @@ const handlers: Handlers = {
   "viewer:pixels": ({ sopInstanceUid, frame }) => {
     const d = requireDirectory();
     return imagePixels(d.index, sopInstanceUid, frame ?? 0, (path, f) => d.pixels.image(path, f));
+  },
+  "viewer:roi-curves": (query) => {
+    const d = requireDirectory();
+    return roiCurves(d.index, query, (path, f) => d.pixels.image(path, f));
   },
   "viewer:attributes": ({ sopInstanceUid }) => imageAttributes(requireDirectory().index, sopInstanceUid),
   "session:get": ({ studyInstanceUid }) => requireDirectory().sessions.get(studyInstanceUid),

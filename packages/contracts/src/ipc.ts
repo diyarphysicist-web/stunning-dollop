@@ -2,7 +2,7 @@ import { z } from "zod";
 import { DirectoryOverview, ImportProgress, ImportRequest, ImportStart, QuarantineEntry, SeriesQuery, SeriesRow, StudyQuery, StudyRow } from "./directory.js";
 import { EngineStatus } from "./engine.js";
 import { Bookmark, BookmarkRef, BookmarkRename, BookmarkSave, LayoutPreset, PresetRef, PresetRename, PresetSave, SessionSave, StudyRef, ViewerSession } from "./session.js";
-import { DicomAttribute, ImageQuery, StackQuery, ViewerPixels, ViewerStack } from "./viewer.js";
+import { DicomAttribute, ImageQuery, RoiCurveQuery, RoiCurves, StackQuery, ViewerPixels, ViewerStack } from "./viewer.js";
 
 /** Build and platform facts the renderer shows in the status bar and About (GEN-200 strings stay in the catalog). */
 export const AppInfo = z.object({
@@ -28,6 +28,8 @@ export type WindowState = z.infer<typeof WindowState>;
 export const IPC = {
   "app:info": { request: Empty, response: AppInfo },
   "window:control": { request: WindowControl, response: WindowState },
+  // GEN-246: copied tables go through main's clipboard (the renderer has no clipboard permission).
+  "clipboard:write-text": { request: z.object({ text: z.string().max(4_000_000) }).strict(), response: z.object({ written: z.boolean() }) },
   "engine:status": { request: Empty, response: EngineStatus },
   "engine:retry": { request: Empty, response: EngineStatus },
   // Study Directory (DIR-001…009). Paths are chosen in main's own dialog; the renderer never sends one.
@@ -39,6 +41,7 @@ export const IPC = {
   "directory:quarantine": { request: Empty, response: z.array(QuarantineEntry) },
   // Generic Viewer (GEN-230…235): images are requested by UID and read from the local store in main.
   "viewer:stack": { request: StackQuery, response: ViewerStack },
+  "viewer:roi-curves": { request: RoiCurveQuery, response: RoiCurves },
   "viewer:pixels": { request: ImageQuery, response: ViewerPixels },
   "viewer:attributes": { request: ImageQuery, response: z.array(DicomAttribute) },
   // Viewer sessions (GEN-241) and bookmarks (GEN-242), kept per study in the local index.
