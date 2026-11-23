@@ -254,5 +254,5 @@ Rules, applied in order; each assigns zero or more types, and a rule marked *fin
 9. TE ≤ 15 ms and TR ≤ 800 ms → T1; additionally VFA reference when Scanning Sequence contains `GR`, it does not contain `IR`, and a flip angle is recorded. *Final.*
 10. TE ≥ 60 ms and TR ≥ 2,000 ms → T2.
 
-Keywords match case-insensitively on word boundaries of Series Description and Protocol Name. A series that matches no rule gets no type (it opens in the generic Viewer only).
+Keywords match case-insensitively at the start of a word of Series Description or Protocol Name; words are split at every character that is not a letter or digit, so `ep2d_perf` and `Perfusion` both match `perf`. A series that matches no rule gets no type (it opens in the generic Viewer only).
 

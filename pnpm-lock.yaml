@@ -82,6 +82,15 @@ importers:
         specifier: ^4.1.0
         version: 4.6.7
 
+  packages/dicom:
+    dependencies:
+      '@neuromr/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+      dicom-parser:
+        specifier: ^1.8.21
+        version: 1.8.21
+
   packages/i18n:
     dependencies:
       intl-messageformat:
@@ -937,6 +946,9 @@ packages:
   detect-libc@2.1.2:
     resolution: {integrity: sha512-Btj2BOOO83o3WyH59e8MgXsxEQVcarkUOpEYrubB0urwnN10yQ364rsiByU11nZlqWYZm05i/of7io4mzihBtQ==}
     engines: {node: '>=8'}
+
+  dicom-parser@1.8.21:
+    resolution: {integrity: sha512-lYCweHQDsC8UFpXErPlg86Px2A8bay0HiUY+wzoG3xv5GzgqVHU3lziwSc/Gzn7VV7y2KeP072SzCviuOoU02w==}
 
   electron-to-chromium@1.5.492:
     resolution: {integrity: sha512-4uMs7omhajKiud0GqALLTazS/zyvHLTLmDWVTR+e6BnyJo5bSNrph/JoRWEFJJmY75ct9hCiSGsbFF9fLe5gDw==}
@@ -2328,6 +2340,8 @@ snapshots:
   deep-is@0.1.4: {}
 
   detect-libc@2.1.2: {}
+
+  dicom-parser@1.8.21: {}
 
   electron-to-chromium@1.5.492: {}
 

@@ -1,0 +1,12 @@
+{
+  "name": "@neuromr/dicom",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "dependencies": {
+    "@neuromr/contracts": "workspace:*",
+    "dicom-parser": "^1.8.21"
+  }
+}
