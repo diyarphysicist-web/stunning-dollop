@@ -29,6 +29,10 @@ jobs:
       - name: Desktop app build and smoke run
         run: |
           node apps/desktop/node_modules/electron/install.js
+          # Electron's renderer sandbox (sandbox: true) needs the setuid helper on Linux; npm cannot
+          # install it as root, so set owner and mode here instead of running with --no-sandbox.
+          sudo chown root:root apps/desktop/node_modules/electron/dist/chrome-sandbox
+          sudo chmod 4755 apps/desktop/node_modules/electron/dist/chrome-sandbox
           pnpm --filter @neuromr/desktop build
           # The smoke sizes the window to 1920 × 1080; the default Xvfb screen (1280 × 1024) is smaller,
           # and a window partly off-screen can leave Chromium without a frame to capture.
