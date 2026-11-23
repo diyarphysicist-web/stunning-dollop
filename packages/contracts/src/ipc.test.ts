@@ -19,6 +19,14 @@ describe("IPC contract (brief §7: every IPC message validated with zod)", () =>
     expect(parseRequest("window:control", { action: "devtools" }).ok).toBe(false);
   });
 
+  it("validates engine status (GEN-221)", () => {
+    expect(parseResponse("engine:status", { state: "connected", version: "0.1.0", location: "local" }).ok).toBe(true);
+    expect(parseResponse("engine:status", { state: "restarting", attempt: 3 }).ok).toBe(true);
+    expect(parseResponse("engine:status", { state: "restarting", attempt: 6 }).ok).toBe(false);
+    expect(parseResponse("engine:status", { state: "unavailable", reason: "oops", detail: "" }).ok).toBe(false);
+    expect(parseRequest("engine:retry", {}).ok).toBe(true);
+  });
+
   it("rejects malformed responses", () => {
     const good = { name: "NeuroMR-PRO", version: "0.1.0", platform: "win32", arch: "x64", electron: "45.4.1" };
     expect(parseResponse("app:info", good).ok).toBe(true);

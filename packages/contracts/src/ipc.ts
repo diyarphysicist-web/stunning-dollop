@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { EngineStatus } from "./engine.js";
 
 /** Build and platform facts the renderer shows in the status bar and About (GEN-200 strings stay in the catalog). */
 export const AppInfo = z.object({
@@ -24,6 +25,8 @@ export type WindowState = z.infer<typeof WindowState>;
 export const IPC = {
   "app:info": { request: Empty, response: AppInfo },
   "window:control": { request: WindowControl, response: WindowState },
+  "engine:status": { request: Empty, response: EngineStatus },
+  "engine:retry": { request: Empty, response: EngineStatus },
 } as const;
 
 export type IpcChannel = keyof typeof IPC;
