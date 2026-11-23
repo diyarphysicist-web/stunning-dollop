@@ -176,6 +176,15 @@ Out of scope: cardiac, cartilage, liver, breast, prostate and muscle workflows. 
 - **GEN-223** Long jobs report progress (fraction and stage) over one authenticated WebSocket per session, using the job event contract (`JobEvent`). Every job can be cancelled; a cancelled job stops at its next progress point and reports *cancelled*, and it never writes partial results.
 - **GEN-224** On quit the application asks the engine to shut down and ends the process if it has not exited within 3 s, so no engine process outlives the application.
 
+
+### 1.24 Generic Viewer
+
+- **GEN-230** The Viewer activity shows any series of the selected study without an analysis package, in the common workspace (GEN-001): the Series tab on the left, the toolbar, the viewport grid and the DICOM inspector. Double-click or Enter on series in the Directory opens them in the Viewer, one series per viewport in selection order; clicking a series in the Series tab loads it into the active viewport.
+- **GEN-231** Each viewport shows, as overlays: top left the series description, the position on each image axis ("Dyn 1/60 · Slice 4/8", or b-value, echo or volume instead of Dyn) and the timing of the current image (time from the first dynamic, TR, TE); top right the patient name, patient ID and study date (SAFE-001); bottom left the window width and level with the unit; bottom right the zoom, pixel spacing and matrix; and the orientation markers on all four edges (SAFE-040).
+- **GEN-232** Displayed and measured values are the stored values with Rescale Slope and Intercept applied. The initial window is the series' Window Center/Width when it is recorded, otherwise the 1st–99th percentile range of the middle image.
+- **GEN-233** The inspector lists the main DICOM attributes of the active viewport's current image (identification, acquisition and geometry: tag, keyword, value, with the unit where the attribute has one), with identifiers and dates ungrouped (GEN-201).
+- **GEN-234** The renderer requests images by SOP Instance UID only; the main process reads them from the local store (DIR-007), so no file path ever crosses the process boundary. Pixel decoding never runs on the renderer's main thread for compressed data; uncompressed data is passed through as typed arrays.
+- **GEN-235** Without WebGL the viewer draws on the CPU with the same overlays and behaviour; the status bar says that rendering is in software mode.
 ---
 
 ## 2. Study Directory and launcher
