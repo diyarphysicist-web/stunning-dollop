@@ -43,7 +43,7 @@ CI: `.github/workflows/ci.yml` (node, engine, traceability with `CURRENT_PHASE`,
 
 ## Handoff
 
-**Phase status:** Phase 0 complete. Phase 1 (Design): all §5.2 screens done (batches 1–8) — **design is a draft – awaiting Diyar's approval**. Not locked. Phase 2 must not start until Diyar writes "design approved".
+**Phase status:** Phase 0 and Phase 1 complete. **Design locked 2026-11-23** (Diyar: "design approved"). `design/screens/` (47 screens, PNGs at 1920×1080 and 2560×1440) is the contract code is built against; new screens go through the same design path (brief §3, last paragraph). Phase 2a (platform core) is next.
 
 **Done in Phase 1 so far**
 - Batch 1: `design/BRIEF.md`, design system `design/design-system/` (DESIGN.md, tokens.css, manifest), tokens exported to `packages/ui/src/tokens/` with tests, phantom imagery (`design/tools/render_phantom_imagery.py` → `design/assets/img`, `assets/data/phantom-data.json`), Playwright PNG export (`pnpm design:render`), shared `design/screens/shell.css`, screens 02 Workspace shell and 03 DSC Perfusion.
@@ -72,4 +72,4 @@ CI: `.github/workflows/ci.yml` (node, engine, traceability with `CURRENT_PHASE`,
 - Open Design MCP is not reachable from cloud sessions; it also disconnected locally during batch 6 (files are still synced by copying into the project folder).
 - Local tooling: `uv` is not on PATH on Diyar's PC; the system Python 3.14 (`/c/Python314/python`) has numpy/scipy/pydicom/Pillow and runs `design/tools/*.py`. Run `inject_plots.py` after editing any screen (it fills `gen:` regions and applies GEN-201 number formatting), then the composers, `inject_plots.py` again, `pnpm design:render`, `pnpm design:text-check`, rebuild the gallery and prototype, `pnpm design:prototype-check`, then copy changed files into the Open Design project folder. `pnpm trace` needs uv; locally run `engine/.venv/Scripts/python.exe scripts/trace.py`.
 
-**Exact next step:** Wait for Diyar's review of the 2026-11-22 changes. Apply any requested changes through the same design path (screens → inject_plots → render → critique → commit). On "design approved": mark the design locked here and start Phase 2.
+**Exact next step:** Start Phase 2a (brief §10): create `apps/desktop` (Electron LTS + Vite + React 19, TypeScript strict, contextIsolation, zod-validated IPC from `packages/contracts`), then the engine sidecar supervisor, DICOM import + SQLite index, Study Directory (screen 01), classifier and validity rules, generic Viewer, Analysis Workspace shell (screen 02) with §6.0 behaviours, layouts/presets (17), bookmarks, Generate Series and table export (16), and the ICU string catalog (GEN-200). Set `CURRENT_PHASE` in CI to 2 only when every GEN/DIR/SAFE requirement has a test.

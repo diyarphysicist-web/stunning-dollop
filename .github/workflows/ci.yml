@@ -9,7 +9,7 @@ permissions:
 
 env:
   # Last completed phase; requirements of this and earlier phases must have tests (scripts/trace.py).
-  CURRENT_PHASE: "0"
+  CURRENT_PHASE: "1"
 
 jobs:
   node:

@@ -1,6 +1,6 @@
 # NeuroMR-PRO — Design Brief
 
-Status: Phase 1 (Design). Written with the `design-brief` skill from `docs/PROMPT.md` §4–5, §12.2–12.4 and `docs/spec/FUNCTIONAL_SPEC.md`. Design work is done in Open Design (project **NeuroMR-PRO**, design system **neuromr-pro**). Screens exported from Open Design to `design/screens/` are the contract that code is built against.
+Status: **Locked 2026-11-23** (approved by Diyar). Phase 1 (Design). Written with the `design-brief` skill from `docs/PROMPT.md` §4–5, §12.2–12.4 and `docs/spec/FUNCTIONAL_SPEC.md`. Design work is done in Open Design (project **NeuroMR-PRO**, design system **neuromr-pro**). Screens exported from Open Design to `design/screens/` are the contract that code is built against.
 
 ## 1. Structured brief (I-Lang)
 
