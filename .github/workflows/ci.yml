@@ -20,6 +20,9 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: pnpm }
       - run: pnpm install --frozen-lockfile
+      # The desktop tests start the real compute engine (engine/.venv).
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --locked --project engine
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test

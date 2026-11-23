@@ -18,7 +18,19 @@ export const en = {
   "window.close": "Close",
   "status.noStudy": "No study open",
   "status.platform": "{platform} {arch} · Electron {electron}",
-  "error.bridge": "The application could not read its own status. Restart NeuroMR-PRO; if this repeats, collect diagnostics from Help.",
+  "error.bridge": "The application could not read its own status. Restart NeuroMR-PRO.",
+  "engine.label": "Engine",
+  "engine.starting": "starting",
+  "engine.connected": "connected",
+  "engine.local": "local",
+  "engine.restarting": "restarting, attempt {attempt} of {max}",
+  "engine.unavailable": "unavailable",
+  "engine.stopped": "stopped",
+  "engine.hint.waiting": "Analyses can start once it is connected.",
+  "engine.hint.notInstalled": "The compute engine is missing from this installation. Reinstall NeuroMR-PRO.",
+  "engine.hint.failedToStart": "The compute engine could not start. Select Retry; if it fails again, restart NeuroMR-PRO.",
+  "engine.hint.crashedRepeatedly": "The compute engine stopped several times. Select Retry; if it stops again, restart NeuroMR-PRO.",
+  "engine.retry": "Retry",
 } as const satisfies Record<string, string>;
 
 export type MessageId = keyof typeof en;

@@ -1,7 +1,8 @@
-import type { AppInfo, WindowState } from "@neuromr/contracts";
+import type { AppInfo, EngineStatus, WindowState } from "@neuromr/contracts";
 import { t } from "@neuromr/i18n";
 import { useEffect, useState } from "react";
 import { invoke } from "./bridge.js";
+import { EngineStatusItem, useEngineStatus } from "./EngineStatusItem.js";
 import { Icon, IconSprite } from "./Icon.js";
 
 function TopBar({ maximized }: { maximized: boolean }) {
@@ -29,10 +30,12 @@ function Rail() {
   );
 }
 
-function StatusBar({ info, failed }: { info: AppInfo | null; failed: boolean }) {
+function StatusBar({ info, failed, engine }: { info: AppInfo | null; failed: boolean; engine: EngineStatus | null }) {
   return (
     <footer className="statusbar">
       <span className="sb-item"><span className="dot dot--idle" /><b>{t("status.noStudy")}</b></span>
+      <span className="sb-sep" />
+      <EngineStatusItem status={engine} />
       <span className="spacer" />
       {failed && <span className="sb-item"><span className="dot dot--critical" />{t("error.bridge")}</span>}
       {info && <span className="sb-item">{t("app.version", { version: info.version })}</span>}
@@ -44,6 +47,7 @@ export function App() {
   const [info, setInfo] = useState<AppInfo | null>(null);
   const [failed, setFailed] = useState(false);
   const [win, setWin] = useState<WindowState>({ maximized: false, focused: true });
+  const engine = useEngineStatus();
 
   useEffect(() => {
     void invoke("app:info", {}).then((r) => (r.ok ? setInfo(r.value) : setFailed(true)));
@@ -56,7 +60,7 @@ export function App() {
       <IconSprite />
       <TopBar maximized={win.maximized} />
       <Rail />
-      <StatusBar info={info} failed={failed} />
+      <StatusBar info={info} failed={failed} engine={engine} />
     </div>
   );
 }

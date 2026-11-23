@@ -2,6 +2,8 @@ import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { tokens } from "@neuromr/ui";
 import { BrowserWindow, app } from "electron";
+import { EngineSupervisor } from "./engine/supervisor.js";
+import { nodeDeps, resolveEngineCommand } from "./engine/runtime.js";
 import { forwardWindowState, registerIpc } from "./ipc.js";
 import { hardenSession, lockNavigation } from "./security.js";
 
@@ -54,10 +56,27 @@ if (!app.requestSingleInstanceLock()) {
       win.focus();
     }
   });
+  const engine = new EngineSupervisor(
+    nodeDeps(
+      () => resolveEngineCommand({ packaged: app.isPackaged, resourcesPath: process.resourcesPath, appPath: app.getAppPath() }),
+      (line) => console.log(line),
+    ),
+  );
   void app.whenReady().then(() => {
     hardenSession(devServerUrl);
-    registerIpc(isAppUrl);
+    registerIpc(isAppUrl, engine);
+    engine.start();
     createMainWindow();
   });
   app.on("window-all-closed", () => app.quit());
+  // GEN-224: no engine process outlives the application.
+  let engineStopped = false;
+  app.on("before-quit", (event) => {
+    if (engineStopped) return;
+    event.preventDefault();
+    void engine.stop().finally(() => {
+      engineStopped = true;
+      app.quit();
+    });
+  });
 }
