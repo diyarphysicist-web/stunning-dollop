@@ -1,5 +1,5 @@
 import type { SeriesType } from "@neuromr/contracts";
-import type { InstanceHeader } from "./header.js";
+import { expandFrames, type InstanceHeader } from "./header.js";
 import { classify } from "./classify.js";
 
 /** Per-series facts derived from its instances (ALGORITHMS.md §13, aggregation step). */
@@ -72,7 +72,9 @@ function words(...texts: string[]): string[] {
 }
 
 /** Aggregates the instances of one series and classifies it. `instances` must be non-empty. */
-export function describeSeries(instances: readonly InstanceHeader[]): SeriesDescription {
+export function describeSeries(headers: readonly InstanceHeader[]): SeriesDescription {
+  // Multi-frame instances count as their frames (GEN-240).
+  const instances = headers.flatMap(expandFrames);
   const first = instances[0];
   if (!first) throw new RangeError("describeSeries needs at least one instance");
 

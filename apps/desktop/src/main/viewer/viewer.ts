@@ -1,5 +1,5 @@
 import type { AttributeUnit, DicomAttribute, StackAxis, ViewerImageInfo, ViewerPixels, ViewerStack } from "@neuromr/contracts";
-import { describeSeries, stackLayout, type InstanceHeader } from "@neuromr/dicom";
+import { describeSeries, expandFrames, imageRef, stackLayout, type InstanceHeader } from "@neuromr/dicom";
 import { decodeImage, type DecodeImage } from "../pixels/decode-image.js";
 import { isoDate, type StudyIndex } from "../directory/study-index.js";
 
@@ -16,7 +16,9 @@ const orNull = <T>(v: T | undefined): T | null => v ?? null;
 
 function imageInfo(h: InstanceHeader): ViewerImageInfo {
   return {
+    ref: imageRef(h),
     sopInstanceUid: h.sopInstanceUid,
+    frame: h.frame ?? 0,
     rows: h.rows,
     columns: h.columns,
     pixelSpacing: orNull(h.pixelSpacing),
@@ -53,7 +55,8 @@ export function seriesStack(index: StudyIndex, seriesUid: string): ViewerStack {
     slicePositions: layout.slicePositions,
     points: layout.points,
     grid: layout.grid,
-    images: headers.map(imageInfo),
+    // One entry per frame of multi-frame instances (GEN-240).
+    images: headers.flatMap(expandFrames).map(imageInfo),
   };
 }
 
@@ -61,10 +64,10 @@ export function seriesStack(index: StudyIndex, seriesUid: string): ViewerStack {
  * Modality values of one stored image (GEN-232, GEN-234). The renderer names the image by UID; the
  * path comes from the index, never from the request.
  */
-export async function imagePixels(index: StudyIndex, sopUid: string, decode: DecodeImage = decodeImage): Promise<ViewerPixels> {
+export async function imagePixels(index: StudyIndex, sopUid: string, frame = 0, decode: DecodeImage = decodeImage): Promise<ViewerPixels> {
   const inst = index.instance(sopUid);
   if (!inst) return { status: "missing", sopInstanceUid: sopUid };
-  const img = await decode(inst.path, 0);
+  const img = await decode(inst.path, frame);
   if (img.status === "ok") return { status: "ok", sopInstanceUid: sopUid, width: img.width, height: img.height, values: img.values, invert: img.invert };
   if (img.status === "unsupported") return { status: "unsupported", sopInstanceUid: sopUid, transferSyntaxUid: img.transferSyntaxUid };
   return { status: "missing", sopInstanceUid: sopUid };

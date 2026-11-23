@@ -83,7 +83,7 @@ describe("GEN-233 DICOM inspector", () => {
 describe("GEN-238 compressed images and GEN-239 lossy notice", () => {
   it("GEN-238 an image without a codec names its transfer syntax", async () => {
     store({ sop: "6.1" });
-    const px = await imagePixels(index, "6.1", async () => ({ status: "unsupported", transferSyntaxUid: "1.2.840.10008.1.2.4.100" }));
+    const px = await imagePixels(index, "6.1", 0, async () => ({ status: "unsupported", transferSyntaxUid: "1.2.840.10008.1.2.4.100" }));
     expect(px).toEqual({ status: "unsupported", sopInstanceUid: "6.1", transferSyntaxUid: "1.2.840.10008.1.2.4.100" });
   });
   it("GEN-239 lossy compression recorded in the header marks the image and its series", () => {
@@ -123,5 +123,46 @@ describe.runIf(process.env.NEUROMR_REQUIRE_PHANTOMS === "1" || existsSync(CODECS
     for (let i = 0; i < got.values.length; i++) err += Math.abs((got.values[i] as number) - (want.values[i] as number));
     if (lossy) expect(err / got.values.length).toBeLessThan(0.02 * Math.max(...want.values));
     else expect(err).toBe(0);
+  });
+});
+
+// Enhanced phantoms (`pnpm phantoms`); CI sets NEUROMR_REQUIRE_PHANTOMS so they cannot be skipped there.
+const ENHANCED = resolve(import.meta.dirname, "../../../../../data/phantoms/enhanced");
+describe.runIf(process.env.NEUROMR_REQUIRE_PHANTOMS === "1" || existsSync(ENHANCED))("GEN-240 enhanced multi-frame through the store", () => {
+  it("GEN-240 a multi-frame DSC opens as slices × dynamics; each cell decodes its own frame", async () => {
+    const add = (dir: string) => {
+      let series = "";
+      for (const f of readdirSync(dir).filter((x) => x.endsWith(".dcm"))) {
+        const path = join(dir, f);
+        const bytes = readFileSync(path);
+        const r = readHeader(bytes);
+        if (r.status !== "ok") throw new Error("parse");
+        index.addInstance(r.header, path, bytes.length);
+        series = r.header.seriesInstanceUid;
+      }
+      index.refreshSeries(series, true);
+      return series;
+    };
+    const enh = seriesStack(index, add(join(ENHANCED, "dsc", "enhanced")));
+    const cls = seriesStack(index, add(join(ENHANCED, "dsc", "classic")));
+    expect(enh.axis).toBe("dynamic");
+    expect([enh.grid.length, enh.grid[0]?.length]).toEqual([cls.grid.length, cls.grid[0]?.length]);
+    expect(enh.points).toEqual(cls.points);
+    expect(enh.images).toHaveLength(cls.images.length);
+    const study = index.studies("")[0]?.studyInstanceUid ?? "";
+    const row = index.series(study).find((s) => s.seriesInstanceUid === enh.seriesInstanceUid);
+    expect(row).toMatchObject({ imageCount: cls.images.length, types: ["DSC"] });
+
+    const s = enh.grid.length - 1;
+    const p = (enh.grid[0]?.length ?? 1) - 1;
+    const info = enh.images.find((i) => i.ref === enh.grid[s]?.[p]);
+    const twin = cls.images.find((i) => i.sopInstanceUid === cls.grid[s]?.[p]);
+    if (!info || !twin) throw new Error("cell missing");
+    expect(info.frame).toBeGreaterThan(0);
+    expect(info.position).toEqual(twin.position);
+    const a = await imagePixels(index, info.sopInstanceUid, info.frame);
+    const b = await imagePixels(index, twin.sopInstanceUid);
+    if (a.status !== "ok" || b.status !== "ok") throw new Error("decode");
+    expect(a.values).toEqual(b.values);
   });
 });

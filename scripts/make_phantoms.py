@@ -25,6 +25,7 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "engine"))
 
+from neuromr_engine.dicom.enhanced import write_enhanced_series  # noqa: E402
 from neuromr_engine.dicom.transcode import CODECS, transcode  # noqa: E402
 from neuromr_engine.dicom.writer import SeriesSpec, StudySpec  # noqa: E402
 from neuromr_engine.dicom.writer import write_series as _write_series  # noqa: E402
@@ -45,13 +46,18 @@ _ACQUISITION: tuple[tuple[str, dict], ...] = (
 )
 
 
-def write_series(data: np.ndarray, folder: Path, study: StudySpec, spec: SeriesSpec) -> list[Path]:
-    """Write a phantom series with the acquisition attributes of its kind (explicit extras win)."""
+def _with_acquisition(spec: SeriesSpec) -> SeriesSpec:
+    """Adds the acquisition attributes of the series' kind (explicit extras win)."""
     for prefix, attrs in _ACQUISITION:
         if spec.description.startswith(prefix):
             spec.extra = {**attrs, **spec.extra}
             break
-    return _write_series(data, folder, study, spec)
+    return spec
+
+
+def write_series(data: np.ndarray, folder: Path, study: StudySpec, spec: SeriesSpec) -> list[Path]:
+    """Write a phantom series with the acquisition attributes of its kind."""
+    return _write_series(data, folder, study, _with_acquisition(spec))
 
 
 def _save_truth(p: Phantom, folder: Path) -> None:
@@ -304,7 +310,57 @@ def build(out: Path, only: set[str] | None) -> list[str]:
         done += _build_brain(out, StudySpec())
     if want("codecs"):
         done += _build_codecs(out)
+    if want("enhanced"):
+        done += _build_enhanced(out)
     return done
+
+
+def _build_enhanced(out: Path) -> list[str]:
+    """Enhanced MR multi-frame phantoms (GEN-240), own study. enhanced/<kind>/classic holds the same
+    acquisition as single-frame images, enhanced/<kind>/enhanced as one multi-frame instance."""
+    study = StudySpec(
+        study_description="NeuroMR-PRO enhanced phantom", accession="ENHANCED0001", seed="neuromr-enhanced"
+    )
+    dsc_p = dsc.make_dsc(snr=50)
+    dti_p = diffusion.make_dti(n_dirs=6, bvals=(0.0, 1000.0), snr=30.0)
+    echo_p = other.make_multi_echo()
+    kinds = (
+        (
+            "dsc",
+            dsc_p,
+            dict(description="DSC perf", axis_kind="dynamic", times_s=dsc_p.meta["times"], te_ms=30.0)
+            | dict(tr_ms=dsc_p.meta["tr"] * 1000, flip_deg=90.0),
+        ),
+        (
+            "dti",
+            dti_p,
+            dict(
+                description="DTI",
+                axis_kind="bvalue",
+                bvals=dti_p.meta["bvals"],
+                bvecs=dti_p.meta["bvecs"],
+            )
+            | dict(te_ms=80.0, tr_ms=6000.0),
+        ),
+        (
+            "echo",
+            echo_p,
+            dict(description="Multi-echo GRE", axis_kind="echo", echo_times_ms=echo_p.meta["te_ms"])
+            | dict(tr_ms=echo_p.meta["tr_ms"], flip_deg=echo_p.meta["flip_deg"], pixel_mm=1.0, slice_mm=1.0),
+        ),
+    )
+    for n, (kind, p, kw) in enumerate(kinds):
+        for variant, number in (("classic", 700 + 2 * n), ("enhanced", 701 + 2 * n)):
+            folder = out / "enhanced" / kind / variant
+            for old in folder.glob("*.dcm") if folder.exists() else ():
+                old.unlink()
+            label = "classic" if variant == "classic" else "multi-frame"
+            spec = SeriesSpec(series_number=number, **{**kw, "description": f"{kw['description']} {label}"})
+            if variant == "classic":
+                write_series(p.data, folder, study, spec)
+            else:
+                write_enhanced_series(p.data, folder, study, _with_acquisition(spec))
+    return ["enhanced"]
 
 
 def _build_codecs(out: Path) -> list[str]:
@@ -527,7 +583,7 @@ def main() -> None:
         "--only",
         type=str,
         default=None,
-        help="comma list: dsc,dce,dti,ivim,fmri,mrs,flair,swi,echo,brain,codecs",
+        help="comma list: dsc,dce,dti,ivim,fmri,mrs,flair,swi,echo,brain,codecs,enhanced",
     )
     args = ap.parse_args()
     only = set(args.only.split(",")) if args.only else None

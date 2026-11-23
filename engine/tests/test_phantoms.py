@@ -234,3 +234,23 @@ def test_gen238_codec_phantoms_decode_to_their_reference(tmp_path):
                 assert np.mean(np.abs(got - want)) < 0.02 * (2**codec.bits - 1), codec.key
             else:
                 assert np.array_equal(got, want), codec.key
+
+
+def test_gen240_enhanced_phantoms_hold_the_classic_frames(tmp_path):
+    """GEN-240 test data: one multi-frame instance holds the classic series' images, frame by frame."""
+    _make_phantoms_module().build(tmp_path, {"enhanced"})
+    for kind in ("dsc", "dti", "echo"):
+        root = tmp_path / "enhanced" / kind
+        classic = [pydicom.dcmread(f) for f in sorted((root / "classic").glob("*.dcm"))]
+        (enhanced_file,) = (root / "enhanced").glob("*.dcm")
+        enh = pydicom.dcmread(enhanced_file)
+        assert enh.SOPClassUID == "1.2.840.10008.5.1.4.1.1.4.1"
+        assert int(enh.NumberOfFrames) == len(classic), kind
+        frames = enh.pixel_array.reshape(len(classic), enh.Rows, enh.Columns)
+        # Classic instances are numbered in the same point-major order as the frames.
+        for k, c in enumerate(sorted(classic, key=lambda d: int(d.InstanceNumber))):
+            assert np.array_equal(frames[k], c.pixel_array), (kind, k)
+            group = enh.PerFrameFunctionalGroupsSequence[k]
+            assert [float(v) for v in group.PlanePositionSequence[0].ImagePositionPatient] == [
+                float(v) for v in c.ImagePositionPatient
+            ]

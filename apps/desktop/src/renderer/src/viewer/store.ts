@@ -1,4 +1,4 @@
-import type { DicomAttribute, ViewerStack } from "@neuromr/contracts";
+import { parseImageRef, type DicomAttribute, type ViewerStack } from "@neuromr/contracts";
 import { IDENTITY, nextRoiName, uniqueRoiName, type Roi, type RoiShape, type RoiStats, type ViewTransform } from "@neuromr/viewer";
 import { create } from "zustand";
 import { invoke } from "../bridge.js";
@@ -77,13 +77,13 @@ export const useViewer = create<ViewerState>((set, get) => {
     if (sop === attributesFor) return;
     attributesFor = sop;
     if (!sop) return set({ attributes: [] });
-    const r = await invoke("viewer:attributes", { sopInstanceUid: sop });
+    const r = await invoke("viewer:attributes", { sopInstanceUid: parseImageRef(sop).sopInstanceUid });
     if (attributesFor === sop) set({ attributes: r.ok ? r.value : [] });
   }
 
   function release(): void {
     const keep = new Set<string>();
-    for (const p of get().panes) for (const i of p.stack?.images ?? []) keep.add(i.sopInstanceUid);
+    for (const p of get().panes) for (const i of p.stack?.images ?? []) keep.add(i.ref);
     purge(keep);
   }
 

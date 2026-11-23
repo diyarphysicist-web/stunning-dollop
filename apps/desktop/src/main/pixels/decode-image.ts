@@ -30,10 +30,10 @@ export async function decodeImage(path: string, frame: number): Promise<DecodedI
 }
 
 /** PNG thumbnail of a stored file (DIR-002); null when it cannot be decoded. */
-export async function thumbnailPng(path: string): Promise<Buffer | null> {
+export async function thumbnailPng(path: string, frame = 0): Promise<Buffer | null> {
   try {
     const parsed = readHeader(await readFile(path));
-    const img = parsed.status === "ok" ? await thumbnail(parsed.dataSet, parsed.header.transferSyntaxUid) : undefined;
+    const img = parsed.status === "ok" ? await thumbnail(parsed.dataSet, parsed.header.transferSyntaxUid, 64, frame) : undefined;
     return img ? encodePng(img) : null;
   } catch {
     return null; // A thumbnail is a convenience; the series stays usable without one.

@@ -24,7 +24,7 @@ let phantomRoot = process.env.NEUROMR_SMOKE_DICOM;
 function phantoms() {
   if (!phantomRoot) {
     phantomRoot = mkdtempSync(join(tmpdir(), "neuromr-phantoms-"));
-    execFileSync("uv", ["run", "--project", "engine", "python", "scripts/make_phantoms.py", "--out", phantomRoot, "--only", "dce,codecs"], { cwd: repo, stdio: "inherit" });
+    execFileSync("uv", ["run", "--project", "engine", "python", "scripts/make_phantoms.py", "--out", phantomRoot, "--only", "dce,codecs,enhanced"], { cwd: repo, stdio: "inherit" });
   }
   return phantomRoot;
 }
@@ -37,6 +37,20 @@ function codecFixture() {
     const src = join(phantoms(), "codecs", key);
     mkdirSync(join(root, key));
     for (const f of readdirSync(src)) copyFileSync(join(src, f), join(root, key, f));
+  }
+  return root;
+}
+
+/** GEN-240: the enhanced phantom study (classic and multi-frame copies of DSC, DTI and multi-echo). */
+function enhancedFixture() {
+  const root = mkdtempSync(join(tmpdir(), "neuromr-enhanced-"));
+  for (const kind of ["dsc", "dti", "echo"]) {
+    for (const variant of ["classic", "enhanced"]) {
+      const src = join(phantoms(), "enhanced", kind, variant);
+      const dst = join(root, `${kind}-${variant}`);
+      mkdirSync(dst);
+      for (const f of readdirSync(src)) copyFileSync(join(src, f), join(dst, f));
+    }
   }
   return root;
 }
@@ -262,6 +276,35 @@ try {
   const lossyShown = await win.locator("[data-testid=overlay-lossy]").count();
   if (lossyShown !== 4) throw new Error(`expected 4 lossy overlays, got ${lossyShown}`);
   await shot(win, "desktop-viewer-codecs.png");
+
+  // GEN-240: enhanced multi-frame series classify and display like their classic twins.
+  const enhanced = enhancedFixture();
+  await app.evaluate(({ dialog }, folder) => {
+    dialog.showOpenDialog = async () => ({ canceled: false, filePaths: [folder] });
+  }, enhanced);
+  await win.keyboard.press("Control+1");
+  await win.keyboard.press("Control+o");
+  await win.locator("[data-testid=import-summary]").filter({ hasText: /\d+ added/ }).filter({ hasNotText: "27 added" }).waitFor({ timeout: 120000 });
+  await win.locator("[data-testid=study-list] tbody tr").filter({ hasText: "enhanced" }).click();
+  const enhRows = win.locator("[data-testid=series-list] tbody tr");
+  await enhRows.nth(5).waitFor();
+  const dscRows = enhRows.filter({ hasText: "DSC perf" });
+  if ((await dscRows.count()) !== 2) throw new Error("classic and enhanced DSC series expected");
+  for (const r of await dscRows.all()) if (!(await r.locator(".type").allInnerTexts()).includes("DSC")) throw new Error("enhanced DSC not classified as DSC");
+  const dtiRows = enhRows.filter({ hasText: "DTI" });
+  for (const r of await dtiRows.all()) if (!(await r.locator(".type").allInnerTexts()).includes("DTI")) throw new Error("enhanced DTI not classified as DTI");
+  if ((await win.locator("[data-testid=series-list] .thumb img").count()) !== 6) throw new Error("enhanced thumbnails missing");
+  await shot(win, "desktop-directory-enhanced.png");
+  await dscRows.nth(0).click();
+  await dscRows.nth(1).click({ modifiers: ["Control"] });
+  await win.locator("[data-testid=series-list]").press("Enter");
+  const overlay = (i) => win.locator(`[data-testid=viewport-${i}][data-state=ready] [data-testid=overlay-position]`);
+  await overlay(0).waitFor({ timeout: 30000 });
+  await overlay(1).waitFor({ timeout: 30000 });
+  const strip = (t) => t.replace(/^DSC perf (classic|multi-frame) · /, "");
+  const [o0, o1] = [strip(await overlay(0).innerText()), strip(await overlay(1).innerText())];
+  if (o0 !== o1) throw new Error(`classic and enhanced overlays differ: ${o0} / ${o1}`);
+  await shot(win, "desktop-viewer-enhanced.png");
 
   const software = await win.locator("[data-testid=software-rendering]").count();
   console.log(`viewer ok · ${software ? "software rendering (GEN-235)" : "GPU rendering"}`);

@@ -1,5 +1,8 @@
 import type { DataSet, Element } from "dicom-parser";
+import { imageRef, parseImageRef } from "@neuromr/contracts";
 import { LOSSY_SYNTAXES } from "./decode.js";
+
+export { imageRef, parseImageRef };
 import { hasPart10Magic, parseBytes } from "./parse.js";
 
 /** Why an input file was not indexed (DIR-006). `missing-file` is used by DICOMDIR import. */
@@ -54,6 +57,34 @@ export interface InstanceHeader {
   sliceLocation: number | undefined;
   /** Lossy Image Compression (0028,2110) is 01 or the transfer syntax is lossy (GEN-239). Absent in older index rows. */
   lossy?: boolean;
+  /** Per-frame values of a multi-frame instance with functional groups (GEN-240); see `expandFrames`. */
+  frames?: FrameFacts[];
+  /** Frame number (0-based) of a header produced by `expandFrames`. */
+  frame?: number;
+  /** Rescale of an expanded frame (Pixel Value Transformation); classic images keep it in the file. */
+  rescaleSlope?: number;
+  rescaleIntercept?: number;
+}
+
+/** Values one frame takes from its functional groups (GEN-240). */
+export interface FrameFacts {
+  imagePosition?: [number, number, number];
+  imageOrientation?: number[];
+  pixelSpacing?: [number, number];
+  sliceThickness?: number;
+  temporalPosition?: number;
+  /** Milliseconds from the first frame (Temporal Position Time Offset or Frame Acquisition DateTime). */
+  triggerTime?: number;
+  echoTime?: number;
+  repetitionTime?: number;
+  flipAngle?: number;
+  inversionTime?: number;
+  bValue?: number;
+  gradient?: [number, number, number];
+  rescaleSlope?: number;
+  rescaleIntercept?: number;
+  windowCenter?: number;
+  windowWidth?: number;
 }
 
 export type HeaderResult =
@@ -90,9 +121,22 @@ function decoderFor(charset: string): TextDecoder {
 
 class Reader {
   private readonly decoder: TextDecoder;
-  constructor(private readonly ds: DataSet) {
-    const raw = ds.string("x00080005") ?? "";
-    this.decoder = decoderFor(raw);
+  constructor(
+    private readonly ds: DataSet,
+    decoder?: TextDecoder,
+  ) {
+    this.decoder = decoder ?? decoderFor(ds.string("x00080005") ?? "");
+  }
+  /** First item of a sequence, read with this instance's character set. */
+  item(tag: string, index = 0): Reader | undefined {
+    const item = this.ds.elements[tag]?.items?.[index]?.dataSet;
+    return item ? new Reader(item, this.decoder) : undefined;
+  }
+  count(tag: string): number {
+    return this.ds.elements[tag]?.items?.length ?? 0;
+  }
+  uint32(tag: string): number | undefined {
+    return this.element(tag) ? this.ds.uint32(tag) : undefined;
   }
   private element(tag: string): Element | undefined {
     const el = this.ds.elements[tag];
@@ -144,6 +188,124 @@ function triple(v: number[]): [number, number, number] | undefined {
   return v.length === 3 && v.every(Number.isFinite) ? [v[0] as number, v[1] as number, v[2] as number] : undefined;
 }
 
+type Defined<T> = { [K in keyof T]?: Exclude<T[K], undefined> };
+const defined = <T extends object>(o: T): Defined<T> => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined)) as Defined<T>;
+
+/** DICOM DT (YYYYMMDDHHMMSS.FFFFFF) as milliseconds since the epoch, ignoring any offset. */
+function dateTimeMs(dt: string): number | undefined {
+  const m = /^(\d{4})(\d{2})(\d{2})(\d{2})?(\d{2})?(\d{2})?(?:\.(\d{1,6}))?/.exec(dt);
+  if (!m) return undefined;
+  const [, y = "0", mo = "1", d = "1", h = "0", mi = "0", sec = "0", frac = "0"] = m;
+  return Date.UTC(+y, +mo - 1, +d, +h, +mi, +sec) + Number(`0.${frac}`) * 1000;
+}
+
+/** Functional group macros of one group item (shared or per-frame), PS3.3 C.7.6.16. */
+function groupFacts(g: Reader): FrameFacts & { acquisitionMs?: number } {
+  const pos = g.item("x00209113");
+  const ori = g.item("x00209116");
+  const pm = g.item("x00289110");
+  const fc = g.item("x00209111");
+  const tp = g.item("x00209310");
+  const echo = g.item("x00189114");
+  const timing = g.item("x00189112");
+  const mod = g.item("x00189115");
+  const diff = g.item("x00189117");
+  const pvt = g.item("x00289145");
+  const voi = g.item("x00289132");
+  const spacing = pm?.nums("x00280030") ?? [];
+  const orientation = ori?.nums("x00200037") ?? [];
+  const offset = tp?.double("x0020930d");
+  const directional = diff ? diff.str("x00189075").toUpperCase() !== "NONE" && diff.str("x00189075").toUpperCase() !== "ISOTROPIC" : false;
+  const grad = diff?.item("x00189076");
+  return defined({
+    imagePosition: pos ? triple(pos.nums("x00200032")) : undefined,
+    imageOrientation: orientation.length === 6 ? orientation : undefined,
+    pixelSpacing: spacing.length === 2 ? ([spacing[0], spacing[1]] as [number, number]) : undefined,
+    sliceThickness: pm?.num("x00180050"),
+    temporalPosition: fc?.uint32("x00209128"),
+    triggerTime: offset !== undefined ? offset * 1000 : undefined,
+    acquisitionMs: fc ? dateTimeMs(fc.str("x00189074")) : undefined,
+    echoTime: echo?.double("x00189082"),
+    repetitionTime: timing?.num("x00180080"),
+    flipAngle: timing?.num("x00181314"),
+    inversionTime: mod?.double("x00189079"),
+    bValue: diff?.double("x00189087"),
+    gradient: directional && grad ? triple([0, 1, 2].map((i) => grad.double("x00189089", i)).filter((v): v is number => v !== undefined)) : undefined,
+    rescaleSlope: pvt?.num("x00281053"),
+    rescaleIntercept: pvt?.num("x00281052"),
+    windowCenter: voi?.num("x00281050"),
+    windowWidth: voi?.num("x00281051"),
+  });
+}
+
+/** Per-frame values of a multi-frame instance with functional groups; undefined for other images. */
+function frameFacts(r: Reader): FrameFacts[] | undefined {
+  const n = r.count("x52009230");
+  if (n === 0) return undefined;
+  const sharedItem = r.item("x52009229");
+  const shared = sharedItem ? groupFacts(sharedItem) : {};
+  const frames = Array.from({ length: n }, (_, k) => {
+    const item = r.item("x52009230", k);
+    return { ...shared, ...(item ? groupFacts(item) : {}) };
+  });
+  // Times relative to the first frame; acquisition date-times stand in for missing time offsets.
+  const offsets = frames.map((f) => f.triggerTime ?? f.acquisitionMs);
+  const t0 = Math.min(...offsets.filter((v): v is number => v !== undefined));
+  return frames.map(({ acquisitionMs, ...f }, k) => {
+    void acquisitionMs;
+    const t = offsets[k];
+    return t === undefined || !Number.isFinite(t0) ? f : { ...f, triggerTime: t - t0 };
+  });
+}
+
+/** Rescale of one frame from its functional groups (GEN-240), else undefined. */
+export function frameRescale(ds: DataSet, frame: number): { slope: number; intercept: number } | undefined {
+  const r = new Reader(ds);
+  const shared = r.item("x52009229");
+  const own = r.item("x52009230", frame);
+  const f = { ...(shared ? groupFacts(shared) : {}), ...(own ? groupFacts(own) : {}) };
+  if (f.rescaleSlope === undefined && f.rescaleIntercept === undefined) return undefined;
+  return { slope: f.rescaleSlope ?? 1, intercept: f.rescaleIntercept ?? 0 };
+}
+
+/**
+ * One header per frame for multi-frame instances with functional groups (GEN-240); other headers
+ * are returned unchanged. Frame values win over the instance's top-level attributes.
+ */
+export function expandFrames(h: InstanceHeader): InstanceHeader[] {
+  const { frames, ...base } = h;
+  if (!frames?.length) return [h];
+  return frames.map((f, frame) => ({
+    ...base,
+    frame,
+    numberOfFrames: 1,
+    imagePosition: f.imagePosition ?? base.imagePosition,
+    imageOrientation: f.imageOrientation ?? base.imageOrientation,
+    pixelSpacing: f.pixelSpacing ?? base.pixelSpacing,
+    sliceThickness: f.sliceThickness ?? base.sliceThickness,
+    temporalPosition: f.temporalPosition ?? base.temporalPosition,
+    triggerTime: f.triggerTime ?? base.triggerTime,
+    echoTime: f.echoTime ?? base.echoTime,
+    repetitionTime: f.repetitionTime ?? base.repetitionTime,
+    flipAngle: f.flipAngle ?? base.flipAngle,
+    inversionTime: f.inversionTime ?? base.inversionTime,
+    bValue: f.bValue ?? base.bValue,
+    gradient: f.gradient ?? base.gradient,
+    windowCenter: f.windowCenter ?? base.windowCenter,
+    windowWidth: f.windowWidth ?? base.windowWidth,
+    ...defined({ rescaleSlope: f.rescaleSlope, rescaleIntercept: f.rescaleIntercept }),
+  }));
+}
+
+/** Classic Scanning Sequence from Enhanced MR Pulse Sequence attributes (ALGORITHMS.md §13). */
+function enhancedScanning(r: Reader): string[] {
+  const echo = r.str("x00189008").toUpperCase();
+  const out = echo === "SPIN" ? ["SE"] : echo === "GRADIENT" ? ["GR"] : echo === "BOTH" ? ["SE", "GR"] : [];
+  if (r.str("x00189018").toUpperCase() === "YES") out.push("EP");
+  if (r.str("x00189009").toUpperCase() === "YES") out.push("IR");
+  return out;
+}
+
 /** Standard attribute first, then the three main vendors' private fields. */
 function diffusion(r: Reader): { bValue: number | undefined; gradient: [number, number, number] | undefined } {
   let bValue = r.double("x00189087");
@@ -190,6 +352,10 @@ export function readHeader(bytes: Uint8Array): HeaderResult {
   if (!hasPixelData && !nonImage) return { status: "quarantine", reason: "no-pixel-data", detail: "image without pixel data" };
 
   const { bValue, gradient } = diffusion(r);
+  const frames = frameFacts(r);
+  const first = frames?.[0];
+  const scanning = r.strings("x00180020").map((v) => v.toUpperCase());
+  const agentItem = r.item("x00180012");
   const header: InstanceHeader = {
     sopInstanceUid,
     sopClassUid,
@@ -212,12 +378,12 @@ export function readHeader(bytes: Uint8Array): HeaderResult {
     protocolName: r.str("x00181030"),
     instanceNumber: r.num("x00200013"),
     imageType: r.strings("x00080008").map((v) => v.toUpperCase()),
-    scanningSequence: r.strings("x00180020").map((v) => v.toUpperCase()),
-    echoTime: r.num("x00180081"),
-    repetitionTime: r.num("x00180080"),
-    inversionTime: r.num("x00180082"),
-    flipAngle: r.num("x00181314"),
-    contrastAgent: r.str("x00180010"),
+    scanningSequence: scanning.some(Boolean) ? scanning : enhancedScanning(r),
+    echoTime: r.num("x00180081") ?? first?.echoTime,
+    repetitionTime: r.num("x00180080") ?? first?.repetitionTime,
+    inversionTime: r.num("x00180082") ?? first?.inversionTime,
+    flipAngle: r.num("x00181314") ?? first?.flipAngle,
+    contrastAgent: r.str("x00180010") || (agentItem ? agentItem.str("x00080104") || agentItem.str("x00080100") || "recorded" : ""),
     temporalPosition: r.num("x00200100"),
     acquisitionNumber: r.num("x00200012"),
     triggerTime: r.num("x00181060"),
@@ -237,5 +403,6 @@ export function readHeader(bytes: Uint8Array): HeaderResult {
     sliceLocation: r.num("x00201041"),
     lossy: r.str("x00282110") === "01" || LOSSY_SYNTAXES.has(r.str("x00020010")),
   };
+  if (frames) header.frames = frames;
   return { status: "ok", header, dataSet: parsed };
 }

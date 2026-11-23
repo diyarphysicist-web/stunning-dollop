@@ -36,10 +36,10 @@ export class DirectoryService {
     if (recovered.length === 0) return;
     void (async () => {
       for (const uid of recovered) {
-        const path = this.index.thumbnailSource(uid);
-        if (!path) continue;
+        const src = this.index.thumbnailSource(uid);
+        if (!src) continue;
         try {
-          this.index.setThumbnail(uid, await this.pixels.thumbnail(path));
+          this.index.setThumbnail(uid, await this.pixels.thumbnail(src.path, src.frame));
         } catch {
           /* the series stays usable without a thumbnail */
         }

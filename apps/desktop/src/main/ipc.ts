@@ -67,9 +67,9 @@ const handlers: Handlers = {
   "directory:series": ({ studyInstanceUid }) => requireDirectory().index.series(studyInstanceUid),
   "directory:quarantine": () => requireDirectory().index.quarantine(),
   "viewer:stack": ({ seriesInstanceUid }) => seriesStack(requireDirectory().index, seriesInstanceUid),
-  "viewer:pixels": ({ sopInstanceUid }) => {
+  "viewer:pixels": ({ sopInstanceUid, frame }) => {
     const d = requireDirectory();
-    return imagePixels(d.index, sopInstanceUid, (path, frame) => d.pixels.image(path, frame));
+    return imagePixels(d.index, sopInstanceUid, frame ?? 0, (path, f) => d.pixels.image(path, f));
   },
   "viewer:attributes": ({ sopInstanceUid }) => imageAttributes(requireDirectory().index, sopInstanceUid),
 };

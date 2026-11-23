@@ -1,5 +1,5 @@
 import type { ImportPhase, ImportProgress, QuarantineEntry, QuarantineReason, SeriesRow, SeriesStatus, SeriesType, StudyRow } from "@neuromr/contracts";
-import { describeSeries, type InstanceHeader, type SeriesFacts } from "@neuromr/dicom";
+import { describeSeries, expandFrames, type InstanceHeader, type SeriesFacts } from "@neuromr/dicom";
 import Database from "better-sqlite3";
 import { thumbnailPng } from "../pixels/decode-image.js";
 
@@ -93,7 +93,7 @@ function likePattern(text: string): string {
 
 /** Instance chosen for the thumbnail: lowest b-value, first time point and echo, middle slice. */
 export function thumbnailInstance(headers: readonly InstanceHeader[]): InstanceHeader | undefined {
-  const key = (h: InstanceHeader) => [h.bValue ?? 0, h.temporalPosition ?? 0, h.echoNumber ?? 0];
+  const key = (h: InstanceHeader) => [h.bValue ?? 0, h.temporalPosition ?? 0, h.echoNumber ?? 0, h.echoTime ?? 0];
   const first = headers.reduce<number[] | undefined>((best, h) => {
     const k = key(h);
     if (!best) return k;
@@ -200,11 +200,12 @@ export class StudyIndex {
     this.db.prepare(sql).run(JSON.stringify(types), JSON.stringify(facts), facts.imageCount, seriesUid);
   }
 
-  /** Stored file the series thumbnail is made from (`thumbnailInstance`). */
-  thumbnailSource(seriesUid: string): string | undefined {
+  /** Stored file and frame the series thumbnail is made from (`thumbnailInstance`, frames counted, GEN-240). */
+  thumbnailSource(seriesUid: string): { path: string; frame: number } | undefined {
     const rows = this.seriesHeaders(seriesUid);
-    const pick = thumbnailInstance(rows.map((r) => r.header));
-    return rows.find((r) => r.header.sopInstanceUid === pick?.sopInstanceUid)?.path;
+    const pick = thumbnailInstance(rows.flatMap((r) => expandFrames(r.header)));
+    const path = rows.find((r) => r.header.sopInstanceUid === pick?.sopInstanceUid)?.path;
+    return path ? { path, frame: pick?.frame ?? 0 } : undefined;
   }
 
   setThumbnail(seriesUid: string, png: Buffer | null): void {
@@ -213,8 +214,8 @@ export class StudyIndex {
 
   /** Decodes and stores the thumbnail in this thread; callers run it off the interface thread. */
   async renderThumbnail(seriesUid: string): Promise<void> {
-    const path = this.thumbnailSource(seriesUid);
-    this.setThumbnail(seriesUid, path ? await thumbnailPng(path) : null);
+    const src = this.thumbnailSource(seriesUid);
+    this.setThumbnail(seriesUid, src ? await thumbnailPng(src.path, src.frame) : null);
   }
 
   /**

@@ -53,7 +53,7 @@ function readView(vp: StackViewport): View {
 function startWindow(vp: StackViewport, stack: ViewerStack, sop: string | null): VoiRange | null {
   const image = vp.getCornerstoneImage();
   if (!image) return null;
-  const info = stack.images.find((i) => i.sopInstanceUid === sop);
+  const info = stack.images.find((i) => i.ref === sop);
   return initialWindow(image.getPixelData(), info?.windowCenter ?? null, info?.windowWidth ?? null);
 }
 
@@ -68,7 +68,7 @@ function positionText(stack: ViewerStack, pane: Pane): string {
 }
 
 function timingText(stack: ViewerStack, sop: string | null, pane: Pane): string {
-  const info = stack.images.find((i) => i.sopInstanceUid === sop);
+  const info = stack.images.find((i) => i.ref === sop);
   const parts: string[] = [];
   const time = stack.points[pane.point]?.timeS;
   if (stack.axis === "dynamic" && time !== undefined) parts.push(t("vp.time", { t: formatQuantity(time, { decimals: 1 }) }));
@@ -327,7 +327,7 @@ export function Viewport({ index }: { index: number }) {
     return () => el.removeEventListener("wheel", onWheel);
   }, [index]);
 
-  const info = stack?.images.find((i) => i.sopInstanceUid === sop);
+  const info = stack?.images.find((i) => i.ref === sop);
   const points = stack?.grid[0]?.length ?? 1;
   const label = stack ? t("vp.label", { n: index + 1, series: stack.description }) : t("vp.labelEmpty", { n: index + 1 });
   const ready = shownStack !== null && shownStack === stack && !problem;

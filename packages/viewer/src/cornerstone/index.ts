@@ -1,8 +1,8 @@
 import { Enums, RenderingEngine, cache, getShouldUseCPURendering, init, metaData, registerImageLoader, utilities, type Types } from "@cornerstonejs/core";
 import type { ViewerImageInfo, ViewerPixels, ViewerStack } from "@neuromr/contracts";
 
-/** Fetches modality values of one image by UID (GEN-234); undefined when the request failed. */
-export type FetchPixels = (sopInstanceUid: string) => Promise<ViewerPixels | undefined>;
+/** Fetches modality values of one image by its reference (GEN-234, GEN-240); undefined when the request failed. */
+export type FetchPixels = (ref: string) => Promise<ViewerPixels | undefined>;
 let fetchPixels: FetchPixels = () => Promise.resolve(undefined);
 
 const SCHEME = "neuromr";
@@ -14,7 +14,7 @@ const infos = new Map<string, ViewerImageInfo>();
 const inverted = new Map<string, boolean>();
 
 export function registerStack(stack: ViewerStack): void {
-  for (const i of stack.images) infos.set(i.sopInstanceUid, i);
+  for (const i of stack.images) infos.set(i.ref, i);
 }
 
 /** Why an image could not be drawn, for the viewport notice. */

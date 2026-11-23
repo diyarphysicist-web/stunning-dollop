@@ -1,7 +1,7 @@
 import { Worker } from "node:worker_threads";
 import type { DecodedImage } from "./decode-image.js";
 
-type PixelRequestBody = { op: "image"; path: string; frame: number } | { op: "thumbnail"; path: string };
+type PixelRequestBody = { op: "image"; path: string; frame: number } | { op: "thumbnail"; path: string; frame: number };
 export type PixelRequest = PixelRequestBody & { id: number };
 export type PixelResponse = { id: number; image: DecodedImage } | { id: number; png: Uint8Array | null } | { id: number; error: string };
 
@@ -54,8 +54,8 @@ export class PixelService {
     return r.image;
   }
 
-  async thumbnail(path: string): Promise<Buffer | null> {
-    const r = await this.request({ op: "thumbnail", path });
+  async thumbnail(path: string, frame = 0): Promise<Buffer | null> {
+    const r = await this.request({ op: "thumbnail", path, frame });
     if (!("png" in r)) throw new Error("pixel worker: unexpected reply");
     return r.png ? Buffer.from(r.png) : null;
   }

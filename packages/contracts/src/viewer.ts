@@ -1,11 +1,28 @@
 import { z } from "zod";
 
 const Uid = z.string().min(1).max(64);
+/** An image: SOP Instance UID, plus ":frame" for a frame of a multi-frame instance (GEN-240). */
+const ImageRef = z.string().regex(/^[^:]{1,64}(:\d{1,6})?$/);
+
+/** Reference of an image (GEN-240): the SOP UID for a single-frame image, "UID:frame" for a frame. */
+export function imageRef(h: { sopInstanceUid: string; frame?: number | undefined }): string {
+  return h.frame === undefined ? h.sopInstanceUid : `${h.sopInstanceUid}:${h.frame}`;
+}
+
+/** Splits a reference made by `imageRef`. */
+export function parseImageRef(ref: string): { sopInstanceUid: string; frame: number } {
+  const at = ref.lastIndexOf(":");
+  return at < 0 ? { sopInstanceUid: ref, frame: 0 } : { sopInstanceUid: ref.slice(0, at), frame: Number(ref.slice(at + 1)) };
+}
 const finite = z.number().refine(Number.isFinite);
 
 /** Geometry and display defaults of one image of a stack (GEN-231, GEN-232). */
 export const ViewerImageInfo = z.object({
+  /** `imageRef` of this image; the stack grid holds these. */
+  ref: ImageRef,
   sopInstanceUid: Uid,
+  /** Frame number within the instance (0 for single-frame images). */
+  frame: z.number().int().nonnegative(),
   rows: z.number().int().positive(),
   columns: z.number().int().positive(),
   /** Row spacing, column spacing in mm (DICOM order); null when not recorded. */
@@ -43,7 +60,7 @@ export const ViewerStack = z.object({
   slicePositions: z.array(finite),
   points: z.array(StackPoint),
   /** SOP Instance UIDs by [slice][point]; null for a gap in the acquisition. */
-  grid: z.array(z.array(Uid.nullable())),
+  grid: z.array(z.array(ImageRef.nullable())),
   images: z.array(ViewerImageInfo),
 });
 export type ViewerStack = z.infer<typeof ViewerStack>;
@@ -76,4 +93,4 @@ export const DicomAttribute = z.object({
 export type DicomAttribute = z.infer<typeof DicomAttribute>;
 
 export const StackQuery = z.object({ seriesInstanceUid: Uid }).strict();
-export const ImageQuery = z.object({ sopInstanceUid: Uid }).strict();
+export const ImageQuery = z.object({ sopInstanceUid: Uid, frame: z.number().int().nonnegative().optional() }).strict();

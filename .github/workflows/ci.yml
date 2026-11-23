@@ -25,8 +25,8 @@ jobs:
       - run: uv sync --locked --project engine
       - run: pnpm lint
       - run: pnpm typecheck
-      # GEN-238: codec phantoms (and the DCE series the smoke imports) for the tests and the smoke run.
-      - run: uv run --project engine python scripts/make_phantoms.py --only dce,codecs
+      # GEN-238/240: codec and enhanced phantoms (and the DCE series the smoke imports) for the tests and the smoke run.
+      - run: uv run --project engine python scripts/make_phantoms.py --only dce,codecs,enhanced
       - run: pnpm test
         env: { NEUROMR_REQUIRE_PHANTOMS: "1" }
       - name: Install Electron and set up its sandbox helper

@@ -1,4 +1,4 @@
-export { readHeader, SOP_CLASS, type HeaderResult, type InstanceHeader, type QuarantineReasonCode } from "./header.js";
+export { expandFrames, frameRescale, imageRef, parseImageRef, readHeader, SOP_CLASS, type FrameFacts, type HeaderResult, type InstanceHeader, type QuarantineReasonCode } from "./header.js";
 export { describeSeries, type SeriesDescription, type SeriesFacts } from "./series.js";
 export { classify } from "./classify.js";
 export { readDicomdir } from "./dicomdir.js";

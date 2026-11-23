@@ -10,6 +10,6 @@ port.on("message", (req: PixelRequest) => {
   const work =
     req.op === "image"
       ? decodeImage(req.path, req.frame).then((result) => reply({ id: req.id, image: result }, result.status === "ok" ? [result.values.buffer] : []))
-      : thumbnailPng(req.path).then((png) => reply({ id: req.id, png: png ? new Uint8Array(png) : null }));
+      : thumbnailPng(req.path, req.frame).then((png) => reply({ id: req.id, png: png ? new Uint8Array(png) : null }));
   work.catch((err: unknown) => reply({ id: req.id, error: err instanceof Error ? err.message : String(err) }));
 });

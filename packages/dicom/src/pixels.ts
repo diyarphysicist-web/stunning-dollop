@@ -1,5 +1,6 @@
 import type { DataSet } from "dicom-parser";
 import { decodeFrame, UndecodablePixels, type StoredFrame } from "./decode.js";
+import { frameRescale } from "./header.js";
 
 /** An 8-bit greyscale image, row-major. */
 export interface GreyImage {
@@ -24,8 +25,10 @@ export interface ModalityImage {
  */
 export async function readModalityImage(ds: DataSet, transferSyntaxUid: string, frame = 0): Promise<ModalityImage> {
   const f = await decodeFrame(ds, transferSyntaxUid, frame);
-  const slope = ds.floatString("x00281053") ?? 1;
-  const intercept = ds.floatString("x00281052") ?? 0;
+  // Enhanced images keep the rescale in their functional groups (GEN-240).
+  const own = frameRescale(ds, frame);
+  const slope = own?.slope ?? ds.floatString("x00281053") ?? 1;
+  const intercept = own?.intercept ?? ds.floatString("x00281052") ?? 0;
   const values = new Float32Array(f.values.length);
   for (let i = 0; i < values.length; i++) values[i] = (f.values[i] as number) * slope + intercept;
   return { width: f.width, height: f.height, values, invert: f.monochrome1 };

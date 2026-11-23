@@ -1,4 +1,4 @@
-import type { InstanceHeader } from "./header.js";
+import { expandFrames, imageRef, type InstanceHeader } from "./header.js";
 import { sliceKey } from "./series.js";
 
 /** What the second image axis of a series is (GEN-021, GEN-231). */
@@ -16,7 +16,7 @@ export interface StackLayout {
   /** Slice positions along the slice normal in mm, ascending. */
   slicePositions: number[];
   points: StackPoint[];
-  /** SOP Instance UIDs by [slice][point]; null where the acquisition has a gap. */
+  /** Image references (`imageRef`: SOP UID, plus ":frame" for multi-frame) by [slice][point]; null where the acquisition has a gap. */
   grid: (string | null)[][];
 }
 
@@ -31,16 +31,19 @@ function pointOrder(axis: StackAxis): (a: InstanceHeader, b: InstanceHeader) => 
     }
     return 0;
   };
-  if (axis === "echo") return by((h) => h.echoNumber, (h) => h.echoTime, (h) => h.instanceNumber);
-  if (axis === "volume") return by((h) => h.acquisitionNumber, (h) => h.instanceNumber);
-  return by((h) => h.temporalPosition, (h) => h.acquisitionNumber, (h) => h.triggerTime, (h) => h.instanceNumber);
+  // Frames of one multi-frame instance share its Instance Number; their frame number is the acquisition order.
+  const frame = (h: InstanceHeader) => h.frame;
+  if (axis === "echo") return by((h) => h.echoNumber, (h) => h.echoTime, (h) => h.instanceNumber, frame);
+  if (axis === "volume") return by((h) => h.acquisitionNumber, (h) => h.instanceNumber, frame);
+  return by((h) => h.temporalPosition, (h) => h.acquisitionNumber, (h) => h.triggerTime, (h) => h.instanceNumber, frame);
 }
 
 /**
  * Arranges a series into slices × points for the viewer (GEN-020, GEN-021). `axis` comes from the
  * series facts: diffusion → volume, ≥ 2 echoes → echo, ≥ 2 dynamics → dynamic, else none.
  */
-export function stackLayout(instances: readonly InstanceHeader[], axis: StackAxis): StackLayout {
+export function stackLayout(headers: readonly InstanceHeader[], axis: StackAxis): StackLayout {
+  const instances = headers.flatMap(expandFrames);
   const bySlice = new Map<string, InstanceHeader[]>();
   for (const h of instances) {
     const key = sliceKey(h);
@@ -52,7 +55,7 @@ export function stackLayout(instances: readonly InstanceHeader[], axis: StackAxi
   const order = pointOrder(axis);
   const columns = slices.map(([, list]) => (axis === "none" ? list.slice(0, 1) : [...list].sort(order)));
   const nPoints = Math.max(1, ...columns.map((c) => c.length));
-  const grid = columns.map((c) => Array.from({ length: nPoints }, (_, i) => c[i]?.sopInstanceUid ?? null));
+  const grid = columns.map((c) => Array.from({ length: nPoints }, (_, i) => (c[i] ? imageRef(c[i]) : null)));
 
   // Point descriptions come from the most complete slice.
   const ref = columns.reduce((best, c) => (c.length > best.length ? c : best), columns[0] ?? []);
