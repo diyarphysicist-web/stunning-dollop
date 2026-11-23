@@ -223,6 +223,8 @@ export const en = {
   "inspector.roi.size": "{voxels, plural, one {# voxel} other {# voxels}} · {area} mm²",
   "inspector.roi.delete": "Delete {name}",
   "inspector.roi.otherSlices": "{n, plural, one {# ROI} other {# ROIs}} on other slices",
+  "status.open": "Study {study} · {number, select, none {} other {#{number} }}{series}",
+  "status.openMore": "{n, plural, one {# series shown} other {# series shown}}",
 } as const satisfies Record<string, string>;
 
 export type MessageId = keyof typeof en;

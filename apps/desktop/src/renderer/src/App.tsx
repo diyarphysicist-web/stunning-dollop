@@ -8,6 +8,8 @@ import { connectDirectory, useDirectory } from "./directory/store.js";
 import { EngineStatusItem, useEngineStatus } from "./EngineStatusItem.js";
 import { Icon, IconSprite } from "./Icon.js";
 import { useShell, type Activity } from "./shell.js";
+import { cellCount } from "./viewer/stack.js";
+import { useViewer } from "./viewer/store.js";
 import { RenderingStatusItem, Viewer } from "./viewer/Viewer.js";
 
 /** SAFE-001: the patient of the selected study is always in view. */
@@ -76,10 +78,27 @@ function Rail() {
   );
 }
 
+/** GEN-237: what the Viewer has open, for the active viewport. */
+function OpenItem() {
+  const activity = useShell((s) => s.activity);
+  const stack = useViewer((s) => s.panes[s.active]?.stack ?? s.panes.find((p) => p.stack)?.stack ?? null);
+  const shown = useViewer((s) => new Set(s.panes.slice(0, cellCount(s.layout)).flatMap((p) => (p.stack ? [p.stack.seriesInstanceUid] : []))).size);
+  const study = useDirectory((s) => s.studies.find((x) => x.studyInstanceUid === stack?.studyInstanceUid));
+  if (activity !== "viewer" || !stack) return <span className="sb-item" data-testid="status-open"><span className="dot dot--idle" /><b>{t("status.noStudy")}</b></span>;
+  const name = study?.studyDescription || study?.accessionNumber || stack.patientId;
+  return (
+    <span className="sb-item" data-testid="status-open">
+      <span className="dot dot--success" />
+      <b>{t("status.open", { study: name, number: stack.seriesNumber === null ? "none" : String(stack.seriesNumber), series: stack.description })}</b>
+      {shown > 1 && <>{t("punct.dotSpaced")}{t("status.openMore", { n: shown })}</>}
+    </span>
+  );
+}
+
 function StatusBar({ info, failed, engine }: { info: AppInfo | null; failed: boolean; engine: EngineStatus | null }) {
   return (
     <footer className="statusbar">
-      <span className="sb-item"><span className="dot dot--idle" /><b>{t("status.noStudy")}</b></span>
+      <OpenItem />
       <span className="sb-sep" />
       <ImportStatusItem />
       <RenderingStatusItem />

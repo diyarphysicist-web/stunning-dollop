@@ -151,6 +151,8 @@ try {
   await vp0.waitFor({ timeout: 30000 });
   await win.locator("[data-testid=viewport-1][data-state=ready]").waitFor({ timeout: 30000 });
   if ((await win.locator(".vgrid").getAttribute("data-layout")) !== "1x2") throw new Error("two series should open side by side");
+  // GEN-237: the status bar names the open study and series.
+  await win.locator("[data-testid=status-open]").filter({ hasText: /Study .+ · #\d+ .+ · 2 series shown/ }).waitFor({ timeout: 5000 });
   // SAFE-040: markers on all four edges of an axial image, radiological convention.
   const markers = async () => Promise.all(["n", "e", "s", "w"].map((d) => win.locator(`[data-testid=viewport-0] [data-testid=orient-${d}]`).innerText()));
   if ((await markers()).join("") !== "ALPR") throw new Error(`unexpected markers ${await markers()}`);
