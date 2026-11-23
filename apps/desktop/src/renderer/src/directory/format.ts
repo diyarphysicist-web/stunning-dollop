@@ -35,3 +35,10 @@ export function ageYears(birth: string, at: string): number | undefined {
 export function modalityLabel(study: StudyRow): string {
   return study.fieldStrengthT ? t("modality.withField", { modality: study.modality, tesla: study.fieldStrengthT }) : study.modality;
 }
+
+/** Local wall-clock time HH:MM:SS of an ISO timestamp (an identifier: never grouped, GEN-201). */
+export function localTime(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  return [d.getHours(), d.getMinutes(), d.getSeconds()].map((n) => String(n).padStart(2, "0")).join(":");
+}

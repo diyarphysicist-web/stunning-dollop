@@ -1,6 +1,7 @@
 // Launches the built app with Playwright, checks the shell and the IPC bridge, and saves a screenshot.
 // Usage: node apps/desktop/e2e/smoke.mjs [outDir]   (Linux CI: xvfb-run node …)
-import { mkdirSync, mkdtempSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -9,6 +10,31 @@ import { _electron as electron } from "playwright";
 const appDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const outDir = resolve(process.argv[2] ?? join(appDir, "..", "..", "artifacts", "screens"));
 mkdirSync(outDir, { recursive: true });
+
+const repo = resolve(appDir, "..", "..");
+
+/**
+ * DICOM for the Directory checks: the DCE phantoms (semi-quantitative series, permeability series and
+ * two VFA references), plus one truncated copy and one text file. NEUROMR_SMOKE_DICOM points at an
+ * existing phantom folder (local runs); otherwise the phantoms are generated with uv (CI).
+ */
+function directoryFixture() {
+  let phantoms = process.env.NEUROMR_SMOKE_DICOM;
+  if (!phantoms) {
+    phantoms = mkdtempSync(join(tmpdir(), "neuromr-phantoms-"));
+    execFileSync("uv", ["run", "--project", "engine", "python", "scripts/make_phantoms.py", "--out", phantoms, "--only", "dce"], { cwd: repo, stdio: "inherit" });
+  }
+  const root = mkdtempSync(join(tmpdir(), "neuromr-import-"));
+  for (const [i, folder] of ["dce_semiquant/dicom", "dce_tofts/dicom_dce", "dce_tofts/dicom_vfa5", "dce_tofts/dicom_vfa15"].entries()) {
+    const src = join(phantoms, folder);
+    mkdirSync(join(root, `s${i}`));
+    for (const f of readdirSync(src)) copyFileSync(join(src, f), join(root, `s${i}`, f));
+  }
+  const sample = readFileSync(join(root, "s0", readdirSync(join(root, "s0"))[0]));
+  writeFileSync(join(root, "broken.dcm"), sample.subarray(0, sample.length - 1000));
+  writeFileSync(join(root, "notes.txt"), "not an image");
+  return root;
+}
 
 const launch = (env = {}) =>
   electron.launch({ args: [appDir], cwd: appDir, env: { ...process.env, NEUROMR_USER_DATA: mkdtempSync(join(tmpdir(), "neuromr-smoke-")), ...env } });
@@ -44,7 +70,41 @@ try {
   const badReq = await win.evaluate(() => window.neuromr.invoke("window:control", { action: "devtools" }));
   if (badReq.ok !== false) throw new Error("invalid IPC request was accepted");
 
+  // DIR-001…009: empty store, folder import through main's dialog, classification, quarantine, duplicates, search.
+  await win.locator("[data-testid=directory-empty]").waitFor({ timeout: 15000 });
   await win.screenshot({ path: join(outDir, "desktop-shell.png") });
+  const fixture = directoryFixture();
+  await app.evaluate(({ dialog }, folder) => {
+    dialog.showOpenDialog = async () => ({ canceled: false, filePaths: [folder] });
+  }, fixture);
+  await win.keyboard.press("Control+o");
+  const summary = win.locator("[data-testid=import-summary]");
+  await summary.waitFor({ timeout: 120000 });
+  const summaryText = await summary.innerText();
+  if (!/ 0 already in the store · 1 not DICOM/.test(summaryText)) throw new Error(`unexpected import summary: ${summaryText}`);
+  const rows = win.locator("[data-testid=series-list] tbody tr");
+  if ((await rows.count()) !== 4) throw new Error(`expected 4 series, got ${await rows.count()}`);
+  const badges = await win.locator("[data-testid=series-list] .type").allInnerTexts();
+  for (const b of ["DCE", "T1", "VFA ref"]) if (!badges.includes(b)) throw new Error(`series type ${b} missing: ${badges.join(",")}`);
+  if ((await win.locator("[data-testid=series-list] .thumb img").count()) !== 4) throw new Error("thumbnails missing");
+  await win.locator("[data-testid=patient-banner]").filter({ hasText: "NMR-PHANTOM-001" }).waitFor();
+  await win.screenshot({ path: join(outDir, "desktop-directory.png") });
+  await win.locator("[data-testid=quarantine-notice] button").click();
+  await win.locator("[data-testid=quarantine-list]").filter({ hasText: "broken.dcm" }).waitFor();
+  await win.screenshot({ path: join(outDir, "desktop-directory-quarantine.png") });
+  await win.keyboard.press("Escape");
+  // DIR-007: the same folder again adds nothing.
+  await win.keyboard.press("Control+o");
+  await win.locator("[data-testid=import-summary]").filter({ hasText: "0 added" }).waitFor({ timeout: 120000 });
+  // DIR-009: search filters the study list.
+  await win.keyboard.press("Control+k");
+  await win.keyboard.type("nobody-like-this");
+  await win.locator("[data-testid=study-list] tbody tr").first().waitFor({ state: "detached" });
+  await win.keyboard.press("Control+a");
+  await win.keyboard.type("phantom");
+  await win.locator("[data-testid=study-list] tbody tr").first().waitFor();
+  if (!existsSync(fixture)) throw new Error("fixture vanished");
+
   if (errors.length) throw new Error(`renderer errors:\n${errors.join("\n")}`);
   console.log(`smoke ok · api ${security.api.join(", ")} · ${join(outDir, "desktop-shell.png")}`);
 } finally {

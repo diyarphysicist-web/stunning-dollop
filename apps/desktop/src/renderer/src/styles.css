@@ -23,3 +23,4 @@
 .tbl tbody tr:focus-visible { outline-offset: calc(var(--nm-size-focus-ring) * -1); }
 .dialog--wide { width: calc(var(--nm-space-12) * 16); max-height: 80vh; }
 .dialog__body--scroll { overflow: auto; min-height: 0; }
+.tbl td.path-cell { white-space: normal; overflow-wrap: anywhere; text-overflow: clip; }

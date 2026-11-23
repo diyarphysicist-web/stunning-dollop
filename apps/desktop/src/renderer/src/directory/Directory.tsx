@@ -2,7 +2,7 @@ import type { ImportProgress, QuarantineEntry, SeriesRow, StudyRow } from "@neur
 import { t } from "@neuromr/i18n";
 import { useEffect, useRef, type KeyboardEvent, type MouseEvent } from "react";
 import { Icon } from "../Icon.js";
-import { dimensions, modalityLabel } from "./format.js";
+import { dimensions, localTime, modalityLabel } from "./format.js";
 import { useDirectory } from "./store.js";
 
 /** Thumbnails are decorative: the series description next to them names the series. */
@@ -244,9 +244,9 @@ function QuarantineDialog({ entries }: { entries: QuarantineEntry[] }) {
             <tbody>
               {entries.map((e, i) => (
                 <tr key={i}>
-                  <td className="mono">{e.path}</td>
+                  <td className="mono path-cell">{e.path}</td>
                   <td>{t(`quarantine.reason.${e.reason}`, { detail: e.detail })}</td>
-                  <td>{e.at.slice(11, 19)}</td>
+                  <td>{localTime(e.at)}</td>
                 </tr>
               ))}
             </tbody>
