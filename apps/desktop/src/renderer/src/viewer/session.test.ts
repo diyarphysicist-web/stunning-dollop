@@ -53,7 +53,7 @@ describe("GEN-241 Viewer sessions", () => {
 
   it("GEN-241 autosave waits for the change to settle, saves once per change and keeps a hidden study's layout", async () => {
     vi.useFakeTimers();
-    const save = vi.fn(async () => undefined);
+    const save = vi.fn<(study: string, session: ViewerSession) => Promise<undefined>>(async () => undefined);
     const stop = startAutosave(save, 1000);
     await useViewer.getState().open(["B.1", "B.2"], "B");
     useViewer.getState().step(1, 1, 0);

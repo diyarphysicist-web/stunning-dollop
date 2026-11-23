@@ -64,3 +64,11 @@
 /* GEN-239: lossy compression is noted in the viewport overlay and beside the series types. */
 .ov__warn { color: var(--nm-color-warning); }
 .type--note { color: var(--nm-color-warning); border-color: var(--nm-color-warning); }
+
+/* GEN-242: bookmarks in the Series tab. */
+.bookmarks__head { display: flex; align-items: center; justify-content: space-between; gap: var(--nm-space-2); }
+.bookmarks__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--nm-space-1); }
+.bookmarks__item { display: flex; flex-direction: column; align-items: flex-start; width: 100%; padding: var(--nm-space-1); background: transparent; border: 0; border-radius: var(--nm-radius-md); color: var(--nm-color-text-primary); font: inherit; text-align: left; }
+.bookmarks__item:hover { background: var(--nm-color-hover); }
+.bookmarks__rename { width: 100%; background: var(--nm-color-raised); color: var(--nm-color-text-primary); border: var(--nm-size-hairline) solid var(--nm-color-focus); border-radius: var(--nm-radius-md); font: inherit; padding: var(--nm-space-1); }
+.menu--fixed { position: fixed; }

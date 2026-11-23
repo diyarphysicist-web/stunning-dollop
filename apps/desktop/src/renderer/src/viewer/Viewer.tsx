@@ -4,6 +4,7 @@ import { softwareRendering } from "@neuromr/viewer/cornerstone";
 import { useEffect, useRef, useState } from "react";
 import { useDirectory } from "../directory/store.js";
 import { Icon } from "../Icon.js";
+import { activeStudy, useBookmarks } from "./bookmarks.js";
 import { LAYOUTS, cellCount, layoutSize, type Layout } from "./stack.js";
 import { paneRois, useViewer, type Tool } from "./store.js";
 import { Viewport } from "./Viewport.js";
@@ -40,8 +41,92 @@ function SeriesPanel() {
             );
           })}
         </ul>
+        <BookmarkSection />
       </div>
     </aside>
+  );
+}
+
+/** Bookmarks of the active study (GEN-242): save, restore with a click, rename or delete from the context menu. */
+function BookmarkSection() {
+  const study = useViewer((s) => {
+    const uid = s.panes[s.active]?.seriesUid;
+    return (uid && s.studyOfSeries[uid]) || null;
+  });
+  const list = useBookmarks((s) => s.list);
+  const [menu, setMenu] = useState<{ id: number; x: number; y: number } | null>(null);
+  const [renaming, setRenaming] = useState<number | null>(null);
+  useEffect(() => {
+    void useBookmarks.getState().refresh(study);
+  }, [study]);
+  useEffect(() => {
+    if (!menu) return;
+    const away = (e: PointerEvent) => !(e.target as HTMLElement | null)?.closest("[data-testid=bookmark-menu]") && setMenu(null);
+    const esc = (e: KeyboardEvent) => e.key === "Escape" && setMenu(null);
+    window.addEventListener("pointerdown", away, true);
+    window.addEventListener("keydown", esc);
+    return () => {
+      window.removeEventListener("pointerdown", away, true);
+      window.removeEventListener("keydown", esc);
+    };
+  }, [menu]);
+  if (!study) return null;
+  const b = useBookmarks.getState();
+  return (
+    <div className="section bookmarks" data-testid="bookmarks">
+      <div className="bookmarks__head">
+        <span className="eyebrow">{t("bookmark.title")}</span>
+        <button className="btn btn--secondary" title={t("bookmark.saveKey")} data-testid="bookmark-save" onClick={() => void b.save()}>
+          {t("bookmark.save")}
+        </button>
+      </div>
+      {list.length === 0 && <span className="t3 dense">{t("bookmark.empty")}</span>}
+      <ul className="bookmarks__list">
+        {list.map((bm) => (
+          <li key={bm.id}>
+            {renaming === bm.id ? (
+              <input
+                className="bookmarks__rename"
+                aria-label={t("bookmark.renameLabel")}
+                defaultValue={bm.name}
+                autoFocus
+                onKeyDown={(e) => {
+                  e.stopPropagation();
+                  if (e.key === "Enter") {
+                    void b.rename(bm.id, e.currentTarget.value);
+                    setRenaming(null);
+                  } else if (e.key === "Escape") setRenaming(null);
+                }}
+                onBlur={(e) => {
+                  void b.rename(bm.id, e.currentTarget.value);
+                  setRenaming(null);
+                }}
+              />
+            ) : (
+              <button
+                className="bookmarks__item"
+                aria-label={t("bookmark.restore", { name: bm.name })}
+                data-testid="bookmark"
+                onClick={() => void b.restore(bm.id)}
+                onContextMenu={(e) => {
+                  e.preventDefault();
+                  setMenu({ id: bm.id, x: e.clientX, y: e.clientY });
+                }}
+              >
+                <span className="strong">{bm.name}</span>
+                <span className="t3 dense">{t("bookmark.savedAt", { at: new Date(bm.savedAt) })}</span>
+              </button>
+            )}
+          </li>
+        ))}
+      </ul>
+      {menu && (
+        <div className="menu menu--fixed" role="menu" style={{ left: menu.x, top: menu.y }} data-testid="bookmark-menu">
+          <button role="menuitem" className="menu__item" onClick={() => { setRenaming(menu.id); setMenu(null); }}><span>{t("bookmark.rename")}</span><span /><span /></button>
+          <button role="menuitem" className="menu__item" onClick={() => { void b.remove(menu.id); setMenu(null); }}><span>{t("bookmark.delete")}</span><span /><span /></button>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -208,7 +293,10 @@ function useViewerKeys() {
       // GEN-034: undo and redo of ROI create, edit and delete.
       if ((e.ctrlKey || e.metaKey) && !e.altKey) {
         const k = e.key.toLowerCase();
-        if (k === "z" && !e.shiftKey) s.undoRoi(s.active);
+        // GEN-242: Ctrl+Shift+B saves a bookmark of the active study.
+        if (k === "b" && e.shiftKey) {
+          if (activeStudy()) void useBookmarks.getState().save();
+        } else if (k === "z" && !e.shiftKey) s.undoRoi(s.active);
         else if (k === "y" || (k === "z" && e.shiftKey)) s.redoRoi(s.active);
         else return;
         e.preventDefault();

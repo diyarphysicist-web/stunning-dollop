@@ -336,6 +336,29 @@ try {
     for (const i of [0, 1]) await w.locator(`[data-testid=viewport-${i}] [data-testid=roi-label]`).filter({ hasText: "Lesion" }).waitFor({ timeout: 10000 });
     await shot(w, "desktop-viewer-session.png");
     console.log("session restore ok");
+    // GEN-242: save a bookmark, move away, restore it; rename and delete from its context menu.
+    const labels0 = w.locator("[data-testid=viewport-0] [data-testid=roi-label]");
+    await w.locator("[data-testid=viewport-0] .vp__canvas").click();
+    await w.keyboard.press("Control+Shift+B");
+    const bookmark = w.locator("[data-testid=bookmark]").filter({ hasText: "Bookmark 1" });
+    await bookmark.waitFor({ timeout: 5000 });
+    await w.locator("[data-testid=viewport-0] .vp__canvas").click();
+    await w.keyboard.press("ArrowUp");
+    await labels0.first().waitFor({ state: "detached", timeout: 5000 });
+    await bookmark.click();
+    await labels0.filter({ hasText: "Lesion" }).waitFor({ timeout: 10000 });
+    await bookmark.click({ button: "right" });
+    await w.locator("[data-testid=bookmark-menu] [role=menuitem]").first().click();
+    await w.keyboard.press("Control+a");
+    await w.keyboard.type("Baseline");
+    await w.keyboard.press("Enter");
+    const renamed = w.locator("[data-testid=bookmark]").filter({ hasText: "Baseline" });
+    await renamed.waitFor({ timeout: 5000 });
+    await shot(w, "desktop-viewer-bookmarks.png");
+    await renamed.click({ button: "right" });
+    await w.locator("[data-testid=bookmark-menu] [role=menuitem]").nth(1).click();
+    await renamed.waitFor({ state: "detached", timeout: 5000 });
+    console.log("bookmarks ok");
   } finally {
     await again.close();
   }
