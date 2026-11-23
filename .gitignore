@@ -21,3 +21,7 @@ dist/
 docs/PHASE1_PROMPT.md
 out/
 artifacts/
+
+# Other agents' local files
+.codex/
+AGENTS.md
