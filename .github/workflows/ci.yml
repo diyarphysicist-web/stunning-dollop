@@ -25,7 +25,10 @@ jobs:
       - run: uv sync --locked --project engine
       - run: pnpm lint
       - run: pnpm typecheck
+      # GEN-238: codec phantoms (and the DCE series the smoke imports) for the tests and the smoke run.
+      - run: uv run --project engine python scripts/make_phantoms.py --only dce,codecs
       - run: pnpm test
+        env: { NEUROMR_REQUIRE_PHANTOMS: "1" }
       - name: Install Electron and set up its sandbox helper
         run: |
           node apps/desktop/node_modules/electron/install.js
@@ -41,6 +44,7 @@ jobs:
           # The smoke sizes the window to 1920 × 1080; the default Xvfb screen (1280 × 1024) is smaller,
           # and a window partly off-screen can leave Chromium without a frame to capture.
           xvfb-run -a -s "-screen 0 1920x1080x24" node apps/desktop/e2e/smoke.mjs artifacts/screens
+        env: { NEUROMR_SMOKE_DICOM: "${{ github.workspace }}/data/phantoms" }
       - name: Desktop app dev-mode smoke run (dev CSP must let React mount)
         run: xvfb-run -a -s "-screen 0 1920x1080x24" node apps/desktop/e2e/dev-smoke.mjs
       - uses: actions/upload-artifact@v4

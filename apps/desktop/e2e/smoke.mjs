@@ -20,15 +20,31 @@ const repo = resolve(appDir, "..", "..");
  * two VFA references), plus one truncated copy and one text file. NEUROMR_SMOKE_DICOM points at an
  * existing phantom folder (local runs); otherwise the phantoms are generated with uv (CI).
  */
-function directoryFixture() {
-  let phantoms = process.env.NEUROMR_SMOKE_DICOM;
-  if (!phantoms) {
-    phantoms = mkdtempSync(join(tmpdir(), "neuromr-phantoms-"));
-    execFileSync("uv", ["run", "--project", "engine", "python", "scripts/make_phantoms.py", "--out", phantoms, "--only", "dce"], { cwd: repo, stdio: "inherit" });
+let phantomRoot = process.env.NEUROMR_SMOKE_DICOM;
+function phantoms() {
+  if (!phantomRoot) {
+    phantomRoot = mkdtempSync(join(tmpdir(), "neuromr-phantoms-"));
+    execFileSync("uv", ["run", "--project", "engine", "python", "scripts/make_phantoms.py", "--out", phantomRoot, "--only", "dce,codecs"], { cwd: repo, stdio: "inherit" });
   }
+  return phantomRoot;
+}
+
+/** GEN-238: one series per compressed transfer syntax (codec phantoms). */
+const CODEC_SERIES = ["rle", "jpeg-baseline", "jpeg-extended", "jpeg-lossless", "jpeg-lossless-sv1", "jpeg-ls", "jpeg-ls-near", "j2k-lossless", "j2k"];
+function codecFixture() {
+  const root = mkdtempSync(join(tmpdir(), "neuromr-codecs-"));
+  for (const key of CODEC_SERIES) {
+    const src = join(phantoms(), "codecs", key);
+    mkdirSync(join(root, key));
+    for (const f of readdirSync(src)) copyFileSync(join(src, f), join(root, key, f));
+  }
+  return root;
+}
+
+function directoryFixture() {
   const root = mkdtempSync(join(tmpdir(), "neuromr-import-"));
   for (const [i, folder] of ["dce_semiquant/dicom", "dce_tofts/dicom_dce", "dce_tofts/dicom_vfa5", "dce_tofts/dicom_vfa15"].entries()) {
-    const src = join(phantoms, folder);
+    const src = join(phantoms(), folder);
     mkdirSync(join(root, `s${i}`));
     for (const f of readdirSync(src)) copyFileSync(join(src, f), join(root, `s${i}`, f));
   }
@@ -219,6 +235,34 @@ try {
   await win.locator("[data-testid=roi-stats]").filter({ hasText: "2 ROIs on other slices" }).waitFor({ timeout: 5000 });
   await win.keyboard.press("ArrowDown");
   await labels.filter({ hasText: "Lesion" }).waitFor({ timeout: 5000 });
+  // GEN-238/239: every compressed syntax imports with a thumbnail and displays; lossy ones say so.
+  const codecs = codecFixture();
+  await app.evaluate(({ dialog }, folder) => {
+    dialog.showOpenDialog = async () => ({ canceled: false, filePaths: [folder] });
+  }, codecs);
+  await win.keyboard.press("Control+1");
+  await win.keyboard.press("Control+o");
+  await win.locator("[data-testid=import-summary]").filter({ hasText: `${CODEC_SERIES.length * 3} added` }).waitFor({ timeout: 120000 });
+  await win.locator("[data-testid=study-list] tbody tr").filter({ hasText: "codec" }).click();
+  const codecRows = win.locator("[data-testid=series-list] tbody tr");
+  await codecRows.nth(CODEC_SERIES.length - 1).waitFor();
+  if ((await codecRows.count()) !== CODEC_SERIES.length) throw new Error(`expected ${CODEC_SERIES.length} codec series, got ${await codecRows.count()}`);
+  if ((await win.locator("[data-testid=series-list] .thumb img").count()) !== CODEC_SERIES.length) throw new Error("codec thumbnails missing");
+  if ((await win.locator("[data-testid=series-lossy]").count()) !== 4) throw new Error(`expected 4 lossy series, got ${await win.locator("[data-testid=series-lossy]").count()}`);
+  await shot(win, "desktop-directory-codecs.png");
+  await codecRows.nth(0).click();
+  await codecRows.nth(CODEC_SERIES.length - 1).click({ modifiers: ["Shift"] });
+  await win.locator("[data-testid=series-list]").press("Enter");
+  for (let i = 0; i < CODEC_SERIES.length; i++) {
+    // The overlay appears once the first image of the viewport has been decoded and rendered.
+    await win.locator(`[data-testid=viewport-${i}][data-state=ready] [data-testid=overlay-position]`).waitFor({ timeout: 30000 }).catch(async () => {
+      throw new Error(`codec viewport ${i} is ${await win.locator(`[data-testid=viewport-${i}]`).getAttribute("data-state")}; renderer errors: ${errors.join(" | ")}`);
+    });
+  }
+  const lossyShown = await win.locator("[data-testid=overlay-lossy]").count();
+  if (lossyShown !== 4) throw new Error(`expected 4 lossy overlays, got ${lossyShown}`);
+  await shot(win, "desktop-viewer-codecs.png");
+
   const software = await win.locator("[data-testid=software-rendering]").count();
   console.log(`viewer ok · ${software ? "software rendering (GEN-235)" : "GPU rendering"}`);
 

@@ -159,8 +159,25 @@ function StudyTable() {
 }
 
 function TypeBadges({ series }: { series: SeriesRow }) {
-  if (series.types.length === 0) return <span className="t3">{series.status === "ready" ? t("series.noType") : ""}</span>;
-  return <>{series.types.map((type) => <span key={type} className="type">{t(`seriesType.${type}`)}</span>)}</>;
+  // GEN-239: lossy compressed series carry a note beside their types.
+  const lossy = series.lossy && (
+    <span className="type type--note" title={t("series.lossyTitle")} data-testid="series-lossy">
+      {t("series.lossy")}
+    </span>
+  );
+  if (series.types.length === 0)
+    return (
+      <>
+        <span className="t3">{series.status === "ready" ? t("series.noType") : ""}</span>
+        {lossy}
+      </>
+    );
+  return (
+    <>
+      {series.types.map((type) => <span key={type} className="type">{t(`seriesType.${type}`)}</span>)}
+      {lossy}
+    </>
+  );
 }
 
 function SeriesTable() {

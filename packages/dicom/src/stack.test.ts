@@ -41,12 +41,12 @@ describe("GEN-021 slices × second image axis", () => {
 });
 
 describe("GEN-232 modality values", () => {
-  it("GEN-232 applies Rescale Slope and Intercept and records the window", () => {
+  it("GEN-232 applies Rescale Slope and Intercept and records the window", async () => {
     const r = readHeader(
       fakeInstance({ sop: "9.1", pixels: Uint16Array.from([0, 10, 20, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40]), extra: { "00281053": { vr: "DS", value: 0.5 }, "00281052": { vr: "DS", value: -2 }, "00281050": { vr: "DS", value: 7 }, "00281051": { vr: "DS", value: 9 } } }),
     );
     if (r.status !== "ok") throw new Error("parse");
-    const img = readModalityImage(r.dataSet, r.header.transferSyntaxUid);
+    const img = await readModalityImage(r.dataSet, r.header.transferSyntaxUid);
     expect(img?.width).toBe(4);
     expect([...(img?.values.slice(0, 4) ?? [])]).toEqual([-2, 3, 8, 13]);
     expect(img?.values[15]).toBe(18);

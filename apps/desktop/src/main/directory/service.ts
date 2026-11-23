@@ -1,6 +1,7 @@
 import { join } from "node:path";
 import { Worker } from "node:worker_threads";
 import { ImportProgress, type DirectoryOverview, type ImportStart } from "@neuromr/contracts";
+import { PixelService } from "../pixels/service.js";
 import type { ImportWorkerData } from "./import-worker.js";
 import { StudyIndex } from "./study-index.js";
 
@@ -10,6 +11,8 @@ import { StudyIndex } from "./study-index.js";
  */
 export class DirectoryService {
   readonly index: StudyIndex;
+  /** Decodes stored images off the main thread: viewer frames and thumbnails (GEN-238). */
+  readonly pixels: PixelService;
   private readonly dbPath: string;
   private readonly storeRoot: string;
   private worker: Worker | null = null;
@@ -18,11 +21,31 @@ export class DirectoryService {
     userData: string,
     private readonly workerFile: string,
     private readonly emit: (p: ImportProgress) => void,
+    pixelWorkerFile: string,
   ) {
     this.dbPath = join(userData, "index.sqlite");
     this.storeRoot = join(userData, "store");
     this.index = new StudyIndex(this.dbPath);
-    this.index.recoverInterrupted();
+    this.pixels = new PixelService(pixelWorkerFile);
+    this.recover();
+  }
+
+  /** Finishes series a crash left importing; their thumbnails are decoded in the pixel worker. */
+  private recover(): void {
+    const recovered = this.index.recoverInterrupted();
+    if (recovered.length === 0) return;
+    void (async () => {
+      for (const uid of recovered) {
+        const path = this.index.thumbnailSource(uid);
+        if (!path) continue;
+        try {
+          this.index.setThumbnail(uid, await this.pixels.thumbnail(path));
+        } catch {
+          /* the series stays usable without a thumbnail */
+        }
+      }
+      this.index.bumpIndexVersion();
+    })();
   }
 
   busy(): boolean {
@@ -45,7 +68,7 @@ export class DirectoryService {
     const fail = (error: string) => {
       const ended = last && (last.phase === "done" || last.phase === "cancelled" || last.phase === "failed");
       if (ended) return;
-      this.index.recoverInterrupted();
+      this.recover();
       const p = this.index.lastImport();
       if (p) this.emit({ ...p, phase: "failed", error });
     };
@@ -75,6 +98,7 @@ export class DirectoryService {
       await Promise.race([new Promise((r) => w.once("exit", r)), new Promise((r) => setTimeout(r, 2000))]);
       await w.terminate();
     }
+    await this.pixels.stop();
     this.index.close();
   }
 }

@@ -1,8 +1,7 @@
-import { readFileSync } from "node:fs";
 import type { ImportPhase, ImportProgress, QuarantineEntry, QuarantineReason, SeriesRow, SeriesStatus, SeriesType, StudyRow } from "@neuromr/contracts";
-import { describeSeries, readHeader, thumbnail, type InstanceHeader, type SeriesFacts } from "@neuromr/dicom";
+import { describeSeries, type InstanceHeader, type SeriesFacts } from "@neuromr/dicom";
 import Database from "better-sqlite3";
-import { encodePng } from "./png.js";
+import { thumbnailPng } from "../pixels/decode-image.js";
 
 const SCHEMA_VERSION = 1;
 
@@ -187,40 +186,47 @@ export class StudyIndex {
   }
 
   /**
-   * Re-derives a series' facts and types (DIR-003) from its instances. With `final`, also renders
-   * the thumbnail and marks the series ready (DIR-005).
+   * Re-derives a series' facts and types (DIR-003) from its instances. With `final`, also marks the
+   * series ready (DIR-005); its thumbnail is rendered separately (`renderThumbnail`), because
+   * decoding may need a codec (GEN-238).
    */
   refreshSeries(seriesUid: string, final: boolean): void {
     const rows = this.seriesHeaders(seriesUid);
     if (rows.length === 0) return;
     const { facts, types } = describeSeries(rows.map((r) => r.header));
-    let png: Buffer | null = null;
-    if (final) {
-      const pick = thumbnailInstance(rows.map((r) => r.header));
-      const path = rows.find((r) => r.header.sopInstanceUid === pick?.sopInstanceUid)?.path;
-      if (path) {
-        try {
-          const parsed = readHeader(readFileSync(path));
-          const img = parsed.status === "ok" ? thumbnail(parsed.dataSet, parsed.header.transferSyntaxUid) : undefined;
-          png = img ? encodePng(img) : null;
-        } catch {
-          png = null; // A thumbnail is a convenience; the series stays usable without one.
-        }
-      }
-    }
     const sql = final
-      ? "UPDATE series SET types = ?, facts = ?, image_count = ?, status = 'ready', thumbnail = ? WHERE series_uid = ?"
+      ? "UPDATE series SET types = ?, facts = ?, image_count = ?, status = 'ready' WHERE series_uid = ?"
       : "UPDATE series SET types = ?, facts = ?, image_count = ? WHERE series_uid = ?";
-    const args = final ? [JSON.stringify(types), JSON.stringify(facts), facts.imageCount, png, seriesUid] : [JSON.stringify(types), JSON.stringify(facts), facts.imageCount, seriesUid];
-    this.db.prepare(sql).run(...args);
+    this.db.prepare(sql).run(JSON.stringify(types), JSON.stringify(facts), facts.imageCount, seriesUid);
   }
 
-  /** Series left half-imported by a crash or forced quit are finished on the next start. */
-  recoverInterrupted(): void {
+  /** Stored file the series thumbnail is made from (`thumbnailInstance`). */
+  thumbnailSource(seriesUid: string): string | undefined {
+    const rows = this.seriesHeaders(seriesUid);
+    const pick = thumbnailInstance(rows.map((r) => r.header));
+    return rows.find((r) => r.header.sopInstanceUid === pick?.sopInstanceUid)?.path;
+  }
+
+  setThumbnail(seriesUid: string, png: Buffer | null): void {
+    this.db.prepare("UPDATE series SET thumbnail = ? WHERE series_uid = ?").run(png, seriesUid);
+  }
+
+  /** Decodes and stores the thumbnail in this thread; callers run it off the interface thread. */
+  async renderThumbnail(seriesUid: string): Promise<void> {
+    const path = this.thumbnailSource(seriesUid);
+    this.setThumbnail(seriesUid, path ? await thumbnailPng(path) : null);
+  }
+
+  /**
+   * Series left half-imported by a crash or forced quit are finished on the next start. Returns
+   * their UIDs; the caller renders their thumbnails off the main thread.
+   */
+  recoverInterrupted(): string[] {
     const stale = this.db.prepare("SELECT series_uid FROM series WHERE status = 'importing'").all() as { series_uid: string }[];
     for (const s of stale) this.refreshSeries(s.series_uid, true);
     this.db.prepare("UPDATE imports SET phase = 'failed', error = 'interrupted', finished_at = ? WHERE phase IN ('scanning', 'reading', 'finishing')").run(new Date().toISOString());
     if (stale.length > 0) this.bumpIndexVersion();
+    return stale.map((s) => s.series_uid);
   }
 
   startImport(source: "folder" | "dicomdir", root: string): number {
@@ -314,6 +320,7 @@ export class StudyIndex {
         rows: f?.rows ?? 0,
         columns: f?.columns ?? 0,
         thumbnail: r.thumbnail ? `data:image/png;base64,${r.thumbnail.toString("base64")}` : null,
+        lossy: f?.lossy === true,
       };
       if (f?.flipAngle !== undefined) row.flipAngleDeg = f.flipAngle;
       return row;

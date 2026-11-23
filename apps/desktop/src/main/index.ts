@@ -66,7 +66,7 @@ if (!app.requestSingleInstanceLock()) {
   let directory: DirectoryService | null = null;
   void app.whenReady().then(() => {
     hardenSession(devServerUrl);
-    directory = new DirectoryService(app.getPath("userData"), join(import.meta.dirname, "import-worker.js"), broadcastImportProgress);
+    directory = new DirectoryService(app.getPath("userData"), join(import.meta.dirname, "import-worker.js"), broadcastImportProgress, join(import.meta.dirname, "pixel-worker.js"));
     registerIpc(isAppUrl, engine, directory);
     engine.start();
     createMainWindow();

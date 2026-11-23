@@ -9,8 +9,14 @@ export default defineConfig({
   main: {
     build: {
       externalizeDeps: { exclude: bundled },
-      // The import worker (DIR-008) is a second entry next to the main process bundle.
-      rollupOptions: { input: { index: resolve(import.meta.dirname, "src/main/index.ts"), "import-worker": resolve(import.meta.dirname, "src/main/directory/import-worker.ts") } },
+      // The import worker (DIR-008) and the pixel worker (GEN-238) are entries next to the main bundle.
+      rollupOptions: {
+        input: {
+          index: resolve(import.meta.dirname, "src/main/index.ts"),
+          "import-worker": resolve(import.meta.dirname, "src/main/directory/import-worker.ts"),
+          "pixel-worker": resolve(import.meta.dirname, "src/main/pixels/pixel-worker.ts"),
+        },
+      },
     },
   },
   // Sandboxed preloads must be CommonJS.

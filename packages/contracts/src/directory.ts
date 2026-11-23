@@ -31,6 +31,8 @@ export const SeriesRow = SeriesSummary.extend({
   columns: z.number().int().nonnegative(),
   /** 8-bit greyscale PNG as a data URL; null when the pixel data could not be decoded. */
   thumbnail: z.string().startsWith("data:image/png;base64,").nullable(),
+  /** Some images are stored with lossy compression (GEN-239). */
+  lossy: z.boolean(),
 });
 export type SeriesRow = z.infer<typeof SeriesRow>;
 

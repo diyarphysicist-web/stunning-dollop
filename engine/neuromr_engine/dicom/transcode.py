@@ -31,9 +31,32 @@ CODECS: tuple[Codec, ...] = (
 )
 
 
-def transcode(src: Path, dst: Path, codec: Codec) -> None:
-    import gdcm  # dev dependency (python-gdcm), only needed to build codec phantoms
+def _jpeg12(src: Path, dst: Path, codec: Codec) -> None:
+    """12-bit extended JPEG (SOF1). GDCM encodes lossy JPEG at the allocated 16 bits, which is not
+    a valid JPEG precision, so this one is written with libjpeg-turbo (imagecodecs) instead."""
+    import imagecodecs
+    import pydicom
+    from pydicom.encaps import encapsulate
+    from pydicom.uid import UID
 
+    ds = pydicom.dcmread(src)
+    frame = imagecodecs.jpeg8_encode(ds.pixel_array, level=95, bitspersample=12)
+    ds.PixelData = encapsulate([frame])
+    ds["PixelData"].VR = "OB"
+    ds.file_meta.TransferSyntaxUID = UID(codec.uid)
+    ds.save_as(dst, enforce_file_format=True)
+
+
+def transcode(src: Path, dst: Path, codec: Codec) -> None:
+    if codec.key == "jpeg-extended":
+        _jpeg12(src, dst, codec)
+        _mark_lossy(dst, codec)
+        return
+    import gdcm  # dev dependency (python-gdcm), only needed to build codec phantoms
+    import pydicom
+    from pydicom.uid import UID
+
+    ds = pydicom.dcmread(src)  # read first: src and dst may be the same file
     reader = gdcm.ImageReader()
     reader.SetFileName(str(src))
     if not reader.Read():
@@ -41,7 +64,7 @@ def transcode(src: Path, dst: Path, codec: Codec) -> None:
     change = gdcm.ImageChangeTransferSyntax()
     change.SetTransferSyntax(gdcm.TransferSyntax(gdcm.TransferSyntax.GetTSType(codec.uid)))
     change.SetInput(reader.GetImage())
-    if codec.key in ("jpeg-baseline", "jpeg-extended"):
+    if codec.key == "jpeg-baseline":
         jpeg = gdcm.JPEGCodec()
         jpeg.SetLossless(False)
         jpeg.SetQuality(95)
@@ -63,6 +86,17 @@ def transcode(src: Path, dst: Path, codec: Codec) -> None:
     writer.SetImage(change.GetOutput())
     if not writer.Write():
         raise RuntimeError(f"GDCM could not write {dst}")
+    # GDCM rewrites the header of MR images (it drops Rescale and Image Position, for example), so
+    # only its encoded pixel data is kept: the source dataset gets the new pixel data and syntax.
+    encoded = pydicom.dcmread(dst)
+    ds.PixelData = encoded.PixelData
+    ds["PixelData"].VR = "OB"
+    ds.file_meta.TransferSyntaxUID = UID(codec.uid)
+    ds.save_as(dst, enforce_file_format=True)
+    _mark_lossy(dst, codec)
+
+
+def _mark_lossy(dst: Path, codec: Codec) -> None:
     if codec.lossy:
         # Record the lossy compression the way a scanner or PACS would (0028,2110…2114).
         import pydicom

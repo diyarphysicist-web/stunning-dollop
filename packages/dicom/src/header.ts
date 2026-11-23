@@ -1,4 +1,5 @@
 import type { DataSet, Element } from "dicom-parser";
+import { LOSSY_SYNTAXES } from "./decode.js";
 import { hasPart10Magic, parseBytes } from "./parse.js";
 
 /** Why an input file was not indexed (DIR-006). `missing-file` is used by DICOMDIR import. */
@@ -51,6 +52,8 @@ export interface InstanceHeader {
   windowWidth: number | undefined;
   sliceThickness: number | undefined;
   sliceLocation: number | undefined;
+  /** Lossy Image Compression (0028,2110) is 01 or the transfer syntax is lossy (GEN-239). Absent in older index rows. */
+  lossy?: boolean;
 }
 
 export type HeaderResult =
@@ -232,6 +235,7 @@ export function readHeader(bytes: Uint8Array): HeaderResult {
     windowWidth: r.num("x00281051"),
     sliceThickness: r.num("x00180050"),
     sliceLocation: r.num("x00201041"),
+    lossy: r.str("x00282110") === "01" || LOSSY_SYNTAXES.has(r.str("x00020010")),
   };
   return { status: "ok", header, dataSet: parsed };
 }

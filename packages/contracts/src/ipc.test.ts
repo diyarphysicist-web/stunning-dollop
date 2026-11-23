@@ -40,7 +40,7 @@ describe("IPC contract (brief §7: every IPC message validated with zod)", () =>
   });
 
   it("DIR-002 series thumbnails are PNG data URLs only", () => {
-    const row = { seriesInstanceUid: "1.2", studyInstanceUid: "1", patientId: "P", description: "d", types: ["DSC"], dynamics: 40, echoes: 1, bValues: [], gradientDirections: 0, isDynamic: true, hasGeometry: true, preprocessingDone: true, seriesNumber: 150, status: "ready", imageCount: 160, slices: 4, rows: 64, columns: 64, thumbnail: "data:image/png;base64,AAAA" };
+    const row = { seriesInstanceUid: "1.2", studyInstanceUid: "1", patientId: "P", description: "d", types: ["DSC"], dynamics: 40, echoes: 1, bValues: [], gradientDirections: 0, isDynamic: true, hasGeometry: true, preprocessingDone: true, seriesNumber: 150, status: "ready", imageCount: 160, slices: 4, rows: 64, columns: 64, thumbnail: "data:image/png;base64,AAAA", lossy: false };
     expect(parseResponse("directory:series", [row]).ok).toBe(true);
     expect(parseResponse("directory:series", [{ ...row, thumbnail: "https://example.org/x.png" }]).ok).toBe(false);
   });

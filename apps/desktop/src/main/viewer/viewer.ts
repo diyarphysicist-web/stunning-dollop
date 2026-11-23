@@ -1,6 +1,6 @@
-import { readFile } from "node:fs/promises";
 import type { AttributeUnit, DicomAttribute, StackAxis, ViewerImageInfo, ViewerPixels, ViewerStack } from "@neuromr/contracts";
-import { describeSeries, readHeader, readModalityImage, stackLayout, type InstanceHeader } from "@neuromr/dicom";
+import { describeSeries, stackLayout, type InstanceHeader } from "@neuromr/dicom";
+import { decodeImage, type DecodeImage } from "../pixels/decode-image.js";
 import { isoDate, type StudyIndex } from "../directory/study-index.js";
 
 /** Second image axis of a series for scrolling (GEN-021). */
@@ -27,6 +27,7 @@ function imageInfo(h: InstanceHeader): ViewerImageInfo {
     windowWidth: h.windowWidth !== undefined && h.windowWidth > 0 ? h.windowWidth : null,
     repetitionTime: orNull(h.repetitionTime),
     echoTime: orNull(h.echoTime),
+    lossy: h.lossy === true,
   };
 }
 
@@ -60,20 +61,13 @@ export function seriesStack(index: StudyIndex, seriesUid: string): ViewerStack {
  * Modality values of one stored image (GEN-232, GEN-234). The renderer names the image by UID; the
  * path comes from the index, never from the request.
  */
-export async function imagePixels(index: StudyIndex, sopUid: string): Promise<ViewerPixels> {
+export async function imagePixels(index: StudyIndex, sopUid: string, decode: DecodeImage = decodeImage): Promise<ViewerPixels> {
   const inst = index.instance(sopUid);
   if (!inst) return { status: "missing", sopInstanceUid: sopUid };
-  let bytes: Buffer;
-  try {
-    bytes = await readFile(inst.path);
-  } catch {
-    return { status: "missing", sopInstanceUid: sopUid };
-  }
-  const parsed = readHeader(bytes);
-  if (parsed.status !== "ok") return { status: "missing", sopInstanceUid: sopUid };
-  const img = readModalityImage(parsed.dataSet, parsed.header.transferSyntaxUid);
-  if (!img) return { status: "unsupported", sopInstanceUid: sopUid, transferSyntaxUid: parsed.header.transferSyntaxUid };
-  return { status: "ok", sopInstanceUid: sopUid, width: img.width, height: img.height, values: img.values, invert: img.invert };
+  const img = await decode(inst.path, 0);
+  if (img.status === "ok") return { status: "ok", sopInstanceUid: sopUid, width: img.width, height: img.height, values: img.values, invert: img.invert };
+  if (img.status === "unsupported") return { status: "unsupported", sopInstanceUid: sopUid, transferSyntaxUid: img.transferSyntaxUid };
+  return { status: "missing", sopInstanceUid: sopUid };
 }
 
 type Value = DicomAttribute["value"];

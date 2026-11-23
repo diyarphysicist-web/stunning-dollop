@@ -60,3 +60,7 @@
 .roi-list li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: var(--nm-space-2); align-items: start; }
 .roi-list__body { display: flex; flex-direction: column; min-width: 0; }
 .roi-swatch { width: var(--nm-space-3); height: var(--nm-space-3); margin-top: var(--nm-space-1); border-radius: var(--nm-radius-sm); }
+
+/* GEN-239: lossy compression is noted in the viewport overlay and beside the series types. */
+.ov__warn { color: var(--nm-color-warning); }
+.type--note { color: var(--nm-color-warning); border-color: var(--nm-color-warning); }

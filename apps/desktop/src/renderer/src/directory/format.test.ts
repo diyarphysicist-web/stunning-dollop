@@ -2,7 +2,7 @@ import type { SeriesRow } from "@neuromr/contracts";
 import { describe, expect, it } from "vitest";
 import { ageYears, dimensions, localTime } from "./format.js";
 
-const base: SeriesRow = { seriesInstanceUid: "1", studyInstanceUid: "1", patientId: "P", description: "", types: [], dynamics: 1, echoes: 1, bValues: [], gradientDirections: 0, isDynamic: false, hasGeometry: true, preprocessingDone: true, seriesNumber: 1, status: "ready", imageCount: 1, slices: 1, rows: 64, columns: 64, thumbnail: null };
+const base: SeriesRow = { seriesInstanceUid: "1", studyInstanceUid: "1", patientId: "P", description: "", types: [], dynamics: 1, echoes: 1, bValues: [], gradientDirections: 0, isDynamic: false, hasGeometry: true, preprocessingDone: true, seriesNumber: 1, status: "ready", imageCount: 1, slices: 1, rows: 64, columns: 64, thumbnail: null, lossy: false };
 const s = (o: Partial<SeriesRow>): SeriesRow => ({ ...base, ...o });
 
 describe("DIR-009 series dimensions as the design writes them (GEN-201)", () => {

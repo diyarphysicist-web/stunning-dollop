@@ -1,49 +1,11 @@
 import type { DataSet } from "dicom-parser";
+import { decodeFrame, UndecodablePixels, type StoredFrame } from "./decode.js";
 
 /** An 8-bit greyscale image, row-major. */
 export interface GreyImage {
   width: number;
   height: number;
   pixels: Uint8Array;
-}
-
-const UNCOMPRESSED_LE = new Set(["1.2.840.10008.1.2", "1.2.840.10008.1.2.1"]);
-
-/** Stored values of frame 0 of an uncompressed little-endian greyscale image, before any rescale. */
-function readStored(ds: DataSet, transferSyntaxUid: string): { width: number; height: number; values: Float64Array; monochrome1: boolean } | undefined {
-  if (!UNCOMPRESSED_LE.has(transferSyntaxUid)) return undefined;
-  const el = ds.elements["x7fe00010"];
-  const rows = ds.uint16("x00280010") ?? 0;
-  const cols = ds.uint16("x00280011") ?? 0;
-  const bits = ds.uint16("x00280100") ?? 16;
-  const samples = ds.uint16("x00280002") ?? 1;
-  const signed = (ds.uint16("x00280103") ?? 0) === 1;
-  if (!el || el.encapsulatedPixelData || rows === 0 || cols === 0 || samples !== 1) return undefined;
-  const photometric = (ds.string("x00280004") ?? "MONOCHROME2").trim();
-  if (photometric !== "MONOCHROME1" && photometric !== "MONOCHROME2") return undefined;
-  const n = rows * cols;
-  const bytesPer = bits / 8;
-  if (![1, 2, 4].includes(bytesPer) || el.length < n * bytesPer) return undefined;
-  const view = new DataView(ds.byteArray.buffer, ds.byteArray.byteOffset + el.dataOffset, n * bytesPer);
-  const values = new Float64Array(n);
-  for (let i = 0; i < n; i++) {
-    if (bytesPer === 1) values[i] = signed ? view.getInt8(i) : view.getUint8(i);
-    else if (bytesPer === 2) values[i] = signed ? view.getInt16(i * 2, true) : view.getUint16(i * 2, true);
-    else values[i] = signed ? view.getInt32(i * 4, true) : view.getUint32(i * 4, true);
-  }
-  return { width: cols, height: rows, values, monochrome1: photometric === "MONOCHROME1" };
-}
-
-/**
- * Reads frame 0 of a greyscale, uncompressed little-endian image as display brightness
- * (MONOCHROME1 negated). Returns undefined for compressed or colour data, which get no thumbnail
- * (DIR-002 shows a placeholder).
- */
-export function readFrame(ds: DataSet, transferSyntaxUid: string): { width: number; height: number; values: Float64Array } | undefined {
-  const f = readStored(ds, transferSyntaxUid);
-  if (!f) return undefined;
-  if (f.monochrome1) for (let i = 0; i < f.values.length; i++) f.values[i] = -(f.values[i] as number);
-  return { width: f.width, height: f.height, values: f.values };
 }
 
 /** Modality values of an image for the viewer (GEN-232). */
@@ -56,10 +18,12 @@ export interface ModalityImage {
   invert: boolean;
 }
 
-/** Frame 0 with the modality rescale applied (GEN-232); undefined for compressed or colour data. */
-export function readModalityImage(ds: DataSet, transferSyntaxUid: string): ModalityImage | undefined {
-  const f = readStored(ds, transferSyntaxUid);
-  if (!f) return undefined;
+/**
+ * One frame with the modality rescale applied (GEN-232), in any supported transfer syntax
+ * (GEN-238). Throws UndecodablePixels for colour data or a syntax without a codec.
+ */
+export async function readModalityImage(ds: DataSet, transferSyntaxUid: string, frame = 0): Promise<ModalityImage> {
+  const f = await decodeFrame(ds, transferSyntaxUid, frame);
   const slope = ds.floatString("x00281053") ?? 1;
   const intercept = ds.floatString("x00281052") ?? 0;
   const values = new Float32Array(f.values.length);
@@ -75,10 +39,20 @@ function percentile(sorted: Float64Array, q: number): number {
  * Thumbnail for the series list (DIR-002): box-averaged to fit `size` × `size` with the aspect
  * ratio kept, windowed from the 1st to the 99th percentile of the frame.
  */
-export function thumbnail(ds: DataSet, transferSyntaxUid: string, size = 64): GreyImage | undefined {
-  const frame = readFrame(ds, transferSyntaxUid);
-  if (!frame) return undefined;
-  const { width, height, values } = frame;
+export async function thumbnail(ds: DataSet, transferSyntaxUid: string, size = 64, frame = 0): Promise<GreyImage | undefined> {
+  try {
+    return thumbnailOf(await decodeFrame(ds, transferSyntaxUid, frame), size);
+  } catch (err) {
+    // Colour or undecodable data gets no thumbnail (DIR-002 shows a placeholder).
+    if (err instanceof UndecodablePixels) return undefined;
+    throw err;
+  }
+}
+
+/** Thumbnail of a decoded frame; MONOCHROME1 is shown with low values bright. */
+export function thumbnailOf(frame: StoredFrame, size = 64): GreyImage {
+  const { width, height } = frame;
+  const values = frame.monochrome1 ? frame.values.map((v) => -v) : frame.values;
   const scale = Math.min(1, size / Math.max(width, height));
   const w = Math.max(1, Math.round(width * scale));
   const h = Math.max(1, Math.round(height * scale));

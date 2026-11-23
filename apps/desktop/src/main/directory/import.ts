@@ -167,7 +167,10 @@ export async function runImport(o: ImportOptions): Promise<ImportProgress> {
 
     p.phase = "finishing";
     await flush(true);
-    for (const uid of touched) o.index.refreshSeries(uid, true);
+    for (const uid of touched) {
+      o.index.refreshSeries(uid, true);
+      await o.index.renderThumbnail(uid);
+    }
     if (touched.size > 0) p.indexVersion = o.index.bumpIndexVersion();
     p.phase = o.signal.aborted ? "cancelled" : "done";
     report();
@@ -178,6 +181,7 @@ export async function runImport(o: ImportOptions): Promise<ImportProgress> {
     for (const uid of touched) {
       try {
         o.index.refreshSeries(uid, true);
+        await o.index.renderThumbnail(uid);
       } catch {
         /* the index is reported as failed below */
       }

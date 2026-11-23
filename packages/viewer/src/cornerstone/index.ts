@@ -19,7 +19,11 @@ export function registerStack(stack: ViewerStack): void {
 
 /** Why an image could not be drawn, for the viewport notice. */
 export class ImageUnavailable extends Error {
-  constructor(readonly reason: "unsupported" | "missing" | "failed") {
+  constructor(
+    readonly reason: "unsupported" | "missing" | "failed",
+    /** For "unsupported": the transfer syntax without a codec (GEN-238). */
+    readonly transferSyntaxUid = "",
+  ) {
     super(reason);
   }
 }
@@ -32,6 +36,7 @@ function loadImage(id: string): Types.IImageLoadObject {
   const sop = sopOf(id);
   const promise = fetchPixels(sop).then((px): Types.IImage => {
     if (!px) throw new ImageUnavailable("failed");
+    if (px.status === "unsupported") throw new ImageUnavailable("unsupported", px.transferSyntaxUid);
     if (px.status !== "ok") throw new ImageUnavailable(px.status);
     inverted.set(sop, px.invert);
     const { width, height, values } = px;

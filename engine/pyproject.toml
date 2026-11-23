@@ -22,6 +22,7 @@ dev = [
     "pip-licenses>=5",
     "httpx>=0.28.1",
     "python-gdcm>=3.0.24",
+    "imagecodecs>=2024.1.1",
 ]
 
 [build-system]

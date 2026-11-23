@@ -18,6 +18,8 @@ export const ViewerImageInfo = z.object({
   windowWidth: finite.nullable(),
   repetitionTime: finite.nullable(),
   echoTime: finite.nullable(),
+  /** Stored with lossy compression (GEN-239). */
+  lossy: z.boolean(),
 });
 export type ViewerImageInfo = z.infer<typeof ViewerImageInfo>;
 

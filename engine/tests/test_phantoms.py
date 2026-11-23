@@ -216,6 +216,16 @@ def test_gen238_codec_phantoms_decode_to_their_reference(tmp_path):
         for f, r in zip(files, refs, strict=True):
             ds = pydicom.dcmread(f)
             assert ds.file_meta.TransferSyntaxUID == codec.uid
+            ref = pydicom.dcmread(r, stop_before_pixels=True)
+            # The header is the reference's: geometry and rescale survive re-encoding.
+            for key in (
+                "RescaleSlope",
+                "RescaleIntercept",
+                "ImagePositionPatient",
+                "ImageOrientationPatient",
+                "PixelSpacing",
+            ):
+                assert ds.get(key) == ref.get(key), (codec.key, key)
             got = _gdcm_pixels(f)
             want = pydicom.dcmread(r).pixel_array.astype(np.int64).ravel()
             if codec.lossy:

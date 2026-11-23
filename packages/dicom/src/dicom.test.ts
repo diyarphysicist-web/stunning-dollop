@@ -129,21 +129,21 @@ describe("DIR-003 series-type classifier (ALGORITHMS.md §13)", () => {
 });
 
 describe("DIR-002 thumbnails", () => {
-  it("DIR-002 fits the frame in the box, keeps the aspect ratio and windows to 8 bits", () => {
+  it("DIR-002 fits the frame in the box, keeps the aspect ratio and windows to 8 bits", async () => {
     const ramp = Uint16Array.from({ length: 128 * 64 }, (_, i) => Math.floor((i * 65535) / (128 * 64 - 1)));
     const bytes = fakeInstance({ sop: "1.5", rows: 128, cols: 64, pixels: ramp });
     const r = readHeader(bytes);
     if (r.status !== "ok") throw new Error("parse");
-    const t = thumbnail(r.dataSet, r.header.transferSyntaxUid, 64);
+    const t = await thumbnail(r.dataSet, r.header.transferSyntaxUid, 64);
     expect(t).toMatchObject({ width: 32, height: 64 });
     expect(t?.pixels[0]).toBe(0);
     expect(t?.pixels[t.pixels.length - 1]).toBe(255);
   });
 });
 
-// Classifies the generated phantoms when they are present (`pnpm phantoms`); CI generates them for the engine job only.
+// Classifies the generated phantoms when the full set is present (`pnpm phantoms`); CI's node job generates only dce and codecs.
 const PHANTOMS = resolve(import.meta.dirname, "../../../data/phantoms");
-describe.runIf(existsSync(PHANTOMS))("DIR-003 classifier on the phantom series", () => {
+describe.runIf(existsSync(resolve(PHANTOMS, "dsc_snr50_tr2.1")))("DIR-003 classifier on the phantom series", () => {
   const cases: [string, string[]][] = [
     ["dsc_snr50_tr2.1/dicom", ["DSC"]],
     ["dce_semiquant/dicom", ["DCE", "T1"]],

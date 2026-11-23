@@ -32,9 +32,24 @@ importers:
 
   apps/desktop:
     dependencies:
+      '@cornerstonejs/codec-charls':
+        specifier: 1.2.7
+        version: 1.2.7
+      '@cornerstonejs/codec-libjpeg-turbo-12bit':
+        specifier: 0.4.7
+        version: 0.4.7
+      '@cornerstonejs/codec-libjpeg-turbo-8bit':
+        specifier: 1.2.8
+        version: 1.2.8
+      '@cornerstonejs/codec-openjpeg':
+        specifier: 1.3.6
+        version: 1.3.6
       '@cornerstonejs/core':
         specifier: 5.19.4
         version: 5.19.4(@cornerstonejs/metadata@5.19.4)(@cornerstonejs/utils@5.19.4)(autoprefixer@10.7.0(postcss@8.5.33))(wslink@2.5.0)
+      '@cornerstonejs/jpeg-lossless-decoder-js':
+        specifier: 2.2.1
+        version: 2.2.1
       '@fontsource-variable/inter':
         specifier: ^5.3.0
         version: 5.3.0
@@ -108,6 +123,21 @@ importers:
 
   packages/dicom:
     dependencies:
+      '@cornerstonejs/codec-charls':
+        specifier: 1.2.7
+        version: 1.2.7
+      '@cornerstonejs/codec-libjpeg-turbo-12bit':
+        specifier: 0.4.7
+        version: 0.4.7
+      '@cornerstonejs/codec-libjpeg-turbo-8bit':
+        specifier: 1.2.8
+        version: 1.2.8
+      '@cornerstonejs/codec-openjpeg':
+        specifier: 1.3.6
+        version: 1.3.6
+      '@cornerstonejs/jpeg-lossless-decoder-js':
+        specifier: 2.2.1
+        version: 2.2.1
       '@neuromr/contracts':
         specifier: workspace:*
         version: link:../contracts
@@ -237,11 +267,30 @@ packages:
     resolution: {integrity: sha512-2SwVJKzC1DzyxdxJtCht9dhTND2GFjLwhhkDyyC7vJq5tIgbhxgPk1CSwovO1pxmoybAXzjOxnaubllxLgoT+w==}
     engines: {node: '>=10'}
 
+  '@cornerstonejs/codec-charls@1.2.7':
+    resolution: {integrity: sha512-kNfQ7J8LIrfQUbt56fPJ0SEvevLlAAbsLHjqPS4DUDWVSuAHb5Fn0cMIV/U0SYkJRJqKvzyLJYF1hl7/xQGqLQ==}
+    engines: {node: '>=0.14'}
+
+  '@cornerstonejs/codec-libjpeg-turbo-12bit@0.4.7':
+    resolution: {integrity: sha512-0rt1n3yaRrbluUfJwVFzEVbezZsl2GqtJ4fXaDdoBdbxHLYPIBff+d7vSMtloaD4Gi6Agbwd1fqMIjjl/HHxKQ==}
+    engines: {node: '>=0.14'}
+
+  '@cornerstonejs/codec-libjpeg-turbo-8bit@1.2.8':
+    resolution: {integrity: sha512-qggTc0EAso+FAB4aND1wufjY/FnaVXKaJ/PAiabSksaAgf8jhCew+K3R4e3QWJI8SqcYczZFkhpVdFVwXG9ZgQ==}
+    engines: {node: '>=0.14'}
+
+  '@cornerstonejs/codec-openjpeg@1.3.6':
+    resolution: {integrity: sha512-bSdZXF+2GxfBkWHUr7yGLQtIwbAm9wOl3e4ARee/9Z9lfKyVqhUCixI6+ZjIn9YKTIuDcn/NZNK94XEUg1SBtw==}
+    engines: {node: '>=0.14'}
+
   '@cornerstonejs/core@5.19.4':
     resolution: {integrity: sha512-dW695g+Ggnn7eqh0FIbYY89/7cva29wLbrygLsTnhsT6e8IzxUubqSxAq5inOqAn4sfq0jfjBWgmAUfURcPGTA==}
     peerDependencies:
       '@cornerstonejs/metadata': 5.19.4
       '@cornerstonejs/utils': 5.19.4
+
+  '@cornerstonejs/jpeg-lossless-decoder-js@2.2.1':
+    resolution: {integrity: sha512-cDCv7dm3qw9kbxCydvj0UGbNQcsPmTwcyd9SQXkBt34CDgSBeb8Xvj0Gz9HlJ+7DIKOFMTazF1oDJSu0pcCKmg==}
 
   '@cornerstonejs/metadata@5.19.4':
     resolution: {integrity: sha512-moU5DgM+NR8fhj7WgWr/Lm2OzDohFpj6ctE/1gRx6QEya05rlgcPEipyxLRAHhk4Ve1DHVvDXPCMoGutEwCvFA==}
@@ -2030,6 +2079,14 @@ snapshots:
 
   '@cornerstonejs/calculate-suv@1.0.3': {}
 
+  '@cornerstonejs/codec-charls@1.2.7': {}
+
+  '@cornerstonejs/codec-libjpeg-turbo-12bit@0.4.7': {}
+
+  '@cornerstonejs/codec-libjpeg-turbo-8bit@1.2.8': {}
+
+  '@cornerstonejs/codec-openjpeg@1.3.6': {}
+
   '@cornerstonejs/core@5.19.4(@cornerstonejs/metadata@5.19.4)(@cornerstonejs/utils@5.19.4)(autoprefixer@10.7.0(postcss@8.5.33))(wslink@2.5.0)':
     dependencies:
       '@cornerstonejs/metadata': 5.19.4
@@ -2041,6 +2098,8 @@ snapshots:
     transitivePeerDependencies:
       - autoprefixer
       - wslink
+
+  '@cornerstonejs/jpeg-lossless-decoder-js@2.2.1': {}
 
   '@cornerstonejs/metadata@5.19.4':
     dependencies:

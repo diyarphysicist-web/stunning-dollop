@@ -1,6 +1,6 @@
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { readHeader } from "@neuromr/dicom";
 import { fakeInstance, type FakeInstance } from "@neuromr/dicom/testing";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
@@ -77,5 +77,51 @@ describe("GEN-233 DICOM inspector", () => {
     expect(rows.find((r) => r.keyword === "SOPInstanceUID")?.value).toBe("5.1");
     expect(rows.some((r) => r.keyword === "InversionTime")).toBe(false);
     expect(imageAttributes(index, "nope")).toEqual([]);
+  });
+});
+
+describe("GEN-238 compressed images and GEN-239 lossy notice", () => {
+  it("GEN-238 an image without a codec names its transfer syntax", async () => {
+    store({ sop: "6.1" });
+    const px = await imagePixels(index, "6.1", async () => ({ status: "unsupported", transferSyntaxUid: "1.2.840.10008.1.2.4.100" }));
+    expect(px).toEqual({ status: "unsupported", sopInstanceUid: "6.1", transferSyntaxUid: "1.2.840.10008.1.2.4.100" });
+  });
+  it("GEN-239 lossy compression recorded in the header marks the image and its series", () => {
+    store({ series: "6.9", sop: "6.2", extra: { "00282110": { vr: "CS", value: "01" } } });
+    store({ series: "6.9", sop: "6.3", z: 4 });
+    const s = seriesStack(index, "6.9");
+    expect(s.images.map((i) => [i.sopInstanceUid, i.lossy])).toEqual([
+      ["6.2", true],
+      ["6.3", false],
+    ]);
+    const study = index.studies("")[0]?.studyInstanceUid ?? "";
+    expect(index.series(study)[0]?.lossy).toBe(true);
+  });
+});
+
+// Codec phantoms (`pnpm phantoms`); CI sets NEUROMR_REQUIRE_PHANTOMS so they cannot be skipped there.
+const CODECS = resolve(import.meta.dirname, "../../../../../data/phantoms/codecs");
+describe.runIf(process.env.NEUROMR_REQUIRE_PHANTOMS === "1" || existsSync(CODECS))("GEN-238 codec phantoms through the store", () => {
+  it.each(["jpeg-ls", "j2k", "rle", "jpeg-extended"])("GEN-238 %s decodes to the uncompressed reference's modality values", async (key) => {
+    const first = (dir: string) => join(CODECS, dir, readdirSync(join(CODECS, dir)).filter((f) => f.endsWith(".dcm")).sort()[0] as string);
+    const add = (path: string) => {
+      const bytes = readFileSync(path);
+      const r = readHeader(bytes);
+      if (r.status !== "ok") throw new Error("parse");
+      index.addInstance(r.header, path, bytes.length);
+      index.refreshSeries(r.header.seriesInstanceUid, true);
+      return r.header;
+    };
+    const h = add(first(key));
+    const ref = add(first(key === "jpeg-extended" ? "reference-12" : "reference-16"));
+    const got = await imagePixels(index, h.sopInstanceUid);
+    const want = await imagePixels(index, ref.sopInstanceUid);
+    if (got.status !== "ok" || want.status !== "ok") throw new Error(`${got.status} / ${want.status}`);
+    const lossy = key === "j2k" || key === "jpeg-extended";
+    expect(seriesStack(index, h.seriesInstanceUid).images[0]?.lossy).toBe(lossy);
+    let err = 0;
+    for (let i = 0; i < got.values.length; i++) err += Math.abs((got.values[i] as number) - (want.values[i] as number));
+    if (lossy) expect(err / got.values.length).toBeLessThan(0.02 * Math.max(...want.values));
+    else expect(err).toBe(0);
   });
 });

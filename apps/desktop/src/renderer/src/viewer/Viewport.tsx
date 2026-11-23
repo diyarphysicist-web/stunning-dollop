@@ -136,6 +136,11 @@ export function Viewport({ index }: { index: number }) {
   const viewportId = `vp-${index}`;
   const [view, setView] = useState<View>({ zoom: 1, voi: null, markers: null });
   const [problem, setProblem] = useState<Problem | null>(null);
+  const [syntax, setSyntax] = useState("");
+  const report = (err: unknown) => {
+    setProblem(err instanceof ImageUnavailable ? err.reason : "failed");
+    setSyntax(err instanceof ImageUnavailable ? err.transferSyntaxUid : "");
+  };
   const [shownStack, setShownStack] = useState<ViewerStack | null>(null);
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
   const [tick, setTick] = useState(0);
@@ -195,7 +200,7 @@ export function Viewport({ index }: { index: number }) {
         setShownStack(stack);
         setView(readView(vp));
       })
-      .catch((err: unknown) => live && setProblem(err instanceof ImageUnavailable ? err.reason : "failed"));
+      .catch((err: unknown) => live && report(err));
     return () => {
       live = false;
     };
@@ -209,7 +214,7 @@ export function Viewport({ index }: { index: number }) {
     const at = flat.index.get(sop);
     if (at === undefined || at === vp.getCurrentImageIdIndex()) return;
     setProblem(null);
-    vp.setImageIdIndex(at).catch((err: unknown) => setProblem(err instanceof ImageUnavailable ? err.reason : "failed"));
+    vp.setImageIdIndex(at).catch(report);
   }, [sop, shownStack]);
 
   // Viewing tools (GEN-130); the markers are re-read from the camera afterwards.
@@ -368,11 +373,21 @@ export function Viewport({ index }: { index: number }) {
         {!stack && pane.status === "empty" && <div className="vp__notice t2">{t("vp.empty")}</div>}
         {pane.status === "loading" && <div className="vp__notice t2">{t("vp.loading")}</div>}
         {(pane.status === "failed" || problem) && (
-          <div className="vp__notice"><div className="notice notice--warning" role="status"><Icon name="warn" /><span className="notice__text">{t(problem === "unsupported" ? "vp.unsupported" : problem === "missing" ? "vp.missing" : "vp.failed")}</span></div></div>
+          <div className="vp__notice"><div className="notice notice--warning" role="status"><Icon name="warn" /><span className="notice__text">{problem === "unsupported" ? t("vp.unsupported", { syntax }) : t(problem === "missing" ? "vp.missing" : "vp.failed")}</span></div></div>
         )}
         {stack && ready && (
           <>
-            <div className="ov ov--tl" data-testid="overlay-position">{positionText(stack, pane)}<br /><span className="t2">{timingText(stack, sop, pane)}</span></div>
+            <div className="ov ov--tl" data-testid="overlay-position">
+              {positionText(stack, pane)}
+              <br />
+              <span className="t2">{timingText(stack, sop, pane)}</span>
+              {info?.lossy && (
+                <>
+                  <br />
+                  <span className="ov__warn" data-testid="overlay-lossy">{t("vp.lossy")}</span>
+                </>
+              )}
+            </div>
             <div className="ov ov--tr">{stack.patientName}<br /><span className="t2">{[stack.patientId, stack.studyDate].filter(Boolean).join(t("punct.dotSpaced"))}</span></div>
             {voi && <div className="ov ov--bl" data-testid="overlay-window">{t("vp.window", { w: formatQuantity(voi.upper - voi.lower, { decimals: 1 }), l: formatQuantity((voi.upper + voi.lower) / 2, { decimals: 1 }) })} <span className="t2">{t("vp.unit")}</span></div>}
             <div className="ov ov--br">

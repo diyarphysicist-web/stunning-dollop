@@ -27,6 +27,8 @@ export interface SeriesFacts {
   /** Voxels of a spectroscopy object (rows × columns × frames). */
   spectroscopyVoxels: number;
   hasGeometry: boolean;
+  /** Some instances are stored with lossy compression (GEN-239). */
+  lossy: boolean;
 }
 
 export interface SeriesDescription {
@@ -124,6 +126,7 @@ export function describeSeries(instances: readonly InstanceHeader[]): SeriesDesc
     echoes,
     spectroscopyVoxels: first.rows * first.columns * Math.max(1, first.numberOfFrames),
     hasGeometry: instances.every((h) => h.imagePosition !== undefined && h.imageOrientation !== undefined && h.pixelSpacing !== undefined),
+    lossy: instances.some((h) => h.lossy === true),
   };
   return { facts, types: classify(facts) };
 }
