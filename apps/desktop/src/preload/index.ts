@@ -1,4 +1,4 @@
-import type { EngineStatus, IpcChannel, IpcRequest, IpcResponse, IpcResult, WindowState } from "@neuromr/contracts";
+import type { EngineStatus, ImportProgress, IpcChannel, IpcRequest, IpcResponse, IpcResult, WindowState } from "@neuromr/contracts";
 import { contextBridge, ipcRenderer } from "electron";
 
 /** The only API the renderer sees. Requests are validated again in main; responses in the renderer. */
@@ -16,6 +16,12 @@ const api = {
     const wrapped = (_e: unknown, status: EngineStatus) => listener(status);
     ipcRenderer.on("neuromr:engine-status", wrapped);
     return () => ipcRenderer.off("neuromr:engine-status", wrapped);
+  },
+  /** Import progress pushes (DIR-008); validated with the ImportProgress schema in the renderer. */
+  onImportProgress(listener: (progress: ImportProgress) => void): () => void {
+    const wrapped = (_e: unknown, progress: ImportProgress) => listener(progress);
+    ipcRenderer.on("neuromr:import-progress", wrapped);
+    return () => ipcRenderer.off("neuromr:import-progress", wrapped);
   },
 };
 

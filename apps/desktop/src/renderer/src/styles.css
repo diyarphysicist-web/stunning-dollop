@@ -8,3 +8,18 @@
 /* App-only rules: the frameless window's drag region (the design draws its own title bar). */
 .topbar { -webkit-app-region: drag; }
 .topbar button, .topbar .banner { -webkit-app-region: no-drag; }
+
+/* Study Directory: the design draws the search field as a static box; the app puts a real input in it. */
+.search input { flex: 1; min-width: 0; height: 100%; background: transparent; border: 0; color: var(--nm-color-text-primary); font: inherit; }
+.search input::placeholder { color: var(--nm-color-text-tertiary); }
+.search input:focus-visible { outline: none; }
+.search:focus-within { border-color: var(--nm-color-focus); }
+.search input::-webkit-search-cancel-button { display: none; }
+.dir--empty { grid-template-rows: minmax(0, 1fr); }
+.dir__block--studies { max-height: 40vh; }
+.dir__nomatch { padding: var(--nm-space-6); }
+.empty__actions { justify-content: center; margin-top: var(--nm-space-3); }
+.tbl tbody tr { cursor: default; }
+.tbl tbody tr:focus-visible { outline-offset: calc(var(--nm-size-focus-ring) * -1); }
+.dialog--wide { width: calc(var(--nm-space-12) * 16); max-height: 80vh; }
+.dialog__body--scroll { overflow: auto; min-height: 0; }
