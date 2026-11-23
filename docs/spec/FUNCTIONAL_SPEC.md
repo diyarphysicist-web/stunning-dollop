@@ -182,7 +182,7 @@ Out of scope: cardiac, cartilage, liver, breast, prostate and muscle workflows. 
 
 - **DIR-001** Sources: local folder or DICOMDIR import, configured PACS nodes, and the local store (including studies pushed to the built-in C-STORE SCP).
 - **DIR-002** Study list → series list with thumbnails, series description, number of images, and series-type badges.
-- **DIR-003** Series-type classifier assigns one or more types from DICOM attributes: DSC, DCE, DWI, DTI, fMRI (BOLD), MRS-SVS, MRS-CSI, FLAIR, T1, T2, SWI, multi-echo, VFA reference (T1 gradient echo, non-dynamic, flip angle recorded), derived map, Secondary Capture.
+- **DIR-003** Series-type classifier assigns one or more types from DICOM attributes: DSC, DCE, DWI, DTI, fMRI (BOLD), MRS-SVS, MRS-CSI, FLAIR, T1, T2, SWI, multi-echo, VFA reference (T1 gradient echo, non-dynamic, flip angle recorded), derived map, Secondary Capture. The rules, their order and the attributes they read are in `ALGORITHMS.md` §13; a series that matches no rule has no type and opens only in the generic Viewer.
 - **DIR-004** The analysis launcher lists every package with valid/invalid status for the current selection. Invalid packages show a one-line reason. Each rule first checks the DIR-003 series type of the primary (first selected) series, then its counts; a series without the required type is invalid with a reason that names the type it needs. Validity rules:
 
 | Package | Rule |
@@ -201,7 +201,10 @@ Out of scope: cardiac, cartilage, liver, breast, prostate and muscle workflows. 
 | Echo Accumulation | multi-echo series with ≥ 2 echoes |
 
 - **DIR-005** Background pre-processing progress per series is visible in the Directory (DIR-003 classification, and rules from the brief §12.6).
-- **DIR-006** Corrupt or unreadable DICOM is quarantined with a message naming the file and the reason; it never blocks the rest of the import.
+- **DIR-006** Corrupt or unreadable DICOM is quarantined with a message naming the file and the reason; it never blocks the rest of the import. Reasons: not a DICOM file; file truncated or unreadable; a required identifier (Study, Series or SOP Instance UID) missing; an image without pixel data; a file listed in a DICOMDIR that is missing. The Directory shows the count from the last import with a link to the quarantine list (file path, reason, time); quarantined files are never copied into the local store.
+- **DIR-007** Import copies each instance into the local store and records it in the local study index (SQLite), which survives restarts. An instance whose SOP Instance UID is already in the store is skipped and counted as a duplicate, so importing the same folder twice changes nothing. Each import reports how many instances were imported, skipped as duplicates and quarantined.
+- **DIR-008** Import reads files off the interface thread: the Directory stays responsive, shows progress (files read of files found) and can cancel the import. Instances already stored when an import is cancelled stay in the store and in the index.
+- **DIR-009** The study list shows patient name, patient ID, birth date, sex, study date, study description, series count, image count, modality with field strength, and accession; the series list (DIR-002) adds series number, type badges, image count, dimensions (dynamics, volumes or echoes × slices · matrix) and status. The search box (Ctrl+K) filters studies by patient name, patient ID or accession as the user types.
 
 ---
 

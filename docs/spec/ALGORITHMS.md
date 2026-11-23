@@ -236,3 +236,23 @@ Two families of synthetic data are written by `scripts/make_phantoms.py`:
 
 - **Parametric phantoms** (`dsc_*`, `dce_*`, `dti_*`, `flair_*`, …): stripes, discs and blocks with one parameter set per class and many voxels per class. Every gate in this document runs on them, because each class is a clean, known population.
 - **Anatomical brain phantom** (`--only brain`, folders `brain_*`; `engine/neuromr_engine/phantoms/brain.py`): one skull-stripped head with grey matter (cortical ribbon with sulci and deep nuclei), white matter, CSF and ventricles. Signals mix the classes by sub-voxel fractions (partial volume); truth labels are the majority class. Pathology: a right-MCA stroke (core and delayed, hypoperfused tissue, Tmax > 6 s), a left frontal tumour (enhancing rim, necrosis), five MS-like lesions (grow, new, shrink, stable, disappear; central veins on SWI), and three task activation sites. Typical values: ADC ≈ 800 × 10⁻⁶ mm²/s in grey and white matter, ≈ 3000 in CSF, ≈ 450 in the stroke core; CBF 60 / 22 ml/100 g/min and CBV 4 / 2 ml/100 g in grey / white matter. In DSC, tissue ΔR2* per unit concentration is 20 × the arterial value (the κ term), giving a cortical first-pass drop of about 30 % next to a 60 % arterial drop. The brain phantom feeds the design imagery and end-to-end checks; it is not used for accuracy gates, where partial volume would blur the class populations.
+
+## 13. Series-type classifier (DIR-003)
+
+Pure function of the series' instance headers (`packages/dicom/src/classify.ts`). The aggregation step first derives, per series: the SOP class, Image Type values, Scanning Sequence, keywords from Series Description and Protocol Name, echo time TE, repetition time TR, inversion time TI, flip angle, whether a contrast agent is recorded (Contrast/Bolus Agent), the distinct slice positions, and the number of *dynamics* (distinct Temporal Position Identifier values; else distinct Acquisition Number or Trigger Time values when every slice position repeats), *b-values* (Diffusion B Value), *gradient directions* (distinct unit vectors with b > 0, opposite vectors counted once) and *echoes* (distinct Echo Number, else distinct TE, at one slice position).
+
+Rules, applied in order; each assigns zero or more types, and a rule marked *final* stops the list:
+
+1. SOP class Secondary Capture (any of the `1.2.840.10008.5.1.4.1.1.7*` classes) → Secondary Capture. *Final.*
+2. SOP class MR Spectroscopy → MRS-SVS when it holds one voxel (Rows × Columns × Number of Frames = 1), else MRS-CSI. *Final.*
+3. SOP class Parametric Map, or Image Type value 1 is `DERIVED` → derived map. *Final.*
+4. Any b-value > 0 → DWI; additionally DTI when there are ≥ 6 gradient directions (non-collinear). *Final.*
+5. ≥ 2 dynamics → dynamic rules: a keyword decides first (`perf`, `dsc`, `pwi` → DSC; `bold`, `fmri`, `functional` → fMRI; `dce`, `dyn t1`, `vibe`, `thrive` → DCE); otherwise TE ≤ 10 ms → DCE; TE > 10 ms with a contrast agent recorded → DSC; TE > 10 ms without one → fMRI. DCE series are also T1. *Final.*
+6. ≥ 2 echoes → multi-echo. *Final.*
+7. Image Type contains `SWI`, or keyword `swi` / `susc` → SWI. *Final.*
+8. TI ≥ 1,500 ms with TE ≥ 60 ms, or keyword `flair` → FLAIR. *Final.*
+9. TE ≤ 15 ms and TR ≤ 800 ms → T1; additionally VFA reference when Scanning Sequence contains `GR`, it does not contain `IR`, and a flip angle is recorded. *Final.*
+10. TE ≥ 60 ms and TR ≥ 2,000 ms → T2.
+
+Keywords match case-insensitively on word boundaries of Series Description and Protocol Name. A series that matches no rule gets no type (it opens in the generic Viewer only).
+
