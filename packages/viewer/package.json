@@ -5,5 +5,14 @@
   "type": "module",
   "main": "src/index.ts",
   "types": "src/index.ts",
-  "dependencies": {}
+  "exports": {
+    ".": "./src/index.ts",
+    "./cornerstone": "./src/cornerstone/index.ts"
+  },
+  "dependencies": {
+    "@neuromr/contracts": "workspace:*",
+    "@cornerstonejs/core": "5.19.4",
+    "@cornerstonejs/metadata": "5.19.4",
+    "@cornerstonejs/utils": "5.19.4"
+  }
 }
