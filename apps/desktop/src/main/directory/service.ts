@@ -3,6 +3,7 @@ import { Worker } from "node:worker_threads";
 import { ImportProgress, type DirectoryOverview, type ImportStart } from "@neuromr/contracts";
 import { PixelService } from "../pixels/service.js";
 import type { ImportWorkerData } from "./import-worker.js";
+import { PresetStore } from "./presets.js";
 import { SessionStore } from "./sessions.js";
 import { StudyIndex } from "./study-index.js";
 
@@ -16,6 +17,8 @@ export class DirectoryService {
   readonly pixels: PixelService;
   /** Viewer sessions and bookmarks (GEN-241, GEN-242). */
   readonly sessions: SessionStore;
+  /** User layout presets (GEN-243). */
+  readonly presets: PresetStore;
   private readonly dbPath: string;
   private readonly storeRoot: string;
   private worker: Worker | null = null;
@@ -31,6 +34,7 @@ export class DirectoryService {
     this.index = new StudyIndex(this.dbPath);
     this.pixels = new PixelService(pixelWorkerFile);
     this.sessions = new SessionStore(this.index);
+    this.presets = new PresetStore(this.index);
     this.recover();
   }
 

@@ -67,7 +67,7 @@ describe("GEN-241 Viewer sessions", () => {
     raw.pragma("user_version = 1");
     raw.close();
     index = new StudyIndex(file);
-    expect(index.db.pragma("user_version", { simple: true })).toBe(2);
+    expect(index.db.pragma("user_version", { simple: true })).toBe(3);
     new SessionStore(index).save("1.2", session(1));
     expect(new SessionStore(index).get("1.2")).not.toBeNull();
   });

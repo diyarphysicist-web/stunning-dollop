@@ -5,6 +5,8 @@ import { useEffect, useRef, useState } from "react";
 import { useDirectory } from "../directory/store.js";
 import { Icon } from "../Icon.js";
 import { activeStudy, useBookmarks } from "./bookmarks.js";
+import { layoutName, PresetDialog } from "./PresetDialog.js";
+import { usePresets } from "./presets.js";
 import { LAYOUTS, cellCount, layoutSize, type Layout } from "./stack.js";
 import { paneRois, useViewer, type Tool } from "./store.js";
 import { Viewport } from "./Viewport.js";
@@ -168,7 +170,6 @@ const DRAW: [Tool, string, MessageId][] = [
   ["freehand", "freehand", "viewer.tool.freehand"],
 ];
 
-const layoutName = (l: Layout) => t("viewer.layout.name", layoutSize(l));
 
 function LayoutPicker() {
   const layout = useViewer((s) => s.layout);
@@ -196,6 +197,12 @@ function LayoutPicker() {
               {l === layout ? <Icon name="check" small /> : <span />}
             </button>
           ))}
+          <div className="menu__sep" role="separator" />
+          <button role="menuitem" className="menu__item" data-testid="open-presets" onClick={() => { setOpen(false); void usePresets.getState().show(); }}>
+            <span>{t("viewer.layout.presets")}</span>
+            <span className="menu__key">{t("presets.saveKey")}</span>
+            <span />
+          </button>
         </div>
       )}
     </div>
@@ -313,13 +320,15 @@ function useViewerKeys() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const el = e.target as HTMLElement | null;
-      if (el?.closest("input, textarea, [role=menu], [role=dialog], [role=alertdialog]") || useViewer.getState().confirmReset !== null) return;
+      if (el?.closest("input, textarea, [role=menu], [role=dialog], [role=alertdialog]") || useViewer.getState().confirmReset !== null || usePresets.getState().open) return;
       const s = useViewer.getState();
       // GEN-034: undo and redo of ROI create, edit and delete.
       if ((e.ctrlKey || e.metaKey) && !e.altKey) {
         const k = e.key.toLowerCase();
         // GEN-242: Ctrl+Shift+B saves a bookmark of the active study.
-        if (k === "b" && e.shiftKey) {
+        // GEN-243: Ctrl+Shift+L opens the layout presets with the name field ready.
+        if (k === "l" && e.shiftKey) void usePresets.getState().show(true);
+        else if (k === "b" && e.shiftKey) {
           if (activeStudy()) void useBookmarks.getState().save();
         } else if (k === "z" && !e.shiftKey) s.undoRoi(s.active);
         else if (k === "y" || (k === "z" && e.shiftKey)) s.redoRoi(s.active);
@@ -367,6 +376,7 @@ export function Viewer() {
       </main>
       <Inspector />
       <ResetAllDialog />
+      <PresetDialog />
     </>
   );
 }

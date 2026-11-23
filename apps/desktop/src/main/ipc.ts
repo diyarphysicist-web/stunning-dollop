@@ -82,6 +82,10 @@ const handlers: Handlers = {
   "bookmark:get": ({ id }) => requireDirectory().sessions.bookmark(id),
   "bookmark:rename": ({ id, name }) => requireDirectory().sessions.rename(id, name),
   "bookmark:delete": ({ id }) => ({ deleted: requireDirectory().sessions.remove(id) }),
+  "preset:list": () => requireDirectory().presets.list(),
+  "preset:save": ({ name, layout, cells }) => requireDirectory().presets.save(name, layout, cells),
+  "preset:rename": ({ id, name }) => requireDirectory().presets.rename(id, name),
+  "preset:delete": ({ id }) => ({ deleted: requireDirectory().presets.remove(id) }),
 };
 
 async function dispatch<C extends IpcChannel>(channel: C, payload: unknown, event: IpcMainInvokeEvent): Promise<IpcResult<IpcResponse<C>>> {

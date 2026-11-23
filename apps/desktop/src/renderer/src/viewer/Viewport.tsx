@@ -5,6 +5,7 @@ import { dragWindow, initialWindow, markersFromScreenAxes, roiMask, roiStats, ty
 import { ImageUnavailable, imageId, renderingEngine } from "@neuromr/viewer/cornerstone";
 import { Fragment, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { Icon } from "../Icon.js";
+import { cellLabel } from "./PresetDialog.js";
 import { RoiLayer } from "./RoiLayer.js";
 import { DRAW_TOOLS, currentSop, paneRois, useViewer, type Pane } from "./store.js";
 import { flatten, scrollStep } from "./stack.js";
@@ -393,7 +394,7 @@ export function Viewport({ index }: { index: number }) {
         }}
       >
         <div className="vp__canvas" ref={element} onPointerDown={onPointerDown} data-tool={tool} />
-        {!stack && pane.status === "empty" && <div className="vp__notice t2">{t("vp.empty")}</div>}
+        {!stack && pane.status === "empty" && <div className="vp__notice t2">{pane.expected ? t("vp.expected", { what: cellLabel(pane.expected) }) : t("vp.empty")}</div>}
         {pane.status === "loading" && <div className="vp__notice t2">{t("vp.loading")}</div>}
         {(pane.status === "failed" || problem) && (
           <div className="vp__notice"><div className="notice notice--warning" role="status"><Icon name="warn" /><span className="notice__text">{problem === "unsupported" ? t("vp.unsupported", { syntax }) : t(problem === "missing" ? "vp.missing" : "vp.failed")}</span></div></div>

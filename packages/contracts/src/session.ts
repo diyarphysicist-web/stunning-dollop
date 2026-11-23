@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { SeriesType } from "./series.js";
 
 const finite = z.number().finite();
 const Uid = z.string().min(1).max(64);
@@ -60,3 +61,21 @@ export type Bookmark = z.infer<typeof Bookmark>;
 export const BookmarkSave = z.object({ studyInstanceUid: Uid, session: ViewerSession }).strict();
 export const BookmarkRef = z.object({ id: z.number().int().positive() }).strict();
 export const BookmarkRename = z.object({ id: z.number().int().positive(), name: z.string().trim().min(1).max(200) }).strict();
+
+/** What a user layout preset loads into one viewport (GEN-243): a series type (DIR-003) and description. */
+export const PresetCell = z.object({ type: SeriesType.nullable(), description: z.string().max(200) });
+export type PresetCell = z.infer<typeof PresetCell>;
+
+/** A user layout preset (GEN-243). `cells` has one entry per viewport of the layout; null = empty viewport. */
+export const LayoutPreset = z.object({
+  id: z.number().int().positive(),
+  name: z.string().min(1).max(200),
+  layout: ViewerLayout,
+  cells: z.array(PresetCell.nullable()).max(9),
+  savedAt: z.string(),
+});
+export type LayoutPreset = z.infer<typeof LayoutPreset>;
+
+export const PresetSave = z.object({ name: z.string().trim().min(1).max(200), layout: ViewerLayout, cells: z.array(PresetCell.nullable()).max(9) }).strict();
+export const PresetRef = z.object({ id: z.number().int().positive() }).strict();
+export const PresetRename = z.object({ id: z.number().int().positive(), name: z.string().trim().min(1).max(200) }).strict();

@@ -372,6 +372,38 @@ try {
     await w.keyboard.press("Control+z");
     await labels0.filter({ hasText: "Lesion" }).waitFor({ timeout: 5000 });
     console.log("reset all ok");
+
+    // GEN-243: save the 1x2 layout as a preset, switch to 1x1, reapply it, and delete it only when not active.
+    const layoutOf = () => w.locator(".vgrid").getAttribute("data-layout");
+    await w.locator("[data-testid=viewport-0] .vp__canvas").click();
+    await w.keyboard.press("Control+Shift+L");
+    await w.locator("[data-testid=preset-name]").fill("DCE pair");
+    await w.keyboard.press("Enter");
+    const userPreset = w.locator("[data-testid=preset]").filter({ hasText: "DCE pair" });
+    await userPreset.filter({ hasText: "User · active" }).waitFor({ timeout: 5000 });
+    if (!(await w.locator("[data-testid=preset-delete]").isDisabled())) throw new Error("the active preset can be deleted");
+    await shot(w, "desktop-viewer-presets.png");
+    await w.locator("[data-testid=preset]").filter({ hasText: /^1×1/ }).click();
+    if (!(await w.locator("[data-testid=preset-delete]").isDisabled())) throw new Error("a system preset can be deleted");
+    await w.locator("[data-testid=preset-apply]").click();
+    await w.locator("[data-testid=preset-dialog]").waitFor({ state: "detached", timeout: 5000 });
+    if ((await layoutOf()) !== "1x1") throw new Error("system preset 1x1 was not applied");
+    await w.locator("[data-testid=layout-picker]").click();
+    await w.locator("[data-testid=open-presets]").click();
+    await userPreset.click();
+    await w.locator("[data-testid=preset-apply]").click();
+    await w.locator("[data-testid=viewport-1][data-state=ready] [data-testid=overlay-position]").waitFor({ timeout: 30000 });
+    if ((await layoutOf()) !== "1x2") throw new Error("user preset did not restore 1x2");
+    await w.locator("[data-testid=layout-picker]").click();
+    await w.locator(".layout-picker [role=menuitemradio]").first().click();
+    await w.keyboard.press("Control+Shift+L");
+    await w.keyboard.press("Escape");
+    await userPreset.click();
+    await w.locator("[data-testid=preset-delete]").click();
+    await userPreset.waitFor({ state: "detached", timeout: 5000 });
+    await w.keyboard.press("Escape");
+    await w.locator("[data-testid=preset-dialog]").waitFor({ state: "detached", timeout: 5000 });
+    console.log("layout presets ok");
   } finally {
     await again.close();
   }

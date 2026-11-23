@@ -1,4 +1,4 @@
-import { parseImageRef, type DicomAttribute, type ViewerSession, type ViewerStack } from "@neuromr/contracts";
+import { parseImageRef, type DicomAttribute, type PresetCell, type ViewerSession, type ViewerStack } from "@neuromr/contracts";
 import { IDENTITY, nextRoiName, uniqueRoiName, type Roi, type RoiShape, type RoiStats, type ViewTransform } from "@neuromr/viewer";
 import { create } from "zustand";
 import { invoke } from "../bridge.js";
@@ -23,6 +23,8 @@ export interface Pane {
   stats: Record<string, RoiStats | null>;
   /** Saved zoom, pan and window the viewport applies once when it shows the series (GEN-241). */
   restore: CameraState | null;
+  /** What a layout preset wanted here when the study had no matching series (GEN-243). */
+  expected: PresetCell | null;
 }
 
 /** Camera and window of a viewport, as Cornerstone reports them (GEN-241). */
@@ -59,7 +61,7 @@ export interface SeriesRois {
 export const NO_ROIS: SeriesRois = Object.freeze({ rois: [], roiSerial: 0, undo: [], redo: [] }) as unknown as SeriesRois;
 
 const MAX_PANES = 9;
-const emptyPane = (): Pane => ({ seriesUid: null, stack: null, status: "empty", slice: 0, point: 0, transform: IDENTITY, resetView: 0, resetWindow: 0, stats: {}, restore: null });
+const emptyPane = (): Pane => ({ seriesUid: null, stack: null, status: "empty", slice: 0, point: 0, transform: IDENTITY, resetView: 0, resetWindow: 0, stats: {}, restore: null, expected: null });
 const HISTORY = 100;
 
 interface ViewerState {
@@ -88,6 +90,8 @@ interface ViewerState {
 
   open(seriesUids: readonly string[], studyUid?: string): Promise<void>;
   load(pane: number, seriesUid: string): Promise<void>;
+  /** GEN-243: shows `layout` with these series; an empty cell with an expectation says what was missing. */
+  showLayout(layout: Layout, series: readonly (string | null)[], expected: readonly (PresetCell | null)[]): Promise<void>;
   setActive(pane: number): void;
   setLayout(layout: Layout): void;
   setTool(tool: Tool): void;
@@ -241,6 +245,12 @@ export const useViewer = create<ViewerState>((set, get) => {
       const uids = seriesUids.slice(0, MAX_PANES);
       set({ layout: layoutFor(uids.length), panes: Array.from({ length: MAX_PANES }, emptyPane), active: 0 });
       await Promise.all(uids.map((uid, i) => get().load(i, uid)));
+    },
+
+    async showLayout(layout, series, expected) {
+      set({ layout, active: 0, panes: Array.from({ length: MAX_PANES }, (_, i) => ({ ...emptyPane(), expected: series[i] ? null : (expected[i] ?? null) })) });
+      await Promise.all(series.slice(0, cellCount(layout)).map((uid, i) => (uid ? get().load(i, uid) : Promise.resolve())));
+      void refreshAttributes();
     },
 
     async load(i, seriesUid) {
