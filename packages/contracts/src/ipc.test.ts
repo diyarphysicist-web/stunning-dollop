@@ -51,4 +51,19 @@ describe("IPC contract (brief §7: every IPC message validated with zod)", () =>
     expect(parseResponse("app:info", { ...good, name: "Other" }).ok).toBe(false);
     expect(parseResponse("app:info", { ...good, platform: "android" }).ok).toBe(false);
   });
+
+  it("GEN-234 the viewer asks for images by UID only and gets typed modality values back", () => {
+    expect(parseRequest("viewer:pixels", { sopInstanceUid: "1.2.3" }).ok).toBe(true);
+    expect(parseRequest("viewer:pixels", { sopInstanceUid: "1.2.3", path: "C:/store/x.dcm" }).ok).toBe(false);
+    expect(parseRequest("viewer:stack", { seriesInstanceUid: "" }).ok).toBe(false);
+    const px = { status: "ok", sopInstanceUid: "1.2.3", width: 2, height: 2, values: new Float32Array(4), invert: false };
+    expect(parseResponse("viewer:pixels", px).ok).toBe(true);
+    expect(parseResponse("viewer:pixels", { ...px, values: [0, 0, 0, 0] }).ok).toBe(false);
+  });
+
+  it("GEN-233 inspector rows carry a DICOM tag and an optional known unit", () => {
+    expect(parseResponse("viewer:attributes", [{ tag: "(0018,0080)", keyword: "RepetitionTime", value: 1500, unit: "ms" }]).ok).toBe(true);
+    expect(parseResponse("viewer:attributes", [{ tag: "0018,0080", keyword: "RepetitionTime", value: 1500 }]).ok).toBe(false);
+    expect(parseResponse("viewer:attributes", [{ tag: "(0018,0080)", keyword: "RepetitionTime", value: 1500, unit: "furlong" }]).ok).toBe(false);
+  });
 });

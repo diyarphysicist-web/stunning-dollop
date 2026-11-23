@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { DirectoryOverview, ImportProgress, ImportRequest, ImportStart, QuarantineEntry, SeriesQuery, SeriesRow, StudyQuery, StudyRow } from "./directory.js";
 import { EngineStatus } from "./engine.js";
+import { DicomAttribute, ImageQuery, StackQuery, ViewerPixels, ViewerStack } from "./viewer.js";
 
 /** Build and platform facts the renderer shows in the status bar and About (GEN-200 strings stay in the catalog). */
 export const AppInfo = z.object({
@@ -35,6 +36,10 @@ export const IPC = {
   "directory:studies": { request: StudyQuery, response: z.array(StudyRow) },
   "directory:series": { request: SeriesQuery, response: z.array(SeriesRow) },
   "directory:quarantine": { request: Empty, response: z.array(QuarantineEntry) },
+  // Generic Viewer (GEN-230…235): images are requested by UID and read from the local store in main.
+  "viewer:stack": { request: StackQuery, response: ViewerStack },
+  "viewer:pixels": { request: ImageQuery, response: ViewerPixels },
+  "viewer:attributes": { request: ImageQuery, response: z.array(DicomAttribute) },
 } as const;
 
 /** Main → renderer pushes; each payload is validated in the renderer before use. */

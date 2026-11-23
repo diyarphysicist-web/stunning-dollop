@@ -175,6 +175,12 @@ export class StudyIndex {
     this.addInstances([{ header, path, size }]);
   }
 
+  /** One stored instance, or undefined when the index does not know it. */
+  instance(sopUid: string): { header: InstanceHeader; path: string } | undefined {
+    const r = this.db.prepare("SELECT header, path FROM instances WHERE sop_uid = ?").get(sopUid) as { header: string; path: string } | undefined;
+    return r && { header: JSON.parse(r.header) as InstanceHeader, path: r.path };
+  }
+
   seriesHeaders(seriesUid: string): { header: InstanceHeader; path: string }[] {
     const rows = this.db.prepare("SELECT header, path FROM instances WHERE series_uid = ?").all(seriesUid) as { header: string; path: string }[];
     return rows.map((r) => ({ header: JSON.parse(r.header) as InstanceHeader, path: r.path }));

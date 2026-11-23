@@ -3,6 +3,7 @@ import { t } from "@neuromr/i18n";
 import { BrowserWindow, app, dialog, ipcMain, type IpcMainInvokeEvent, type OpenDialogOptions } from "electron";
 import type { DirectoryService } from "./directory/service.js";
 import type { EngineSupervisor } from "./engine/supervisor.js";
+import { imageAttributes, imagePixels, seriesStack } from "./viewer/viewer.js";
 
 export const INVOKE_CHANNEL = "neuromr:invoke";
 
@@ -65,6 +66,9 @@ const handlers: Handlers = {
   "directory:studies": ({ search }) => requireDirectory().index.studies(search),
   "directory:series": ({ studyInstanceUid }) => requireDirectory().index.series(studyInstanceUid),
   "directory:quarantine": () => requireDirectory().index.quarantine(),
+  "viewer:stack": ({ seriesInstanceUid }) => seriesStack(requireDirectory().index, seriesInstanceUid),
+  "viewer:pixels": ({ sopInstanceUid }) => imagePixels(requireDirectory().index, sopInstanceUid),
+  "viewer:attributes": ({ sopInstanceUid }) => imageAttributes(requireDirectory().index, sopInstanceUid),
 };
 
 async function dispatch<C extends IpcChannel>(channel: C, payload: unknown, event: IpcMainInvokeEvent): Promise<IpcResult<IpcResponse<C>>> {
