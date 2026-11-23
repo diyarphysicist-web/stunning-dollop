@@ -43,9 +43,15 @@ CI: `.github/workflows/ci.yml` (node, engine, traceability with `CURRENT_PHASE`,
 
 ## Handoff
 
-**Phase status:** Phase 0 and Phase 1 complete. **Design locked 2026-11-23** (Diyar: "design approved"). `design/screens/` (47 screens, PNGs at 1920×1080 and 2560×1440) is the contract code is built against; new screens go through the same design path (brief §3, last paragraph). Phase 2a (platform core) is next.
+**Phase status:** Phase 0 and Phase 1 complete. **Design locked 2026-11-23** (Diyar: "design approved"). `design/screens/` (47 screens, PNGs at 1920×1080 and 2560×1440) is the contract code is built against; new screens go through the same design path (brief §3, last paragraph). Phase 2a (platform core) in progress.
 
-**Done in Phase 1 so far**
+**Done in Phase 2a so far**
+- `packages/contracts/src/ipc.ts`: IPC channel map (`app:info`, `window:control`) with zod request/response schemas; main validates requests, renderer validates responses.
+- `packages/i18n`: single ICU catalog `messages.en.ts` + `t()` (intl-messageformat, en-US), `formatQuantity` / `formatIdentifier` / `formatMachine` / `parseNumericInput` (GEN-200, GEN-201). Add every new UI string here.
+- `apps/desktop` (Electron 45 + electron-vite 6 + Vite 8 + React 19): frameless window, sandbox + contextIsolation, strict CSP, navigation/new windows/permissions denied, single instance; preload exposes only `window.neuromr.invoke/onWindowState`. Renderer imports tokens, `design/assets/luts.css`, `design/screens/shell.css` and the icon sprite through the `@design` alias (the locked design is the stylesheet contract); Inter and JetBrains Mono bundled (OFL). ESLint forbids JSX text and literal aria-label/title/placeholder/alt in the renderer (GEN-200).
+- `pnpm desktop:dev`, `pnpm desktop:build`, `pnpm desktop:smoke` (Playwright `_electron`: bridge rejects unknown channels/invalid requests, no Node in renderer, screenshot to git-ignored `artifacts/screens/`). CI runs the smoke under xvfb and uploads the screenshot.
+
+**Done in Phase 1**
 - Batch 1: `design/BRIEF.md`, design system `design/design-system/` (DESIGN.md, tokens.css, manifest), tokens exported to `packages/ui/src/tokens/` with tests, phantom imagery (`design/tools/render_phantom_imagery.py` → `design/assets/img`, `assets/data/phantom-data.json`), Playwright PNG export (`pnpm design:render`), shared `design/screens/shell.css`, screens 02 Workspace shell and 03 DSC Perfusion.
 - Batch 2: 04 Define AIF, 05 Mismatch 2×2 and 2×3, 06 Co-registration; `design/screens/icons.svg` (single-source sprite), `design/tools/inject_plots.py` (draws every curve from `phantom-data.json` into `<!-- gen:NAME -->` regions and inlines the sprite), `design/CRITIQUE.md` (§4.6 pass per screen). Spec: REG workspace also serves Longitudinal (LBA-012).
 - Batch 3: 01 Study Directory, 07 DCE / T1 Perfusion, 08 Permeability, 09 Diffusion (1×1, 2×2). `inject_plots.py` now also generates the top bar (`gen:topbar`), rail (`gen:rail-<activity>`) and status bar (`gen:statusbar[-<state>]`). Spec: PERM-012, DIF-012 task guidance; `FA_DIRECTION_PALETTE` in the viewer LUT module.
@@ -68,8 +74,8 @@ CI: `.github/workflows/ci.yml` (node, engine, traceability with `CURRENT_PHASE`,
 - Brief §4.2 says tertiary text is "≥ 4.98:1" on the raised surface; exact value is 4.977:1 (passes 4.5:1). Test asserts 4.98 to two decimals.
 - oSVD CBF tolerance curve and IVIM/DKI gates in `ALGORITHMS.md` are marked provisional until Phase 3/10 phantom studies.
 - Spectroscopy phantom is written as `fid.npz` (no DICOM MR Spectroscopy writer yet; due Phase 8).
-- `apps/desktop` (Electron) is created in Phase 2a.
+- Electron 45 has no install script; CI runs `node apps/desktop/node_modules/electron/install.js` before the smoke run.
 - Open Design MCP is not reachable from cloud sessions; it also disconnected locally during batch 6 (files are still synced by copying into the project folder).
 - Local tooling: `uv` is not on PATH on Diyar's PC; the system Python 3.14 (`/c/Python314/python`) has numpy/scipy/pydicom/Pillow and runs `design/tools/*.py`. Run `inject_plots.py` after editing any screen (it fills `gen:` regions and applies GEN-201 number formatting), then the composers, `inject_plots.py` again, `pnpm design:render`, `pnpm design:text-check`, rebuild the gallery and prototype, `pnpm design:prototype-check`, then copy changed files into the Open Design project folder. `pnpm trace` needs uv; locally run `engine/.venv/Scripts/python.exe scripts/trace.py`.
 
-**Exact next step:** Start Phase 2a (brief §10): create `apps/desktop` (Electron LTS + Vite + React 19, TypeScript strict, contextIsolation, zod-validated IPC from `packages/contracts`), then the engine sidecar supervisor, DICOM import + SQLite index, Study Directory (screen 01), classifier and validity rules, generic Viewer, Analysis Workspace shell (screen 02) with §6.0 behaviours, layouts/presets (17), bookmarks, Generate Series and table export (16), and the ICU string catalog (GEN-200). Set `CURRENT_PHASE` in CI to 2 only when every GEN/DIR/SAFE requirement has a test.
+**Exact next step:** Continue Phase 2a with the engine sidecar supervisor (FastAPI on 127.0.0.1, random port, per-session token, `/health` per `EngineHealth`, WebSocket job events, restart with backoff, status-bar Engine item), then DICOM import + SQLite index, Study Directory (screen 01), classifier and validity rules, generic Viewer, Analysis Workspace shell (screen 02) with §6.0 behaviours, layouts/presets (17), bookmarks, Generate Series and table export (16), and the ICU string catalog (GEN-200). Set `CURRENT_PHASE` in CI to 2 only when every GEN/DIR/SAFE requirement has a test.
