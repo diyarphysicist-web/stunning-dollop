@@ -8,5 +8,9 @@
   "dependencies": {
     "@neuromr/contracts": "workspace:*",
     "dicom-parser": "^1.8.21"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./testing": "./src/testing.ts"
   }
 }

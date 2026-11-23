@@ -31,6 +31,9 @@ export const en = {
   "engine.hint.failedToStart": "The compute engine could not start. Select Retry; if it fails again, restart NeuroMR-PRO.",
   "engine.hint.crashedRepeatedly": "The compute engine stopped several times. Select Retry; if it stops again, restart NeuroMR-PRO.",
   "engine.retry": "Retry",
+  "import.dialog.folder": "Import DICOM folder",
+  "import.dialog.dicomdir": "Import DICOMDIR",
+  "import.dialog.dicomdirFilter": "DICOMDIR",
 } as const satisfies Record<string, string>;
 
 export type MessageId = keyof typeof en;

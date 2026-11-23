@@ -27,6 +27,24 @@ describe("IPC contract (brief §7: every IPC message validated with zod)", () =>
     expect(parseRequest("engine:retry", {}).ok).toBe(true);
   });
 
+  it("DIR-001 import requests carry no path: main opens its own dialog", () => {
+    expect(parseRequest("directory:import", { source: "folder" }).ok).toBe(true);
+    expect(parseRequest("directory:import", { source: "folder", path: "C:/Windows" }).ok).toBe(false);
+    expect(parseRequest("directory:import", { source: "pacs" }).ok).toBe(false);
+  });
+
+  it("DIR-009 study search defaults to empty and is bounded", () => {
+    const r = parseRequest("directory:studies", {});
+    expect(r.ok && r.value.search).toBe("");
+    expect(parseRequest("directory:studies", { search: "x".repeat(201) }).ok).toBe(false);
+  });
+
+  it("DIR-002 series thumbnails are PNG data URLs only", () => {
+    const row = { seriesInstanceUid: "1.2", studyInstanceUid: "1", patientId: "P", description: "d", types: ["DSC"], dynamics: 40, echoes: 1, bValues: [], gradientDirections: 0, isDynamic: true, hasGeometry: true, preprocessingDone: true, seriesNumber: 150, status: "ready", imageCount: 160, slices: 4, rows: 64, columns: 64, thumbnail: "data:image/png;base64,AAAA" };
+    expect(parseResponse("directory:series", [row]).ok).toBe(true);
+    expect(parseResponse("directory:series", [{ ...row, thumbnail: "https://example.org/x.png" }]).ok).toBe(false);
+  });
+
   it("rejects malformed responses", () => {
     const good = { name: "NeuroMR-PRO", version: "0.1.0", platform: "win32", arch: "x64", electron: "45.4.1" };
     expect(parseResponse("app:info", good).ok).toBe(true);

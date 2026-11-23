@@ -4,7 +4,8 @@ import { tokens } from "@neuromr/ui";
 import { BrowserWindow, app } from "electron";
 import { EngineSupervisor } from "./engine/supervisor.js";
 import { nodeDeps, resolveEngineCommand } from "./engine/runtime.js";
-import { forwardWindowState, registerIpc } from "./ipc.js";
+import { DirectoryService } from "./directory/service.js";
+import { broadcastImportProgress, forwardWindowState, registerIpc } from "./ipc.js";
 import { hardenSession, lockNavigation } from "./security.js";
 
 const devServerUrl = process.env["ELECTRON_RENDERER_URL"];
@@ -62,9 +63,11 @@ if (!app.requestSingleInstanceLock()) {
       (line) => console.log(line),
     ),
   );
+  let directory: DirectoryService | null = null;
   void app.whenReady().then(() => {
     hardenSession(devServerUrl);
-    registerIpc(isAppUrl, engine);
+    directory = new DirectoryService(app.getPath("userData"), join(import.meta.dirname, "import-worker.js"), broadcastImportProgress);
+    registerIpc(isAppUrl, engine, directory);
     engine.start();
     createMainWindow();
   });
@@ -74,7 +77,7 @@ if (!app.requestSingleInstanceLock()) {
   app.on("before-quit", (event) => {
     if (engineStopped) return;
     event.preventDefault();
-    void engine.stop().finally(() => {
+    void Promise.all([engine.stop(), directory?.stop()]).finally(() => {
       engineStopped = true;
       app.quit();
     });

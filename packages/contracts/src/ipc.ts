@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { DirectoryOverview, ImportProgress, ImportRequest, ImportStart, QuarantineEntry, SeriesQuery, SeriesRow, StudyQuery, StudyRow } from "./directory.js";
 import { EngineStatus } from "./engine.js";
 
 /** Build and platform facts the renderer shows in the status bar and About (GEN-200 strings stay in the catalog). */
@@ -27,6 +28,18 @@ export const IPC = {
   "window:control": { request: WindowControl, response: WindowState },
   "engine:status": { request: Empty, response: EngineStatus },
   "engine:retry": { request: Empty, response: EngineStatus },
+  // Study Directory (DIR-001…009). Paths are chosen in main's own dialog; the renderer never sends one.
+  "directory:import": { request: ImportRequest, response: ImportStart },
+  "directory:cancel-import": { request: Empty, response: z.object({ cancelled: z.boolean() }) },
+  "directory:overview": { request: Empty, response: DirectoryOverview },
+  "directory:studies": { request: StudyQuery, response: z.array(StudyRow) },
+  "directory:series": { request: SeriesQuery, response: z.array(SeriesRow) },
+  "directory:quarantine": { request: Empty, response: z.array(QuarantineEntry) },
+} as const;
+
+/** Main → renderer pushes; each payload is validated in the renderer before use. */
+export const PUSH = {
+  "neuromr:import-progress": ImportProgress,
 } as const;
 
 export type IpcChannel = keyof typeof IPC;

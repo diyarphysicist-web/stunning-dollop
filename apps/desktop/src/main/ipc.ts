@@ -1,5 +1,7 @@
-import { type IpcChannel, type IpcParsedRequest, type IpcResponse, type IpcResult, isIpcChannel, parseRequest, parseResponse } from "@neuromr/contracts";
-import { BrowserWindow, app, ipcMain, type IpcMainInvokeEvent } from "electron";
+import { type ImportProgress, type IpcChannel, type IpcParsedRequest, type IpcResponse, type IpcResult, isIpcChannel, parseRequest, parseResponse } from "@neuromr/contracts";
+import { t } from "@neuromr/i18n";
+import { BrowserWindow, app, dialog, ipcMain, type IpcMainInvokeEvent, type OpenDialogOptions } from "electron";
+import type { DirectoryService } from "./directory/service.js";
 import type { EngineSupervisor } from "./engine/supervisor.js";
 
 export const INVOKE_CHANNEL = "neuromr:invoke";
@@ -12,6 +14,23 @@ function windowState(win: BrowserWindow | null) {
 }
 
 let engine: EngineSupervisor | null = null;
+let directory: DirectoryService | null = null;
+
+function requireDirectory(): DirectoryService {
+  if (!directory) throw new Error("study index is not open");
+  return directory;
+}
+
+/** DIR-001: the user picks the source in main's own dialog, so the renderer never names a path. */
+async function chooseImportSource(source: "folder" | "dicomdir", event: IpcMainInvokeEvent): Promise<string | undefined> {
+  const options: OpenDialogOptions =
+    source === "folder"
+      ? { title: t("import.dialog.folder"), properties: ["openDirectory"] }
+      : { title: t("import.dialog.dicomdir"), properties: ["openFile"], filters: [{ name: t("import.dialog.dicomdirFilter"), extensions: ["*"] }] };
+  const win = BrowserWindow.fromWebContents(event.sender);
+  const r = win ? await dialog.showOpenDialog(win, options) : await dialog.showOpenDialog(options);
+  return r.canceled ? undefined : r.filePaths[0];
+}
 
 const handlers: Handlers = {
   "app:info": () => ({
@@ -35,6 +54,17 @@ const handlers: Handlers = {
   },
   "engine:status": () => engine?.getStatus() ?? { state: "stopped" },
   "engine:retry": () => engine?.retry() ?? { state: "stopped" },
+  "directory:import": async ({ source }, event) => {
+    const dir = requireDirectory();
+    if (dir.busy()) return { started: false, why: "busy" };
+    const root = await chooseImportSource(source, event);
+    return root ? dir.startImport(source, root) : { started: false, why: "dismissed" };
+  },
+  "directory:cancel-import": () => ({ cancelled: requireDirectory().cancelImport() }),
+  "directory:overview": () => requireDirectory().overview(),
+  "directory:studies": ({ search }) => requireDirectory().index.studies(search),
+  "directory:series": ({ studyInstanceUid }) => requireDirectory().index.series(studyInstanceUid),
+  "directory:quarantine": () => requireDirectory().index.quarantine(),
 };
 
 async function dispatch<C extends IpcChannel>(channel: C, payload: unknown, event: IpcMainInvokeEvent): Promise<IpcResult<IpcResponse<C>>> {
@@ -49,8 +79,9 @@ async function dispatch<C extends IpcChannel>(channel: C, payload: unknown, even
 }
 
 /** One validated entry point; requests from frames other than the app's own are refused. */
-export function registerIpc(isAppUrl: (url: string) => boolean, supervisor: EngineSupervisor): void {
+export function registerIpc(isAppUrl: (url: string) => boolean, supervisor: EngineSupervisor, studies: DirectoryService): void {
   engine = supervisor;
+  directory = studies;
   // GEN-221: every window sees engine state changes as they happen.
   supervisor.onStatus((status) => {
     for (const win of BrowserWindow.getAllWindows()) win.webContents.send("neuromr:engine-status", status);
@@ -66,4 +97,9 @@ export function registerIpc(isAppUrl: (url: string) => boolean, supervisor: Engi
 export function forwardWindowState(win: BrowserWindow): void {
   const send = () => win.webContents.send("neuromr:window-state", windowState(win));
   for (const e of ["maximize", "unmaximize", "focus", "blur"] as const) win.on(e as "maximize", send);
+}
+
+/** DIR-008: import progress reaches every window as it happens. */
+export function broadcastImportProgress(p: ImportProgress): void {
+  for (const win of BrowserWindow.getAllWindows()) win.webContents.send("neuromr:import-progress", p);
 }
