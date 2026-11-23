@@ -118,6 +118,13 @@ function StudyTable() {
   const studyUid = useDirectory((s) => s.studyUid);
   const search = useDirectory((s) => s.search);
   const selectStudy = useDirectory((s) => s.selectStudy);
+  // GEN-241: double-click or Enter on a study reopens its last session (else its first series).
+  const openStudy = async (uid: string) => {
+    await selectStudy(uid);
+    const first = useDirectory.getState().series[0]?.seriesInstanceUid;
+    void useViewer.getState().openStudy(uid, first);
+    useShell.getState().show("viewer");
+  };
   const move = (e: KeyboardEvent, i: number) => {
     const next = e.key === "ArrowDown" ? i + 1 : e.key === "ArrowUp" ? i - 1 : -1;
     const target = studies[next];
@@ -144,7 +151,7 @@ function StudyTable() {
             {studies.map((s: StudyRow, i) => {
               const selected = s.studyInstanceUid === studyUid;
               return (
-                <tr key={s.studyInstanceUid} className={selected ? "is-selected" : undefined} aria-selected={selected} tabIndex={selected ? 0 : -1} onClick={() => void selectStudy(s.studyInstanceUid)} onKeyDown={(e) => move(e, i)}>
+                <tr key={s.studyInstanceUid} className={selected ? "is-selected" : undefined} aria-selected={selected} tabIndex={selected ? 0 : -1} onClick={() => void selectStudy(s.studyInstanceUid)} onDoubleClick={() => void openStudy(s.studyInstanceUid)} onKeyDown={(e) => (e.key === "Enter" ? void openStudy(s.studyInstanceUid) : move(e, i))}>
                   <td className="strong mono">{s.patientName}</td><td className="mono">{s.patientId}</td><td>{s.patientBirthDate}</td><td>{s.patientSex}</td><td>{s.studyDate}</td>
                   <td>{s.studyDescription}</td><td className="num">{t("number.count", { n: s.seriesCount })}</td><td className="num">{t("number.count", { n: s.imageCount })}</td><td>{modalityLabel(s)}</td><td className="mono">{s.accessionNumber}</td>
                 </tr>
@@ -193,7 +200,7 @@ function SeriesTable() {
   const openInViewer = (uid?: string) => {
     const chosen = uid && !selected.includes(uid) ? [uid] : selected;
     if (chosen.length === 0) return;
-    void useViewer.getState().open(chosen);
+    void useViewer.getState().open(chosen, study.studyInstanceUid);
     useShell.getState().show("viewer");
   };
   const cols = ["5%", "5%", "22%", "20%", "8%", "16%", undefined];

@@ -121,7 +121,9 @@ async function launch(env = {}) {
   }
 }
 
-const { app, win } = await launch();
+// One profile for the main run and the restart below (GEN-241: sessions survive a restart).
+const profile = mkdtempSync(join(tmpdir(), "neuromr-smoke-"));
+const { app, win } = await launch({ NEUROMR_USER_DATA: profile });
 const errors = [];
 try {
   win.on("pageerror", (e) => errors.push(String(e)));
@@ -320,4 +322,21 @@ try {
   console.log(`smoke ok · api ${security.api.join(", ")} · ${join(outDir, "desktop-shell.png")}`);
 } finally {
   await app.close();
+}
+
+// GEN-241: after a restart, reopening the validation study brings back its layout, series and ROIs.
+{
+  const { app: again, win: w } = await launch({ NEUROMR_USER_DATA: profile });
+  try {
+    const row = w.locator("[data-testid=study-list] tbody tr").filter({ hasText: "validation" });
+    await row.waitFor({ timeout: 15000 });
+    await row.dblclick();
+    await w.locator("[data-testid=viewport-0][data-state=ready] [data-testid=overlay-position]").waitFor({ timeout: 30000 });
+    if ((await w.locator(".vgrid").getAttribute("data-layout")) !== "1x2") throw new Error("the saved 1x2 layout did not come back");
+    for (const i of [0, 1]) await w.locator(`[data-testid=viewport-${i}] [data-testid=roi-label]`).filter({ hasText: "Lesion" }).waitFor({ timeout: 10000 });
+    await shot(w, "desktop-viewer-session.png");
+    console.log("session restore ok");
+  } finally {
+    await again.close();
+  }
 }

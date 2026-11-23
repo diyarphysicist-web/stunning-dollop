@@ -18,7 +18,7 @@ const stack = (uid: string): ViewerStack => ({
 
 vi.mock("../bridge.js", () => ({
   invoke: vi.fn(async (channel: string, req: { seriesInstanceUid?: string }) =>
-    channel === "viewer:stack" && req.seriesInstanceUid ? { ok: true, value: stack(req.seriesInstanceUid) } : { ok: true, value: [] },
+    channel === "viewer:stack" && req.seriesInstanceUid ? { ok: true, value: stack(req.seriesInstanceUid) } : { ok: true, value: channel === "session:get" ? null : [] },
   ),
 }));
 vi.mock("@neuromr/viewer/cornerstone", () => ({ registerStack: vi.fn(), purge: vi.fn() }));

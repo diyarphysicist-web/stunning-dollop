@@ -1,4 +1,4 @@
-import { parseImageRef, type DicomAttribute, type ViewerStack } from "@neuromr/contracts";
+import { parseImageRef, type DicomAttribute, type ViewerSession, type ViewerStack } from "@neuromr/contracts";
 import { IDENTITY, nextRoiName, uniqueRoiName, type Roi, type RoiShape, type RoiStats, type ViewTransform } from "@neuromr/viewer";
 import { create } from "zustand";
 import { invoke } from "../bridge.js";
@@ -21,6 +21,29 @@ export interface Pane {
   resetWindow: number;
   /** Statistics of the current image per ROI id (GEN-236); missing while the image loads. */
   stats: Record<string, RoiStats | null>;
+  /** Saved zoom, pan and window the viewport applies once when it shows the series (GEN-241). */
+  restore: CameraState | null;
+}
+
+/** Camera and window of a viewport, as Cornerstone reports them (GEN-241). */
+export interface CameraState {
+  zoom: number | null;
+  pan: [number, number] | null;
+  window: { lower: number; upper: number } | null;
+}
+
+/** How a series was last shown (GEN-241), whatever viewport showed it. */
+export interface SeriesViewState extends CameraState {
+  slice: number;
+  point: number;
+  transform: ViewTransform;
+}
+
+/** Layout part of a study's session (GEN-241). */
+export interface SessionLayout {
+  layout: Layout;
+  active: number;
+  panes: (string | null)[];
 }
 
 /** ROIs of one series with their history (GEN-034, GEN-035); shared by every viewport showing it (GEN-236). */
@@ -36,7 +59,7 @@ export interface SeriesRois {
 export const NO_ROIS: SeriesRois = Object.freeze({ rois: [], roiSerial: 0, undo: [], redo: [] }) as unknown as SeriesRois;
 
 const MAX_PANES = 9;
-const emptyPane = (): Pane => ({ seriesUid: null, stack: null, status: "empty", slice: 0, point: 0, transform: IDENTITY, resetView: 0, resetWindow: 0, stats: {} });
+const emptyPane = (): Pane => ({ seriesUid: null, stack: null, status: "empty", slice: 0, point: 0, transform: IDENTITY, resetView: 0, resetWindow: 0, stats: {}, restore: null });
 const HISTORY = 100;
 
 interface ViewerState {
@@ -47,8 +70,23 @@ interface ViewerState {
   attributes: DicomAttribute[];
   /** ROIs by Series Instance UID (GEN-236). */
   roisBySeries: Record<string, SeriesRois>;
+  /** View state by Series Instance UID (GEN-241). */
+  viewsBySeries: Record<string, SeriesViewState>;
+  /** Study of every series the Viewer has state for. */
+  studyOfSeries: Record<string, string>;
+  /** Layout of a study's saved session, for studies not on screen (GEN-241). */
+  savedLayouts: Record<string, SessionLayout>;
 
-  open(seriesUids: readonly string[]): Promise<void>;
+  /** Brings a study's saved session into memory, once per study and run; series already in memory win. */
+  hydrate(studyUid: string): Promise<ViewerSession | null>;
+  /** Shows a session: series state from it (replacing what is in memory when `replace`), then its layout and series. */
+  applySession(studyUid: string, session: ViewerSession, replace: boolean): Promise<void>;
+  /** GEN-241: reopens a study's last session, or its first series when it has none. */
+  openStudy(studyUid: string, firstSeries: string | undefined): Promise<void>;
+  /** Records the camera and window a viewport shows (GEN-241). */
+  noteCamera(pane: number, camera: CameraState): void;
+
+  open(seriesUids: readonly string[], studyUid?: string): Promise<void>;
   load(pane: number, seriesUid: string): Promise<void>;
   setActive(pane: number): void;
   setLayout(layout: Layout): void;
@@ -92,6 +130,15 @@ export const useViewer = create<ViewerState>((set, get) => {
     set({ roisBySeries: { ...get().roisBySeries, [uid]: { ...cur, ...next } } });
     return true;
   };
+  /** Copies a viewport's slice, point and transform into its series' view state. */
+  const remember = (i: number) => {
+    const p = get().panes[i];
+    if (!p?.stack || !p.seriesUid) return;
+    const cur = get().viewsBySeries[p.seriesUid];
+    const next: SeriesViewState = { zoom: null, pan: null, window: null, ...cur, slice: p.slice, point: p.point, transform: p.transform };
+    set({ viewsBySeries: { ...get().viewsBySeries, [p.seriesUid]: next } });
+  };
+  const hydrated = new Map<string, Promise<ViewerSession | null>>();
   const history = (r: SeriesRois) => ({ undo: [...r.undo, r.rois].slice(-HISTORY), redo: [] as Roi[][] });
 
   let attributesFor: string | null = null;
@@ -119,8 +166,73 @@ export const useViewer = create<ViewerState>((set, get) => {
     tool: "scroll",
     attributes: [],
     roisBySeries: {},
+    viewsBySeries: {},
+    studyOfSeries: {},
+    savedLayouts: {},
 
-    async open(seriesUids) {
+    hydrate(studyUid) {
+      let pending = hydrated.get(studyUid);
+      if (!pending) {
+        pending = invoke("session:get", { studyInstanceUid: studyUid }).then((r) => {
+          const session = r.ok ? r.value : null;
+          if (session) {
+            const st = get();
+            const views = { ...st.viewsBySeries };
+            const rois = { ...st.roisBySeries };
+            const study = { ...st.studyOfSeries };
+            for (const [uid, v] of Object.entries(session.series)) {
+              study[uid] = studyUid;
+              if (!views[uid]) views[uid] = { slice: v.slice, point: v.point, transform: v.transform, zoom: v.zoom, pan: v.pan, window: v.window };
+              if (!rois[uid]) rois[uid] = { rois: v.rois, roiSerial: v.roiSerial, undo: [], redo: [] };
+            }
+            set({
+              viewsBySeries: views,
+              roisBySeries: rois,
+              studyOfSeries: study,
+              savedLayouts: { ...st.savedLayouts, [studyUid]: { layout: session.layout, active: session.active, panes: session.panes } },
+            });
+          }
+          return session;
+        });
+        hydrated.set(studyUid, pending);
+      }
+      return pending;
+    },
+
+    async applySession(studyUid, session, replace) {
+      await get().hydrate(studyUid);
+      if (replace) {
+        const st = get();
+        const views = { ...st.viewsBySeries };
+        const rois = { ...st.roisBySeries };
+        for (const [uid, v] of Object.entries(session.series)) {
+          views[uid] = { slice: v.slice, point: v.point, transform: v.transform, zoom: v.zoom, pan: v.pan, window: v.window };
+          rois[uid] = { rois: v.rois, roiSerial: v.roiSerial, undo: [], redo: [] };
+        }
+        set({ viewsBySeries: views, roisBySeries: rois });
+      }
+      const panes = session.panes.slice(0, MAX_PANES);
+      set({ layout: session.layout, panes: Array.from({ length: MAX_PANES }, emptyPane), active: Math.min(session.active, cellCount(session.layout) - 1) });
+      await Promise.all(panes.map((uid, i) => (uid ? get().load(i, uid) : Promise.resolve())));
+      void refreshAttributes();
+    },
+
+    async openStudy(studyUid, firstSeries) {
+      const session = await get().hydrate(studyUid);
+      if (session && session.panes.some(Boolean)) return get().applySession(studyUid, session, false);
+      if (firstSeries) await get().open([firstSeries], studyUid);
+    },
+
+    noteCamera(i, camera) {
+      const uid = get().panes[i]?.seriesUid;
+      const cur = uid ? get().viewsBySeries[uid] : undefined;
+      if (!uid || !cur) return;
+      const same = cur.zoom === camera.zoom && cur.pan?.[0] === camera.pan?.[0] && cur.pan?.[1] === camera.pan?.[1] && cur.window?.lower === camera.window?.lower && cur.window?.upper === camera.window?.upper;
+      if (!same) set({ viewsBySeries: { ...get().viewsBySeries, [uid]: { ...cur, ...camera } } });
+    },
+
+    async open(seriesUids, studyUid) {
+      if (studyUid) await get().hydrate(studyUid);
       const uids = seriesUids.slice(0, MAX_PANES);
       set({ layout: layoutFor(uids.length), panes: Array.from({ length: MAX_PANES }, emptyPane), active: 0 });
       await Promise.all(uids.map((uid, i) => get().load(i, uid)));
@@ -132,7 +244,20 @@ export const useViewer = create<ViewerState>((set, get) => {
       if (get().panes[i]?.seriesUid !== seriesUid) return;
       if (!r.ok) return patch(i, { status: "failed" });
       registerStack(r.value);
-      patch(i, { stack: r.value, status: "ready", slice: middleSlice(r.value), point: 0 });
+      // GEN-241: a series comes back as it was last shown.
+      const saved = get().viewsBySeries[seriesUid];
+      const lastSlice = r.value.grid.length - 1;
+      const lastPoint = Math.max(0, (r.value.grid[0]?.length ?? 1) - 1);
+      set({ studyOfSeries: { ...get().studyOfSeries, [seriesUid]: r.value.studyInstanceUid } });
+      patch(i, {
+        stack: r.value,
+        status: "ready",
+        slice: saved ? clamp(saved.slice, 0, lastSlice) : middleSlice(r.value),
+        point: saved ? clamp(saved.point, 0, lastPoint) : 0,
+        transform: saved?.transform ?? IDENTITY,
+        restore: saved ? { zoom: saved.zoom, pan: saved.pan, window: saved.window } : null,
+      });
+      remember(i);
       release();
       void refreshAttributes();
     },
@@ -157,6 +282,7 @@ export const useViewer = create<ViewerState>((set, get) => {
       const point = clamp(p.point + dPoint, 0, Math.max(0, (p.stack.grid[0]?.length ?? 1) - 1));
       if (slice === p.slice && point === p.point) return;
       patch(i, { slice, point });
+      remember(i);
       if (i === get().active) void refreshAttributes();
     },
 
@@ -167,12 +293,14 @@ export const useViewer = create<ViewerState>((set, get) => {
       const next: ViewTransform =
         op === "mirror" ? { ...t, mirror: !t.mirror } : op === "flip" ? { ...t, flip: !t.flip } : { ...t, quarterTurns: (t.quarterTurns + (op === "rotate-cw" ? 1 : 3)) % 4 };
       patch(i, { transform: next });
+      remember(i);
     },
 
     reset(i, what) {
       const p = get().panes[i];
       if (!p) return;
       patch(i, what === "view" ? { resetView: p.resetView + 1, transform: IDENTITY } : { resetWindow: p.resetWindow + 1 });
+      remember(i);
     },
 
     addRoi(i, shape) {

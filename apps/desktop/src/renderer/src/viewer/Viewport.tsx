@@ -145,6 +145,8 @@ export function Viewport({ index }: { index: number }) {
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
   const [tick, setTick] = useState(0);
   const firstWindow = useRef<VoiRange | null>(null);
+  /** True once the series' saved camera has been applied, so later camera events are its own (GEN-241). */
+  const tracking = useRef(false);
   const stack = pane.stack;
   const flat = useMemo(() => (stack ? flatten(stack) : null), [stack]);
   const sop = currentSop(pane);
@@ -168,15 +170,28 @@ export function Viewport({ index }: { index: number }) {
       if (vp) setView(readView(vp));
       setTick((n) => n + 1);
     };
-    el.addEventListener(Enums.Events.CAMERA_MODIFIED, update);
-    el.addEventListener(Enums.Events.VOI_MODIFIED, update);
+    // GEN-241: zoom, pan and window are part of the series' saved state.
+    const note = () => {
+      update();
+      const vp = engine.getViewport<StackViewport>(viewportId);
+      if (!vp || !tracking.current) return;
+      const voi = vp.getProperties().voiRange;
+      const pan = vp.getPan();
+      useViewer.getState().noteCamera(index, {
+        zoom: vp.getZoom(),
+        pan: [pan[0], pan[1]],
+        window: voi ? { lower: voi.lower, upper: voi.upper } : null,
+      });
+    };
+    el.addEventListener(Enums.Events.CAMERA_MODIFIED, note);
+    el.addEventListener(Enums.Events.VOI_MODIFIED, note);
     el.addEventListener(Enums.Events.IMAGE_RENDERED, update);
     const resize = new ResizeObserver(() => engine.resize(true, true));
     resize.observe(el);
     return () => {
       resize.disconnect();
-      el.removeEventListener(Enums.Events.CAMERA_MODIFIED, update);
-      el.removeEventListener(Enums.Events.VOI_MODIFIED, update);
+      el.removeEventListener(Enums.Events.CAMERA_MODIFIED, note);
+      el.removeEventListener(Enums.Events.VOI_MODIFIED, note);
       el.removeEventListener(Enums.Events.IMAGE_RENDERED, update);
       engine.disableElement(viewportId);
     };
@@ -187,6 +202,7 @@ export function Viewport({ index }: { index: number }) {
     const vp = viewport();
     setProblem(null);
     setShownStack(null);
+    tracking.current = false;
     if (!vp || !stack || !flat) return;
     let live = true;
     const start = sop ? (flat.index.get(sop) ?? 0) : 0;
@@ -196,6 +212,12 @@ export function Viewport({ index }: { index: number }) {
         firstWindow.current = startWindow(vp, stack, sop);
         if (firstWindow.current) vp.setProperties({ voiRange: firstWindow.current });
         vp.resetCamera();
+        // GEN-241: the series comes back with the zoom, pan and window it was left with.
+        const saved = useViewer.getState().panes[index]?.restore;
+        if (saved?.window) vp.setProperties({ voiRange: saved.window });
+        if (saved?.zoom) vp.setZoom(saved.zoom);
+        if (saved?.pan) vp.setPan(saved.pan);
+        tracking.current = true;
         vp.render();
         setShownStack(stack);
         setView(readView(vp));
