@@ -25,9 +25,32 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "engine"))
 
-from neuromr_engine.dicom.writer import SeriesSpec, StudySpec, write_series  # noqa: E402
+from neuromr_engine.dicom.writer import SeriesSpec, StudySpec  # noqa: E402
+from neuromr_engine.dicom.writer import write_series as _write_series  # noqa: E402
 from neuromr_engine.phantoms import brain, dce, diffusion, dsc, other  # noqa: E402
 from neuromr_engine.phantoms.common import Phantom  # noqa: E402
+
+# Acquisition attributes a scanner records for each kind of series, so the series-type
+# classifier (ALGORITHMS.md §13) works from DICOM attributes rather than descriptions.
+_CONTRAST = {"ContrastBolusAgent": "Gadobutrol"}
+_ACQUISITION: tuple[tuple[str, dict], ...] = (
+    ("DSC perf", {"ScanningSequence": "EP", "SequenceVariant": "SK", **_CONTRAST}),
+    ("T1 DCE", {"ScanningSequence": "GR", "SequenceVariant": "SP", **_CONTRAST}),
+    ("T1 FFE VFA", {"ScanningSequence": "GR", "SequenceVariant": "SP"}),
+    ("DTI", {"ScanningSequence": ["SE", "EP"], "SequenceVariant": "SK"}),
+    ("DWI", {"ScanningSequence": ["SE", "EP"], "SequenceVariant": "SK"}),
+    ("fMRI BOLD", {"ScanningSequence": "EP", "SequenceVariant": "SK"}),
+    ("3D FLAIR", {"ScanningSequence": ["SE", "IR"], "SequenceVariant": "SK", "InversionTime": 2500.0}),
+)
+
+
+def write_series(data: np.ndarray, folder: Path, study: StudySpec, spec: SeriesSpec) -> list[Path]:
+    """Write a phantom series with the acquisition attributes of its kind (explicit extras win)."""
+    for prefix, attrs in _ACQUISITION:
+        if spec.description.startswith(prefix):
+            spec.extra = {**attrs, **spec.extra}
+            break
+    return _write_series(data, folder, study, spec)
 
 
 def _save_truth(p: Phantom, folder: Path) -> None:
