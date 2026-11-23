@@ -23,6 +23,14 @@ jobs:
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test
+      - name: Desktop app build and smoke run
+        run: |
+          node apps/desktop/node_modules/electron/install.js
+          pnpm --filter @neuromr/desktop build
+          xvfb-run -a node apps/desktop/e2e/smoke.mjs artifacts/screens
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: desktop-screens, path: artifacts/screens, if-no-files-found: ignore }
 
   engine:
     runs-on: ubuntu-latest

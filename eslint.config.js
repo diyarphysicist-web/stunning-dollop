@@ -10,7 +10,7 @@ const NO_RAW_STYLE = [
 ];
 
 export default tseslint.config(
-  { ignores: ["**/dist/**", "**/node_modules/**", "engine/**", "data/**", "docs/**", "design/**"] },
+  { ignores: ["**/dist/**", "**/out/**", "artifacts/**", "**/node_modules/**", "engine/**", "data/**", "docs/**", "design/**"] },
   js.configs.recommended,
   ...tseslint.configs.strict,
   {
@@ -18,8 +18,18 @@ export default tseslint.config(
     rules: { "no-restricted-syntax": ["error", ...NO_RAW_STYLE] },
   },
   {
-    files: ["scripts/**/*.mjs"],
-    languageOptions: { globals: { console: "readonly", process: "readonly" } },
+    // GEN-200: renderer components take every user-facing string from the message catalog.
+    files: ["apps/desktop/src/renderer/**/*.tsx"],
+    rules: {
+      "no-restricted-syntax": ["error", ...NO_RAW_STYLE,
+        { selector: "JSXText[value=/[A-Za-z]/]", message: "Use t() from @neuromr/i18n (GEN-200)." },
+        { selector: "JSXAttribute[name.name=/^(aria-label|title|placeholder|alt)$/] > Literal", message: "Use t() from @neuromr/i18n (GEN-200)." },
+      ],
+    },
+  },
+  {
+    files: ["scripts/**/*.mjs", "apps/*/e2e/**/*.mjs"],
+    languageOptions: { globals: { console: "readonly", process: "readonly", window: "readonly" } },
   },
   {
     files: ["packages/ui/src/tokens/**", "packages/viewer/src/luts/**", "**/*.test.ts"],

@@ -14,6 +14,11 @@ describe("IPC contract (brief §7: every IPC message validated with zod)", () =>
     expect(parseRequest("app:info", "x").ok).toBe(false);
   });
 
+  it("accepts only known window actions", () => {
+    expect(parseRequest("window:control", { action: "minimize" }).ok).toBe(true);
+    expect(parseRequest("window:control", { action: "devtools" }).ok).toBe(false);
+  });
+
   it("rejects malformed responses", () => {
     const good = { name: "NeuroMR-PRO", version: "0.1.0", platform: "win32", arch: "x64", electron: "45.4.1" };
     expect(parseResponse("app:info", good).ok).toBe(true);

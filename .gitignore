@@ -19,3 +19,5 @@ dist/
 .agents/
 .claude/settings.local.json
 docs/PHASE1_PROMPT.md
+out/
+artifacts/

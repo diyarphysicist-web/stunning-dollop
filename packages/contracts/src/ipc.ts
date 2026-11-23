@@ -12,12 +12,18 @@ export type AppInfo = z.infer<typeof AppInfo>;
 
 const Empty = z.object({}).strict();
 
+/** Custom title-bar window controls (the shell draws its own top bar). */
+export const WindowControl = z.object({ action: z.enum(["minimize", "toggle-maximize", "close", "query"]) }).strict();
+export const WindowState = z.object({ maximized: z.boolean(), focused: z.boolean() });
+export type WindowState = z.infer<typeof WindowState>;
+
 /**
  * Every renderer → main request. Main validates the request and the renderer validates the
  * response, so a malformed message never crosses the process boundary in either direction.
  */
 export const IPC = {
   "app:info": { request: Empty, response: AppInfo },
+  "window:control": { request: WindowControl, response: WindowState },
 } as const;
 
 export type IpcChannel = keyof typeof IPC;

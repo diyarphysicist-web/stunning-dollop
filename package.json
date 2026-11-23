@@ -18,6 +18,9 @@
     "tokens:check": "node scripts/export-tokens.mjs --check",
     "design:render": "node scripts/render-design-screens.mjs",
     "design:prototype-check": "node scripts/check-design-prototype.mjs",
+    "desktop:dev": "pnpm --filter @neuromr/desktop dev",
+    "desktop:build": "pnpm --filter @neuromr/desktop build",
+    "desktop:smoke": "pnpm desktop:build && node apps/desktop/e2e/smoke.mjs",
     "design:text-check": "node scripts/check-design-text.mjs"
   },
   "devDependencies": {

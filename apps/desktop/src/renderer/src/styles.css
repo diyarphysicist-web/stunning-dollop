@@ -1,0 +1,10 @@
+@import "@fontsource-variable/inter";
+@import "@fontsource/jetbrains-mono/400.css";
+@import "@fontsource/jetbrains-mono/600.css";
+@import "@neuromr/ui/src/tokens/tokens.css";
+@import "@design/assets/luts.css";
+@import "@design/screens/shell.css";
+
+/* App-only rules: the frameless window's drag region (the design draws its own title bar). */
+.topbar { -webkit-app-region: drag; }
+.topbar button, .topbar .banner { -webkit-app-region: no-drag; }
