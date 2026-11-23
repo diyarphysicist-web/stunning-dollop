@@ -61,7 +61,11 @@ def _save_truth(p: Phantom, folder: Path) -> None:
 
 def build(out: Path, only: set[str] | None) -> list[str]:
     done: list[str] = []
-    study = StudySpec()
+    # The validation family is its own study (own UID seed): its series share numbers with the
+    # brain phantom's design study but hold different images, so their UIDs must differ.
+    study = StudySpec(
+        study_description="NeuroMR-PRO validation phantom", accession="VALID0001", seed="neuromr-validation"
+    )
 
     def want(key: str) -> bool:
         return only is None or key in only
@@ -229,7 +233,12 @@ def build(out: Path, only: set[str] | None) -> list[str]:
 
     if want("flair"):
         base, foll = other.make_flair_pair()
-        fu_study = StudySpec(study_date="20260701", accession="PHANTOM0002", seed="neuromr-phantom-fu")
+        fu_study = StudySpec(
+            study_date="20260701",
+            study_description="NeuroMR-PRO validation phantom",
+            accession="VALID0002",
+            seed="neuromr-validation-fu",
+        )
         for ph, st, num in ((base, study, 600), (foll, fu_study, 601)):
             write_series(
                 ph.data,
@@ -291,7 +300,7 @@ def build(out: Path, only: set[str] | None) -> list[str]:
         _save_truth(p, out / p.name)
         done.append(p.name)
     if want("brain"):
-        done += _build_brain(out, study)
+        done += _build_brain(out, StudySpec())
     return done
 
 
