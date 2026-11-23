@@ -9,11 +9,8 @@ export interface GreyImage {
 
 const UNCOMPRESSED_LE = new Set(["1.2.840.10008.1.2", "1.2.840.10008.1.2.1"]);
 
-/**
- * Reads frame 0 of a greyscale, uncompressed little-endian image as numbers.
- * Returns undefined for compressed or colour data, which get no thumbnail (DIR-002 shows a placeholder).
- */
-export function readFrame(ds: DataSet, transferSyntaxUid: string): { width: number; height: number; values: Float64Array } | undefined {
+/** Stored values of frame 0 of an uncompressed little-endian greyscale image, before any rescale. */
+function readStored(ds: DataSet, transferSyntaxUid: string): { width: number; height: number; values: Float64Array; monochrome1: boolean } | undefined {
   if (!UNCOMPRESSED_LE.has(transferSyntaxUid)) return undefined;
   const el = ds.elements["x7fe00010"];
   const rows = ds.uint16("x00280010") ?? 0;
@@ -22,6 +19,8 @@ export function readFrame(ds: DataSet, transferSyntaxUid: string): { width: numb
   const samples = ds.uint16("x00280002") ?? 1;
   const signed = (ds.uint16("x00280103") ?? 0) === 1;
   if (!el || el.encapsulatedPixelData || rows === 0 || cols === 0 || samples !== 1) return undefined;
+  const photometric = (ds.string("x00280004") ?? "MONOCHROME2").trim();
+  if (photometric !== "MONOCHROME1" && photometric !== "MONOCHROME2") return undefined;
   const n = rows * cols;
   const bytesPer = bits / 8;
   if (![1, 2, 4].includes(bytesPer) || el.length < n * bytesPer) return undefined;
@@ -32,10 +31,40 @@ export function readFrame(ds: DataSet, transferSyntaxUid: string): { width: numb
     else if (bytesPer === 2) values[i] = signed ? view.getInt16(i * 2, true) : view.getUint16(i * 2, true);
     else values[i] = signed ? view.getInt32(i * 4, true) : view.getUint32(i * 4, true);
   }
-  const photometric = (ds.string("x00280004") ?? "MONOCHROME2").trim();
-  if (photometric !== "MONOCHROME1" && photometric !== "MONOCHROME2") return undefined;
-  if (photometric === "MONOCHROME1") for (let i = 0; i < n; i++) values[i] = -(values[i] as number);
-  return { width: cols, height: rows, values };
+  return { width: cols, height: rows, values, monochrome1: photometric === "MONOCHROME1" };
+}
+
+/**
+ * Reads frame 0 of a greyscale, uncompressed little-endian image as display brightness
+ * (MONOCHROME1 negated). Returns undefined for compressed or colour data, which get no thumbnail
+ * (DIR-002 shows a placeholder).
+ */
+export function readFrame(ds: DataSet, transferSyntaxUid: string): { width: number; height: number; values: Float64Array } | undefined {
+  const f = readStored(ds, transferSyntaxUid);
+  if (!f) return undefined;
+  if (f.monochrome1) for (let i = 0; i < f.values.length; i++) f.values[i] = -(f.values[i] as number);
+  return { width: f.width, height: f.height, values: f.values };
+}
+
+/** Modality values of an image for the viewer (GEN-232). */
+export interface ModalityImage {
+  width: number;
+  height: number;
+  /** Stored values with Rescale Slope and Intercept applied, row-major. */
+  values: Float32Array<ArrayBuffer>;
+  /** MONOCHROME1: low values are displayed bright. */
+  invert: boolean;
+}
+
+/** Frame 0 with the modality rescale applied (GEN-232); undefined for compressed or colour data. */
+export function readModalityImage(ds: DataSet, transferSyntaxUid: string): ModalityImage | undefined {
+  const f = readStored(ds, transferSyntaxUid);
+  if (!f) return undefined;
+  const slope = ds.floatString("x00281053") ?? 1;
+  const intercept = ds.floatString("x00281052") ?? 0;
+  const values = new Float32Array(f.values.length);
+  for (let i = 0; i < values.length; i++) values[i] = (f.values[i] as number) * slope + intercept;
+  return { width: f.width, height: f.height, values, invert: f.monochrome1 };
 }
 
 function percentile(sorted: Float64Array, q: number): number {

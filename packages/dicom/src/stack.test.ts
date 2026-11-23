@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { readHeader, stackLayout, type InstanceHeader } from "./index.js";
+import { readHeader, readModalityImage, stackLayout, type InstanceHeader } from "./index.js";
 import { fakeInstance, fakeTrigger, type FakeInstance } from "./testing.js";
 
 const h = (o: FakeInstance): InstanceHeader => {
@@ -37,5 +37,20 @@ describe("GEN-021 slices × second image axis", () => {
     expect(stackLayout([h({ sop: "4.1", z: 4 }), h({ sop: "4.0", z: 0 })], "none").grid).toEqual([["4.0"], ["4.1"]]);
     const gap = stackLayout([h({ sop: "5.0", z: 0, temporal: 1 }), h({ sop: "5.1", z: 0, temporal: 2 }), h({ sop: "5.2", z: 4, temporal: 1 })], "dynamic");
     expect(gap.grid[1]).toEqual(["5.2", null]);
+  });
+});
+
+describe("GEN-232 modality values", () => {
+  it("GEN-232 applies Rescale Slope and Intercept and records the window", () => {
+    const r = readHeader(
+      fakeInstance({ sop: "9.1", pixels: Uint16Array.from([0, 10, 20, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40]), extra: { "00281053": { vr: "DS", value: 0.5 }, "00281052": { vr: "DS", value: -2 }, "00281050": { vr: "DS", value: 7 }, "00281051": { vr: "DS", value: 9 } } }),
+    );
+    if (r.status !== "ok") throw new Error("parse");
+    const img = readModalityImage(r.dataSet, r.header.transferSyntaxUid);
+    expect(img?.width).toBe(4);
+    expect([...(img?.values.slice(0, 4) ?? [])]).toEqual([-2, 3, 8, 13]);
+    expect(img?.values[15]).toBe(18);
+    expect(img?.invert).toBe(false);
+    expect([r.header.windowCenter, r.header.windowWidth]).toEqual([7, 9]);
   });
 });
