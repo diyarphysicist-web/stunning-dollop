@@ -19,18 +19,24 @@ export interface Pane {
   /** Increments to ask the viewport for a reset (GEN-012). */
   resetView: number;
   resetWindow: number;
-  rois: Roi[];
-  /** ROIs created so far in this pane, for palette order (GEN-035). */
-  roiSerial: number;
-  /** Snapshots for undo/redo (GEN-034). */
-  undo: Roi[][];
-  redo: Roi[][];
   /** Statistics of the current image per ROI id (GEN-236); missing while the image loads. */
   stats: Record<string, RoiStats | null>;
 }
 
+/** ROIs of one series with their history (GEN-034, GEN-035); shared by every viewport showing it (GEN-236). */
+export interface SeriesRois {
+  rois: Roi[];
+  /** ROIs created so far in this series, for palette order (GEN-035). */
+  roiSerial: number;
+  /** Snapshots for undo/redo (GEN-034). */
+  undo: Roi[][];
+  redo: Roi[][];
+}
+
+export const NO_ROIS: SeriesRois = Object.freeze({ rois: [], roiSerial: 0, undo: [], redo: [] }) as unknown as SeriesRois;
+
 const MAX_PANES = 9;
-const emptyPane = (): Pane => ({ seriesUid: null, stack: null, status: "empty", slice: 0, point: 0, transform: IDENTITY, resetView: 0, resetWindow: 0, rois: [], roiSerial: 0, undo: [], redo: [], stats: {} });
+const emptyPane = (): Pane => ({ seriesUid: null, stack: null, status: "empty", slice: 0, point: 0, transform: IDENTITY, resetView: 0, resetWindow: 0, stats: {} });
 const HISTORY = 100;
 
 interface ViewerState {
@@ -39,6 +45,8 @@ interface ViewerState {
   active: number;
   tool: Tool;
   attributes: DicomAttribute[];
+  /** ROIs by Series Instance UID (GEN-236). */
+  roisBySeries: Record<string, SeriesRois>;
 
   open(seriesUids: readonly string[]): Promise<void>;
   load(pane: number, seriesUid: string): Promise<void>;
@@ -62,12 +70,29 @@ interface ViewerState {
   setStats(pane: number, stats: Record<string, RoiStats | null>): void;
 }
 
+/** ROIs of the series shown in viewport `i`. */
+export function paneRois(s: Pick<ViewerState, "panes" | "roisBySeries">, i: number): SeriesRois {
+  const uid = s.panes[i]?.seriesUid;
+  return (uid && s.roisBySeries[uid]) || NO_ROIS;
+}
+
 export function currentSop(p: Pane): string | null {
   return p.stack ? sopAt(p.stack, p.slice, p.point) : null;
 }
 
 export const useViewer = create<ViewerState>((set, get) => {
   const patch = (i: number, change: Partial<Pane>) => set({ panes: get().panes.map((p, k) => (k === i ? { ...p, ...change } : p)) });
+  /** Changes the ROIs of the series in viewport `i`; returns false when the viewport shows no series. */
+  const patchRois = (i: number, change: (r: SeriesRois) => Partial<SeriesRois> | null): boolean => {
+    const uid = get().panes[i]?.stack ? get().panes[i]?.seriesUid : null;
+    if (!uid) return false;
+    const cur = get().roisBySeries[uid] ?? NO_ROIS;
+    const next = change(cur);
+    if (!next) return false;
+    set({ roisBySeries: { ...get().roisBySeries, [uid]: { ...cur, ...next } } });
+    return true;
+  };
+  const history = (r: SeriesRois) => ({ undo: [...r.undo, r.rois].slice(-HISTORY), redo: [] as Roi[][] });
 
   let attributesFor: string | null = null;
   async function refreshAttributes(): Promise<void> {
@@ -93,6 +118,7 @@ export const useViewer = create<ViewerState>((set, get) => {
     active: 0,
     tool: "scroll",
     attributes: [],
+    roisBySeries: {},
 
     async open(seriesUids) {
       const uids = seriesUids.slice(0, MAX_PANES);
@@ -152,49 +178,52 @@ export const useViewer = create<ViewerState>((set, get) => {
     addRoi(i, shape) {
       const p = get().panes[i];
       if (!p?.stack) return null;
-      const id = `roi-${i}-${p.roiSerial + 1}-${Date.now().toString(36)}`;
-      const roi: Roi = { id, name: nextRoiName(p.rois.map((r) => r.name)), color: p.roiSerial, slice: p.slice, shape };
-      patch(i, { rois: [...p.rois, roi], roiSerial: p.roiSerial + 1, undo: [...p.undo, p.rois].slice(-HISTORY), redo: [] });
+      let id: string | null = null;
+      patchRois(i, (r) => {
+        id = `roi-${r.roiSerial + 1}-${Date.now().toString(36)}`;
+        const roi: Roi = { id, name: nextRoiName(r.rois.map((x) => x.name)), color: r.roiSerial, slice: p.slice, shape };
+        return { rois: [...r.rois, roi], roiSerial: r.roiSerial + 1, ...history(r) };
+      });
       return id;
     },
 
     checkpoint(i) {
-      const p = get().panes[i];
-      if (p) patch(i, { undo: [...p.undo, p.rois].slice(-HISTORY), redo: [] });
+      patchRois(i, history);
     },
 
     setRoiShape(i, id, shape) {
-      const p = get().panes[i];
-      if (p) patch(i, { rois: p.rois.map((r) => (r.id === id ? { ...r, shape } : r)) });
+      patchRois(i, (r) => ({ rois: r.rois.map((x) => (x.id === id ? { ...x, shape } : x)) }));
     },
 
     renameRoi(i, id, name) {
-      const p = get().panes[i];
-      if (!p || !name.trim()) return;
-      const unique = uniqueRoiName(name, p.rois.filter((r) => r.id !== id).map((r) => r.name));
-      patch(i, { rois: p.rois.map((r) => (r.id === id ? { ...r, name: unique } : r)), undo: [...p.undo, p.rois].slice(-HISTORY), redo: [] });
+      if (!name.trim()) return;
+      patchRois(i, (r) => {
+        const unique = uniqueRoiName(name, r.rois.filter((x) => x.id !== id).map((x) => x.name));
+        return { rois: r.rois.map((x) => (x.id === id ? { ...x, name: unique } : x)), ...history(r) };
+      });
     },
 
     deleteRoi(i, id) {
-      const p = get().panes[i];
-      if (p?.rois.some((r) => r.id === id)) patch(i, { rois: p.rois.filter((r) => r.id !== id), undo: [...p.undo, p.rois].slice(-HISTORY), redo: [] });
+      patchRois(i, (r) => (r.rois.some((x) => x.id === id) ? { rois: r.rois.filter((x) => x.id !== id), ...history(r) } : null));
     },
 
     deleteLastRoi(i) {
-      const last = get().panes[i]?.rois.at(-1);
+      const last = paneRois(get(), i).rois.at(-1);
       if (last) get().deleteRoi(i, last.id);
     },
 
     undoRoi(i) {
-      const p = get().panes[i];
-      const prev = p?.undo.at(-1);
-      if (p && prev) patch(i, { rois: prev, undo: p.undo.slice(0, -1), redo: [...p.redo, p.rois] });
+      patchRois(i, (r) => {
+        const prev = r.undo.at(-1);
+        return prev ? { rois: prev, undo: r.undo.slice(0, -1), redo: [...r.redo, r.rois] } : null;
+      });
     },
 
     redoRoi(i) {
-      const p = get().panes[i];
-      const next = p?.redo.at(-1);
-      if (p && next) patch(i, { rois: next, redo: p.redo.slice(0, -1), undo: [...p.undo, p.rois] });
+      patchRois(i, (r) => {
+        const next = r.redo.at(-1);
+        return next ? { rois: next, redo: r.redo.slice(0, -1), undo: [...r.undo, r.rois] } : null;
+      });
     },
 
     setStats(i, stats) {

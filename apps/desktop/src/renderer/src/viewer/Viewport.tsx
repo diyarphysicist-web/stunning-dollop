@@ -6,7 +6,7 @@ import { ImageUnavailable, imageId, renderingEngine } from "@neuromr/viewer/corn
 import { Fragment, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { Icon } from "../Icon.js";
 import { RoiLayer } from "./RoiLayer.js";
-import { DRAW_TOOLS, currentSop, useViewer, type Pane } from "./store.js";
+import { DRAW_TOOLS, currentSop, paneRois, useViewer, type Pane } from "./store.js";
 import { flatten, scrollStep } from "./stack.js";
 
 type StackViewport = Types.IStackViewport;
@@ -243,7 +243,7 @@ export function Viewport({ index }: { index: number }) {
   }, [pane.resetWindow]);
 
   // GEN-236: statistics of the current image inside each ROI of this slice.
-  const rois = pane.rois;
+  const rois = useViewer((s) => paneRois(s, index).rois);
   useEffect(() => {
     const vp = viewport();
     const image = vp?.getCornerstoneImage();

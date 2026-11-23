@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { useDirectory } from "../directory/store.js";
 import { Icon } from "../Icon.js";
 import { LAYOUTS, cellCount, layoutSize, type Layout } from "./stack.js";
-import { useViewer, type Tool } from "./store.js";
+import { paneRois, useViewer, type Tool } from "./store.js";
 import { Viewport } from "./Viewport.js";
 
 const DECORATIVE = "";
@@ -95,8 +95,8 @@ function LayoutPicker() {
 function Toolbar() {
   const tool = useViewer((s) => s.tool);
   const active = useViewer((s) => s.active);
-  const canUndo = useViewer((s) => (s.panes[s.active]?.undo.length ?? 0) > 0);
-  const canRedo = useViewer((s) => (s.panes[s.active]?.redo.length ?? 0) > 0);
+  const canUndo = useViewer((s) => paneRois(s, s.active).undo.length > 0);
+  const canRedo = useViewer((s) => paneRois(s, s.active).redo.length > 0);
   const toolButton = ([id, icon, label]: [Tool, string, MessageId]) => (
     <button key={id} className={`ibtn${tool === id ? " is-active" : ""}`} aria-pressed={tool === id} aria-label={t(label)} title={t(label)} data-tool={id} onClick={() => useViewer.getState().setTool(id)}>
       <Icon name={icon} />
@@ -130,9 +130,10 @@ const q = (v: number) => formatQuantity(v, { decimals: Math.abs(v) >= 100 ? 1 : 
 function RoiSection() {
   const index = useViewer((s) => s.active);
   const pane = useViewer((s) => s.panes[s.active]);
+  const rois = useViewer((s) => paneRois(s, s.active).rois);
   if (!pane?.stack) return null;
-  const here = pane.rois.filter((r) => r.slice === pane.slice);
-  const elsewhere = pane.rois.length - here.length;
+  const here = rois.filter((r) => r.slice === pane.slice);
+  const elsewhere = rois.length - here.length;
   const info = pane.stack.images[0];
   const voxelArea = info?.pixelSpacing ? info.pixelSpacing[0] * info.pixelSpacing[1] : null;
   const unit = t("vp.unit");

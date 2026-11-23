@@ -249,6 +249,13 @@ try {
   await win.locator("[data-testid=roi-stats]").filter({ hasText: "2 ROIs on other slices" }).waitFor({ timeout: 5000 });
   await win.keyboard.press("ArrowDown");
   await labels.filter({ hasText: "Lesion" }).waitFor({ timeout: 5000 });
+  // GEN-236: ROIs belong to the series: shown in the second viewport, the series brings them along.
+  const vp1 = win.locator("[data-testid=viewport-1] .vp__canvas");
+  await vp1.click();
+  await win.locator("[data-testid=viewer-series] li").first().click();
+  await win.locator("[data-testid=viewport-1][data-state=ready] [data-testid=overlay-position]").waitFor({ timeout: 30000 });
+  await win.keyboard.press("ArrowDown");
+  await win.locator("[data-testid=viewport-1] [data-testid=roi-label]").filter({ hasText: "Lesion" }).waitFor({ timeout: 5000 });
   // GEN-238/239: every compressed syntax imports with a thumbnail and displays; lossy ones say so.
   const codecs = codecFixture();
   await app.evaluate(({ dialog }, folder) => {

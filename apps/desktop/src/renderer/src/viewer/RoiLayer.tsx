@@ -3,7 +3,7 @@ import type { ViewerImageInfo } from "@neuromr/contracts";
 import { t } from "@neuromr/i18n";
 import { anchors, ellipseFromClicks, imageToWorld, moveAnchor, outline, translateShape, worldToImage, type Pt, type Roi, type RoiShape } from "@neuromr/viewer";
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
-import { DRAW_TOOLS, useViewer, type Pane, type Tool } from "./store.js";
+import { DRAW_TOOLS, paneRois, useViewer, type Pane, type Tool } from "./store.js";
 
 type StackViewport = Types.IStackViewport;
 
@@ -45,6 +45,7 @@ export function RoiLayer({ index, pane, tool, plane, viewport, tick }: Props) {
   const [renaming, setRenaming] = useState<string | null>(null);
   const [menu, setMenu] = useState<{ id: string; x: number; y: number } | null>(null);
   const drawing = DRAW_TOOLS.has(tool);
+  const rois = useViewer((s) => paneRois(s, index).rois);
   const vp = viewport();
   void tick;
 
@@ -165,7 +166,7 @@ export function RoiLayer({ index, pane, tool, plane, viewport, tick }: Props) {
   };
 
   const path = (pts: readonly Pt[], closed = true) => (pts.length ? `M${pts.map((p) => toCanvas(p).join(",")).join("L")}${closed ? "Z" : ""}` : "");
-  const shown = vp ? pane.rois.filter((r) => r.slice === pane.slice) : [];
+  const shown = vp ? rois.filter((r) => r.slice === pane.slice) : [];
   const preview = draft ? draftShape(draft, cursor) : null;
 
   return (
