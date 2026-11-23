@@ -288,59 +288,164 @@ def _build_brain(out: Path, study: StudySpec) -> list[str]:
         return dict(pixel_mm=g.pixel_mm, slice_mm=g.slice_mm)
 
     p = brain.make_brain_dsc()
-    _write(p, out / p.name / "dicom", study,
-           SeriesSpec("DSC perf SNR50", 150, "dynamic", times_s=p.meta["times"],
-           te_ms=30.0, tr_ms=p.meta["tr"] * 1000, flip_deg=90.0, **geo(p)))
+    _write(
+        p,
+        out / p.name / "dicom",
+        study,
+        SeriesSpec(
+            "DSC perf SNR50",
+            150,
+            "dynamic",
+            times_s=p.meta["times"],
+            te_ms=30.0,
+            tr_ms=p.meta["tr"] * 1000,
+            flip_deg=90.0,
+            **geo(p),
+        ),
+    )
     _save_truth(p, out / p.name)
     done.append(p.name)
     p = brain.make_brain_dti()
-    _write(p, out / p.name / "dicom", study, SeriesSpec("DTI 32dir", 332, "bvalue", bvals=p.meta["bvals"],
-           bvecs=p.meta["bvecs"], te_ms=80.0, tr_ms=6000.0, **geo(p)))
+    _write(
+        p,
+        out / p.name / "dicom",
+        study,
+        SeriesSpec(
+            "DTI 32dir",
+            332,
+            "bvalue",
+            bvals=p.meta["bvals"],
+            bvecs=p.meta["bvecs"],
+            te_ms=80.0,
+            tr_ms=6000.0,
+            **geo(p),
+        ),
+    )
     _save_truth(p, out / p.name)
     done.append(p.name)
     p = brain.make_brain_ivim()
-    _write(p, out / p.name / "dicom", study, SeriesSpec("DWI IVIM DKI", 400, "bvalue", bvals=p.meta["bvals"],
-           te_ms=80.0, tr_ms=5000.0, **geo(p)))
+    _write(
+        p,
+        out / p.name / "dicom",
+        study,
+        SeriesSpec("DWI IVIM DKI", 400, "bvalue", bvals=p.meta["bvals"], te_ms=80.0, tr_ms=5000.0, **geo(p)),
+    )
     _save_truth(p, out / p.name)
     done.append(p.name)
     p = brain.make_brain_dce_semiquant()
-    _write(p, out / p.name / "dicom", study,
-           SeriesSpec("T1 DCE semiquant", 200, "dynamic", times_s=p.meta["times"],
-           te_ms=2.0, tr_ms=5.0, flip_deg=15.0, **geo(p)))
+    _write(
+        p,
+        out / p.name / "dicom",
+        study,
+        SeriesSpec(
+            "T1 DCE semiquant",
+            200,
+            "dynamic",
+            times_s=p.meta["times"],
+            te_ms=2.0,
+            tr_ms=5.0,
+            flip_deg=15.0,
+            **geo(p),
+        ),
+    )
     _save_truth(p, out / p.name)
     done.append(p.name)
     p = brain.make_brain_tofts()
-    _write(p, out / p.name / "dicom_dce", study, SeriesSpec("T1 DCE permeability", 210, "dynamic",
-           times_s=p.meta["times"], te_ms=2.0, tr_ms=p.meta["tr_ms"], flip_deg=p.meta["fa"], **geo(p)))
+    _write(
+        p,
+        out / p.name / "dicom_dce",
+        study,
+        SeriesSpec(
+            "T1 DCE permeability",
+            210,
+            "dynamic",
+            times_s=p.meta["times"],
+            te_ms=2.0,
+            tr_ms=p.meta["tr_ms"],
+            flip_deg=p.meta["fa"],
+            **geo(p),
+        ),
+    )
     for i, (fa, ref) in enumerate(p.meta["references"].items()):
-        write_series(ref, out / p.name / f"dicom_vfa{int(fa)}", study,
-                     SeriesSpec(f"T1 FFE VFA {int(fa)}deg", 211 + i, "none", te_ms=2.0, tr_ms=p.meta["tr_ms"],
-                                flip_deg=fa, **geo(p)))
+        write_series(
+            ref,
+            out / p.name / f"dicom_vfa{int(fa)}",
+            study,
+            SeriesSpec(
+                f"T1 FFE VFA {int(fa)}deg",
+                211 + i,
+                "none",
+                te_ms=2.0,
+                tr_ms=p.meta["tr_ms"],
+                flip_deg=fa,
+                **geo(p),
+            ),
+        )
     _save_truth(p, out / p.name)
     done.append(p.name)
     p = brain.make_brain_fmri()
-    _write(p, out / p.name / "dicom", study,
-           SeriesSpec("fMRI BOLD block", 500, "dynamic", times_s=p.meta["times"],
-           te_ms=30.0, tr_ms=p.meta["tr"] * 1000, flip_deg=80.0, **geo(p)))
+    _write(
+        p,
+        out / p.name / "dicom",
+        study,
+        SeriesSpec(
+            "fMRI BOLD block",
+            500,
+            "dynamic",
+            times_s=p.meta["times"],
+            te_ms=30.0,
+            tr_ms=p.meta["tr"] * 1000,
+            flip_deg=80.0,
+            **geo(p),
+        ),
+    )
     _save_truth(p, out / p.name)
     done.append(p.name)
     base, foll = brain.make_brain_flair_pair()
     fu_study = StudySpec(study_date="20260701", accession="PHANTOM0002", seed="neuromr-phantom-fu")
     for ph, st, num in ((base, study, 600), (foll, fu_study, 601)):
-        _write(ph, out / ph.name / "dicom", st, SeriesSpec("3D FLAIR", num, "none", te_ms=120.0, tr_ms=4800.0,
-               flip_deg=90.0, **geo(ph)))
+        _write(
+            ph,
+            out / ph.name / "dicom",
+            st,
+            SeriesSpec("3D FLAIR", num, "none", te_ms=120.0, tr_ms=4800.0, flip_deg=90.0, **geo(ph)),
+        )
         _save_truth(ph, out / ph.name)
         done.append(ph.name)
     p = brain.make_brain_swi()
-    _write(p, out / p.name / "dicom", study, SeriesSpec("SWI EPI", 610, "none", te_ms=p.meta["te_ms"],
-           tr_ms=p.meta["tr_ms"], flip_deg=90.0, image_type=("ORIGINAL", "PRIMARY", "M", "SWI"),
-           extra={"ScanningSequence": "EP", "SequenceVariant": "SK"}, **geo(p)))
+    _write(
+        p,
+        out / p.name / "dicom",
+        study,
+        SeriesSpec(
+            "SWI EPI",
+            610,
+            "none",
+            te_ms=p.meta["te_ms"],
+            tr_ms=p.meta["tr_ms"],
+            flip_deg=90.0,
+            image_type=("ORIGINAL", "PRIMARY", "M", "SWI"),
+            extra={"ScanningSequence": "EP", "SequenceVariant": "SK"},
+            **geo(p),
+        ),
+    )
     _save_truth(p, out / p.name)
     done.append(p.name)
     p = brain.make_brain_multi_echo()
-    _write(p, out / p.name / "dicom", study,
-           SeriesSpec("Multi-echo GRE", 620, "echo", echo_times_ms=p.meta["te_ms"],
-           tr_ms=p.meta["tr_ms"], flip_deg=p.meta["flip_deg"], **geo(p)))
+    _write(
+        p,
+        out / p.name / "dicom",
+        study,
+        SeriesSpec(
+            "Multi-echo GRE",
+            620,
+            "echo",
+            echo_times_ms=p.meta["te_ms"],
+            tr_ms=p.meta["tr_ms"],
+            flip_deg=p.meta["flip_deg"],
+            **geo(p),
+        ),
+    )
     _save_truth(p, out / p.name)
     done.append(p.name)
     return done
