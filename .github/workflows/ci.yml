@@ -28,6 +28,8 @@ jobs:
           node apps/desktop/node_modules/electron/install.js
           pnpm --filter @neuromr/desktop build
           xvfb-run -a node apps/desktop/e2e/smoke.mjs artifacts/screens
+      - name: Desktop app dev-mode smoke run (dev CSP must let React mount)
+        run: xvfb-run -a node apps/desktop/e2e/dev-smoke.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with: { name: desktop-screens, path: artifacts/screens, if-no-files-found: ignore }

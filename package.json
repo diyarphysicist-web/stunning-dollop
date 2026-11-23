@@ -21,6 +21,7 @@
     "desktop:dev": "pnpm --filter @neuromr/desktop dev",
     "desktop:build": "pnpm --filter @neuromr/desktop build",
     "desktop:smoke": "pnpm desktop:build && node apps/desktop/e2e/smoke.mjs",
+    "desktop:smoke:dev": "node apps/desktop/e2e/dev-smoke.mjs",
     "design:text-check": "node scripts/check-design-text.mjs"
   },
   "devDependencies": {

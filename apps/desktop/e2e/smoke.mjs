@@ -1,6 +1,7 @@
 // Launches the built app with Playwright, checks the shell and the IPC bridge, and saves a screenshot.
 // Usage: node apps/desktop/e2e/smoke.mjs [outDir]   (Linux CI: xvfb-run node …)
-import { mkdirSync } from "node:fs";
+import { mkdirSync, mkdtempSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { _electron as electron } from "playwright";
@@ -9,7 +10,8 @@ const appDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const outDir = resolve(process.argv[2] ?? join(appDir, "..", "..", "artifacts", "screens"));
 mkdirSync(outDir, { recursive: true });
 
-const app = await electron.launch({ args: [appDir], cwd: appDir });
+const profile = mkdtempSync(join(tmpdir(), "neuromr-smoke-"));
+const app = await electron.launch({ args: [appDir], cwd: appDir, env: { ...process.env, NEUROMR_USER_DATA: profile } });
 const errors = [];
 try {
   const win = await app.firstWindow();

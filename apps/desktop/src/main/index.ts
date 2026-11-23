@@ -40,6 +40,10 @@ function createMainWindow(): BrowserWindow {
   return win;
 }
 
+// Test runs use their own profile so they never collide with an open NeuroMR-PRO window.
+const profileOverride = process.env["NEUROMR_USER_DATA"];
+if (profileOverride) app.setPath("userData", profileOverride);
+
 if (!app.requestSingleInstanceLock()) {
   app.quit();
 } else {
