@@ -168,6 +168,14 @@ Out of scope: cardiac, cartilage, liver, breast, prostate and muscle workflows. 
 - **GEN-210** Settings → Displays offers an interface scale of 100 %, 125 % or 150 % per user and per display, on top of the Windows display scale. It scales text, controls, icons and spacing of the chrome and the viewport overlays; image pixels are still drawn at the display's native resolution and are never resampled for the chrome scale. The change applies at once, without a restart, and is stored with the user's display profile. The setting shows the resulting workspace width; below 1600 CSS px the task panel and inspector become overlays, as on a laptop.
 - **GEN-211** Minimum text size at 100 %: 13 px for all interface text (panels, tables, table units, menus, buttons, hints, rail, status bar); 12 px only for image overlays, colour bars, graph ticks and keycaps.
 
+### 1.23 Compute engine
+
+- **GEN-220** The compute engine is a separate local process that the application starts, supervises and stops. It listens on 127.0.0.1 only, on a port chosen by the operating system, and accepts a request only if it carries the per-session token; anything else is rejected with 401 before any handler runs. The token is passed to the engine through its standard input, never on the command line or in an environment variable, and a new one is made every time the engine starts.
+- **GEN-221** The status bar shows the engine state with the status-bar component's states: *starting* (warning dot), *connected · local* (success dot), *restarting, attempt n of 5* (warning dot) and *unavailable* (critical dot), followed by one actionable sentence. The application is ready to use only when the engine has answered a health check with its version.
+- **GEN-222** When the engine exits unexpectedly it is restarted automatically after 1, 2, 4, 8 and 16 s. A run that stays healthy for 60 s resets the count. After five failed restarts the state is *unavailable* and the user can retry from the status bar. Jobs that were running when the engine stopped are reported as failed with a one-line reason; they are never reported as done.
+- **GEN-223** Long jobs report progress (fraction and stage) over one authenticated WebSocket per session, using the job event contract (`JobEvent`). Every job can be cancelled; a cancelled job stops at its next progress point and reports *cancelled*, and it never writes partial results.
+- **GEN-224** On quit the application asks the engine to shut down and ends the process if it has not exited within 3 s, so no engine process outlives the application.
+
 ---
 
 ## 2. Study Directory and launcher
