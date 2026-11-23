@@ -21,6 +21,7 @@ dev = [
     "cyclonedx-bom>=5",
     "pip-licenses>=5",
     "httpx>=0.28.1",
+    "python-gdcm>=3.0.24",
 ]
 
 [build-system]

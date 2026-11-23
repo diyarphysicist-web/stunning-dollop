@@ -37,6 +37,8 @@ class SeriesSpec:
     slice_mm: float = 4.0
     image_type: Sequence[str] = ("ORIGINAL", "PRIMARY", "M", "NONE")
     extra: dict = field(default_factory=dict)
+    # Stored bits: 16 (default), 12 (stored in 16) or 8 (BitsAllocated 8), for codec phantoms.
+    bits_stored: int = 16
 
 
 @dataclass
@@ -54,10 +56,11 @@ class StudySpec:
         return generate_uid(prefix=IMPLEMENTATION_UID_ROOT, entropy_srcs=[self.seed, *map(str, parts)])
 
 
-def _rescale(data: np.ndarray) -> tuple[np.ndarray, float, float]:
+def _rescale(data: np.ndarray, bits: int = 16) -> tuple[np.ndarray, float, float]:
+    top = float(2**bits - 1)
     lo, hi = float(np.min(data)), float(np.max(data))
-    slope = (hi - lo) / 65535.0 if hi > lo else 1.0
-    stored = np.round((data - lo) / slope).astype(np.uint16)
+    slope = (hi - lo) / top if hi > lo else 1.0
+    stored = np.round((data - lo) / slope).astype(np.uint8 if bits == 8 else np.uint16)
     return stored, slope, lo
 
 
@@ -67,7 +70,9 @@ def write_series(data: np.ndarray, out_dir: Path, study: StudySpec, spec: Series
         raise ValueError(f"expected (z, y, x, n) data, got shape {data.shape}")
     out_dir.mkdir(parents=True, exist_ok=True)
     nz, ny, nx, nn = data.shape
-    stored, slope, intercept = _rescale(data.astype(np.float64))
+    if spec.bits_stored not in (8, 12, 16):
+        raise ValueError(f"bits_stored must be 8, 12 or 16, got {spec.bits_stored}")
+    stored, slope, intercept = _rescale(data.astype(np.float64), spec.bits_stored)
     study_uid = study.uid("study")
     series_uid = study.uid("series", spec.series_number)
     for_uid = study.uid("for")
@@ -141,9 +146,9 @@ def write_series(data: np.ndarray, out_dir: Path, study: StudySpec, spec: Series
             ds.SamplesPerPixel = 1
             ds.PhotometricInterpretation = "MONOCHROME2"
             ds.Rows, ds.Columns = ny, nx
-            ds.BitsAllocated = 16
-            ds.BitsStored = 16
-            ds.HighBit = 15
+            ds.BitsAllocated = 8 if spec.bits_stored == 8 else 16
+            ds.BitsStored = spec.bits_stored
+            ds.HighBit = spec.bits_stored - 1
             ds.PixelRepresentation = 0
             ds.RescaleSlope = f"{slope:.10g}"
             ds.RescaleIntercept = f"{intercept:.10g}"

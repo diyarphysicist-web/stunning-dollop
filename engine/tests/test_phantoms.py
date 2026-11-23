@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import numpy as np
 import pydicom
 import pytest
@@ -173,3 +175,52 @@ def test_dicom_round_trip(tmp_path):
     np.testing.assert_allclose(restored, p.data[1, :, :, 7], atol=float(ds.RescaleSlope))
     uids = {pydicom.dcmread(x).SOPInstanceUID for x in paths}
     assert len(uids) == len(paths)
+
+
+def _make_phantoms_module():
+    import importlib.util
+
+    script = Path(__file__).resolve().parents[2] / "scripts" / "make_phantoms.py"
+    spec = importlib.util.spec_from_file_location("make_phantoms", script)
+    assert spec and spec.loader
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def _gdcm_pixels(path: Path) -> np.ndarray:
+    """Stored values decoded by GDCM itself (pydicom's GDCM handler refuses 12-bit JPEG)."""
+    import gdcm
+
+    reader = gdcm.ImageReader()
+    reader.SetFileName(str(path))
+    assert reader.Read(), path
+    image = reader.GetImage()
+    # python-gdcm returns the buffer as str; this is the conversion pydicom uses as well.
+    raw = image.GetBuffer().encode("utf-8", "surrogateescape")
+    bits = image.GetPixelFormat().GetBitsAllocated()
+    return np.frombuffer(raw, dtype=np.uint8 if bits == 8 else np.uint16).astype(np.int64)
+
+
+def test_gen238_codec_phantoms_decode_to_their_reference(tmp_path):
+    """GEN-238 test data: each compressed phantom decodes (GDCM) to its uncompressed reference."""
+    pytest.importorskip("gdcm")
+    from neuromr_engine.dicom.transcode import CODECS
+
+    _make_phantoms_module().build(tmp_path, {"codecs"})
+    root = tmp_path / "codecs"
+    for codec in CODECS:
+        files = sorted((root / codec.key).glob("*.dcm"))
+        refs = sorted((root / f"reference-{codec.bits}").glob("*.dcm"))
+        assert len(files) == len(refs) == 3
+        for f, r in zip(files, refs, strict=True):
+            ds = pydicom.dcmread(f)
+            assert ds.file_meta.TransferSyntaxUID == codec.uid
+            got = _gdcm_pixels(f)
+            want = pydicom.dcmread(r).pixel_array.astype(np.int64).ravel()
+            if codec.lossy:
+                assert ds.LossyImageCompression == "01"
+                # Mean error under 2 % of the stored range.
+                assert np.mean(np.abs(got - want)) < 0.02 * (2**codec.bits - 1), codec.key
+            else:
+                assert np.array_equal(got, want), codec.key

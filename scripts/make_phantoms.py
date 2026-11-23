@@ -25,6 +25,7 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "engine"))
 
+from neuromr_engine.dicom.transcode import CODECS, transcode  # noqa: E402
 from neuromr_engine.dicom.writer import SeriesSpec, StudySpec  # noqa: E402
 from neuromr_engine.dicom.writer import write_series as _write_series  # noqa: E402
 from neuromr_engine.phantoms import brain, dce, diffusion, dsc, other  # noqa: E402
@@ -301,7 +302,43 @@ def build(out: Path, only: set[str] | None) -> list[str]:
         done.append(p.name)
     if want("brain"):
         done += _build_brain(out, StudySpec())
+    if want("codecs"):
+        done += _build_codecs(out)
     return done
+
+
+def _build_codecs(out: Path) -> list[str]:
+    """Compressed transfer syntax phantoms (GEN-238): three FLAIR slices per syntax, own study.
+
+    codecs/reference-<bits>/ holds the uncompressed source at 8, 12 and 16 stored bits; each
+    codecs/<syntax>/ is the reference of its bit depth re-encoded, as its own series.
+    """
+    study = StudySpec(
+        study_description="NeuroMR-PRO codec phantom", accession="CODEC0001", seed="neuromr-codecs"
+    )
+    base, _ = brain.make_brain_flair_pair()
+    mid = base.data.shape[0] // 2
+    data = base.data[mid - 1 : mid + 2]
+    root = out / "codecs"
+    for n, bits in enumerate((8, 12, 16)):
+        folder = root / f"reference-{bits}"
+        for old in folder.glob("*.dcm") if folder.exists() else ():
+            old.unlink()
+        spec = SeriesSpec(f"Codec reference {bits} bit", 900 + n, "none", te_ms=120.0, tr_ms=8000.0)
+        spec.bits_stored = bits
+        write_series(data, folder, study, spec)
+    for n, codec in enumerate(CODECS):
+        # Each syntax is its own series: same pixels, new Series and SOP Instance UIDs.
+        folder = root / codec.key
+        for old in folder.glob("*.dcm") if folder.exists() else ():
+            old.unlink()
+        number = 910 + n
+        spec = SeriesSpec(f"Codec {codec.key}", number, "none", te_ms=120.0, tr_ms=8000.0)
+        spec.bits_stored = codec.bits
+        written = write_series(data, folder, study, spec)
+        for path in written:
+            transcode(path, path, codec)
+    return ["codecs"]
 
 
 def _write(p: Phantom, folder: Path, study: StudySpec, spec: SeriesSpec) -> None:
@@ -487,7 +524,10 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--out", type=Path, default=ROOT / "data" / "phantoms")
     ap.add_argument(
-        "--only", type=str, default=None, help="comma list: dsc,dce,dti,ivim,fmri,mrs,flair,swi,echo,brain"
+        "--only",
+        type=str,
+        default=None,
+        help="comma list: dsc,dce,dti,ivim,fmri,mrs,flair,swi,echo,brain,codecs",
     )
     args = ap.parse_args()
     only = set(args.only.split(",")) if args.only else None
