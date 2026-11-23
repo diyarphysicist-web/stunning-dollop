@@ -30,9 +30,11 @@ jobs:
         run: |
           node apps/desktop/node_modules/electron/install.js
           pnpm --filter @neuromr/desktop build
-          xvfb-run -a node apps/desktop/e2e/smoke.mjs artifacts/screens
+          # The smoke sizes the window to 1920 × 1080; the default Xvfb screen (1280 × 1024) is smaller,
+          # and a window partly off-screen can leave Chromium without a frame to capture.
+          xvfb-run -a -s "-screen 0 1920x1080x24" node apps/desktop/e2e/smoke.mjs artifacts/screens
       - name: Desktop app dev-mode smoke run (dev CSP must let React mount)
-        run: xvfb-run -a node apps/desktop/e2e/dev-smoke.mjs
+        run: xvfb-run -a -s "-screen 0 1920x1080x24" node apps/desktop/e2e/dev-smoke.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with: { name: desktop-screens, path: artifacts/screens, if-no-files-found: ignore }

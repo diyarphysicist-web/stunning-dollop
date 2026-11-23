@@ -29,7 +29,7 @@ export default tseslint.config(
   },
   {
     files: ["scripts/**/*.mjs", "apps/*/e2e/**/*.mjs"],
-    languageOptions: { globals: { console: "readonly", process: "readonly", window: "readonly", setTimeout: "readonly" } },
+    languageOptions: { globals: { console: "readonly", process: "readonly", window: "readonly", setTimeout: "readonly", requestAnimationFrame: "readonly" } },
   },
   {
     files: ["packages/ui/src/tokens/**", "packages/viewer/src/luts/**", "**/*.test.ts"],

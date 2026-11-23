@@ -36,6 +36,31 @@ function directoryFixture() {
   return root;
 }
 
+/**
+ * Screenshot once a frame has been painted. Under Xvfb, Chromium sometimes has no frame yet
+ * ("Unable to capture screenshot"); wait for two animation frames and retry a few times.
+ */
+async function shot(win, name) {
+  let last;
+  for (let attempt = 1; attempt <= 4; attempt++) {
+    try {
+      await win.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+      await win.screenshot({ path: join(outDir, name) });
+      return;
+    } catch (err) {
+      last = err;
+      console.warn(`screenshot ${name} attempt ${attempt} failed: ${err.message.split("\n")[0]}`);
+      await new Promise((r) => setTimeout(r, 500 * attempt));
+    }
+  }
+  throw last;
+}
+
+/** Fails with a clear message if the renderer process dies, instead of a later protocol error. */
+function watchCrash(win) {
+  win.on("crash", () => console.error("renderer process crashed"));
+}
+
 const launch = (env = {}) =>
   electron.launch({ args: [appDir], cwd: appDir, env: { ...process.env, NEUROMR_USER_DATA: mkdtempSync(join(tmpdir(), "neuromr-smoke-")), ...env } });
 
@@ -44,9 +69,10 @@ const launch = (env = {}) =>
   const app = await launch({ NEUROMR_ENGINE_PYTHON: join(appDir, "no-such-python.exe") });
   try {
     const win = await app.firstWindow();
+    watchCrash(win);
     await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0]?.setSize(1920, 1080));
     await win.locator("[data-engine-state=unavailable]").filter({ hasText: "Reinstall NeuroMR-PRO" }).waitFor({ timeout: 15000 });
-    await win.screenshot({ path: join(outDir, "desktop-shell-engine-unavailable.png") });
+    await shot(win, "desktop-shell-engine-unavailable.png");
   } finally {
     await app.close();
   }
@@ -56,6 +82,7 @@ const app = await launch();
 const errors = [];
 try {
   const win = await app.firstWindow();
+  watchCrash(win);
   win.on("pageerror", (e) => errors.push(String(e)));
   win.on("console", (m) => m.type() === "error" && errors.push(m.text()));
   await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0]?.setSize(1920, 1080));
@@ -72,7 +99,7 @@ try {
 
   // DIR-001…009: empty store, folder import through main's dialog, classification, quarantine, duplicates, search.
   await win.locator("[data-testid=directory-empty]").waitFor({ timeout: 15000 });
-  await win.screenshot({ path: join(outDir, "desktop-shell.png") });
+  await shot(win, "desktop-shell.png");
   const fixture = directoryFixture();
   await app.evaluate(({ dialog }, folder) => {
     dialog.showOpenDialog = async () => ({ canceled: false, filePaths: [folder] });
@@ -88,10 +115,10 @@ try {
   for (const b of ["DCE", "T1", "VFA ref"]) if (!badges.includes(b)) throw new Error(`series type ${b} missing: ${badges.join(",")}`);
   if ((await win.locator("[data-testid=series-list] .thumb img").count()) !== 4) throw new Error("thumbnails missing");
   await win.locator("[data-testid=patient-banner]").filter({ hasText: "NMR-PHANTOM-001" }).waitFor();
-  await win.screenshot({ path: join(outDir, "desktop-directory.png") });
+  await shot(win, "desktop-directory.png");
   await win.locator("[data-testid=quarantine-notice] button").click();
   await win.locator("[data-testid=quarantine-list]").filter({ hasText: "broken.dcm" }).waitFor();
-  await win.screenshot({ path: join(outDir, "desktop-directory-quarantine.png") });
+  await shot(win, "desktop-directory-quarantine.png");
   await win.keyboard.press("Escape");
   // DIR-007: the same folder again adds nothing.
   await win.keyboard.press("Control+o");
