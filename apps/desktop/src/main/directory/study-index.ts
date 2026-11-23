@@ -71,6 +71,7 @@ interface SeriesDbRow {
 interface ImportDbRow {
   id: number;
   source: "folder" | "dicomdir";
+  root: string;
   phase: ImportPhase;
   found: number;
   read: number;
@@ -116,6 +117,8 @@ export class StudyIndex {
   constructor(file: string) {
     this.db = new Database(file);
     this.db.pragma("journal_mode = WAL");
+    // Under WAL, NORMAL cannot corrupt the index; a power cut loses at most the last commits, which a re-import restores (DIR-007).
+    this.db.pragma("synchronous = NORMAL");
     this.db.pragma("foreign_keys = ON");
     this.db.pragma("busy_timeout = 5000");
     const version = this.db.pragma("user_version", { simple: true }) as number;
@@ -146,21 +149,30 @@ export class StudyIndex {
     return this.db.prepare("SELECT 1 FROM instances WHERE sop_uid = ?").get(sopUid) !== undefined;
   }
 
-  /** Records one stored instance, creating its study and series rows on first sight. */
-  addInstance(h: InstanceHeader, path: string, size: number): void {
+  private statements?: { study: Database.Statement; series: Database.Statement; instance: Database.Statement };
+
+  /** Records stored instances in one transaction, creating study and series rows on first sight. */
+  addInstances(batch: readonly { header: InstanceHeader; path: string; size: number }[]): void {
+    const st = (this.statements ??= {
+      study: this.db.prepare(
+        `INSERT OR IGNORE INTO studies (study_uid, patient_name, patient_id, patient_birth_date, patient_sex, study_date, study_time, study_description, accession, modality, field_strength)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ),
+      series: this.db.prepare(`INSERT OR IGNORE INTO series (series_uid, study_uid, series_number, description, modality, status, types) VALUES (?, ?, ?, ?, ?, 'importing', '[]')`),
+      instance: this.db.prepare("INSERT INTO instances (sop_uid, series_uid, path, size, header, imported_at) VALUES (?, ?, ?, ?, ?, ?)"),
+    });
     const now = new Date().toISOString();
     this.db.transaction(() => {
-      this.db
-        .prepare(
-          `INSERT OR IGNORE INTO studies (study_uid, patient_name, patient_id, patient_birth_date, patient_sex, study_date, study_time, study_description, accession, modality, field_strength)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        )
-        .run(h.studyInstanceUid, h.patientName, h.patientId, h.patientBirthDate, h.patientSex, h.studyDate, h.studyTime, h.studyDescription, h.accessionNumber, h.modality, h.magneticFieldStrength ?? null);
-      this.db
-        .prepare(`INSERT OR IGNORE INTO series (series_uid, study_uid, series_number, description, modality, status, types) VALUES (?, ?, ?, ?, ?, 'importing', '[]')`)
-        .run(h.seriesInstanceUid, h.studyInstanceUid, h.seriesNumber ?? null, h.seriesDescription, h.modality);
-      this.db.prepare("INSERT INTO instances (sop_uid, series_uid, path, size, header, imported_at) VALUES (?, ?, ?, ?, ?, ?)").run(h.sopInstanceUid, h.seriesInstanceUid, path, size, JSON.stringify(h), now);
+      for (const { header: h, path, size } of batch) {
+        st.study.run(h.studyInstanceUid, h.patientName, h.patientId, h.patientBirthDate, h.patientSex, h.studyDate, h.studyTime, h.studyDescription, h.accessionNumber, h.modality, h.magneticFieldStrength ?? null);
+        st.series.run(h.seriesInstanceUid, h.studyInstanceUid, h.seriesNumber ?? null, h.seriesDescription, h.modality);
+        st.instance.run(h.sopInstanceUid, h.seriesInstanceUid, path, size, JSON.stringify(h), now);
+      }
     })();
+  }
+
+  addInstance(header: InstanceHeader, path: string, size: number): void {
+    this.addInstances([{ header, path, size }]);
   }
 
   seriesHeaders(seriesUid: string): { header: InstanceHeader; path: string }[] {
@@ -224,7 +236,7 @@ export class StudyIndex {
   lastImport(): ImportProgress | null {
     const r = this.db.prepare("SELECT * FROM imports ORDER BY id DESC LIMIT 1").get() as ImportDbRow | undefined;
     if (!r) return null;
-    const p: ImportProgress = { importId: r.id, source: r.source, phase: r.phase, found: r.found, read: r.read, imported: r.imported, duplicates: r.duplicates, notDicom: r.not_dicom, quarantined: r.quarantined, indexVersion: this.indexVersion() };
+    const p: ImportProgress = { importId: r.id, source: r.source, root: r.root, phase: r.phase, found: r.found, read: r.read, imported: r.imported, duplicates: r.duplicates, notDicom: r.not_dicom, quarantined: r.quarantined, indexVersion: this.indexVersion() };
     if (r.error) p.error = r.error;
     return p;
   }

@@ -53,6 +53,8 @@ export type ImportPhase = z.infer<typeof ImportPhase>;
 export const ImportProgress = z.object({
   importId: z.number().int().positive(),
   source: z.enum(["folder", "dicomdir"]),
+  /** The folder or DICOMDIR being imported, as the user chose it. */
+  root: z.string(),
   phase: ImportPhase,
   found: z.number().int().nonnegative(),
   read: z.number().int().nonnegative(),

@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { copyFile, mkdir, readFile, readdir, rename, rm } from "node:fs/promises";
+import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { dirname, join, resolve, sep } from "node:path";
 import type { ImportProgress } from "@neuromr/contracts";
 import { readDicomdir, readHeader, type InstanceHeader } from "@neuromr/dicom";
@@ -65,17 +65,39 @@ async function dicomdirFiles(file: string): Promise<string[] | undefined> {
  */
 export async function runImport(o: ImportOptions): Promise<ImportProgress> {
   const flushMs = o.flushMs ?? 500;
-  const p: ImportProgress = { importId: o.importId, source: o.source, phase: "scanning", found: 0, read: 0, imported: 0, duplicates: 0, notDicom: 0, quarantined: 0, indexVersion: o.index.indexVersion() };
+  const p: ImportProgress = { importId: o.importId, source: o.source, root: o.root, phase: "scanning", found: 0, read: 0, imported: 0, duplicates: 0, notDicom: 0, quarantined: 0, indexVersion: o.index.indexVersion() };
   const report = () => {
     o.index.updateImport(p);
     o.onProgress({ ...p });
   };
   const touched = new Set<string>();
+  const madeDirs = new Set<string>();
+  // Instances written to the store but not yet in the index; committed in one transaction per flush.
+  let pending: { header: InstanceHeader; path: string; size: number }[] = [];
+  const pendingSops = new Set<string>();
+  const commit = async () => {
+    if (pending.length === 0) return;
+    const batch = pending;
+    pending = [];
+    pendingSops.clear();
+    try {
+      o.index.addInstances(batch);
+    } catch (err) {
+      await Promise.all(batch.map((b) => rm(b.path, { force: true })));
+      throw err;
+    }
+    p.imported += batch.length;
+    for (const b of batch) {
+      touched.add(b.header.seriesInstanceUid);
+      dirty.add(b.header.seriesInstanceUid);
+    }
+  };
   const dirty = new Set<string>();
   let lastFlush = Date.now();
-  const flush = (force: boolean) => {
+  const flush = async (force: boolean) => {
     if (!force && Date.now() - lastFlush < flushMs) return;
     lastFlush = Date.now();
+    await commit();
     for (const uid of dirty) o.index.refreshSeries(uid, false);
     if (dirty.size > 0) p.indexVersion = o.index.bumpIndexVersion();
     dirty.clear();
@@ -125,35 +147,33 @@ export async function runImport(o: ImportOptions): Promise<ImportProgress> {
           o.index.addQuarantine(o.importId, file, r.reason, r.detail);
           p.quarantined++;
         }
-      } else if (o.index.hasInstance(r.header.sopInstanceUid)) {
+      } else if (pendingSops.has(r.header.sopInstanceUid) || o.index.hasInstance(r.header.sopInstanceUid)) {
         p.duplicates++;
       } else {
         const dest = storePath(o.storeRoot, r.header);
-        const tmp = `${dest}.part`;
-        await mkdir(dirname(dest), { recursive: true });
-        await copyFile(file, tmp);
-        await rename(tmp, dest);
-        try {
-          o.index.addInstance(r.header, dest, bytes.length);
-        } catch (err) {
-          await rm(dest, { force: true });
-          throw err;
+        const folder = dirname(dest);
+        if (!madeDirs.has(folder)) {
+          await mkdir(folder, { recursive: true });
+          madeDirs.add(folder);
         }
-        p.imported++;
-        touched.add(r.header.seriesInstanceUid);
-        dirty.add(r.header.seriesInstanceUid);
+        // The bytes just parsed are the bytes stored (no second read). A file counts only once its
+        // index row is committed; a partial file left by a crash is overwritten by the next import.
+        await writeFile(dest, bytes);
+        pending.push({ header: r.header, path: dest, size: bytes.length });
+        pendingSops.add(r.header.sopInstanceUid);
       }
-      flush(false);
+      await flush(false);
     }
 
     p.phase = "finishing";
-    flush(true);
+    await flush(true);
     for (const uid of touched) o.index.refreshSeries(uid, true);
     if (touched.size > 0) p.indexVersion = o.index.bumpIndexVersion();
     p.phase = o.signal.aborted ? "cancelled" : "done";
     report();
     return p;
   } catch (err) {
+    pending = [];
     // Series already stored stay usable (DIR-008); the import itself is reported as failed.
     for (const uid of touched) {
       try {
