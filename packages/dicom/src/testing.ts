@@ -73,3 +73,7 @@ export function fakeInstance(o: FakeInstance): Uint8Array {
   }
   return encodeDicom(el);
 }
+
+export function fakeTrigger(ms: number): DicomElements {
+  return { "00181060": { vr: "DS", value: ms } };
+}

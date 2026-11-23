@@ -4,3 +4,5 @@ export { classify } from "./classify.js";
 export { readDicomdir } from "./dicomdir.js";
 export { readFrame, thumbnail, type GreyImage } from "./pixels.js";
 export { encodeDicom, type DicomElements } from "./encode.js";
+export { stackLayout, type StackAxis, type StackLayout, type StackPoint } from "./stack.js";
+export { sliceKey } from "./series.js";

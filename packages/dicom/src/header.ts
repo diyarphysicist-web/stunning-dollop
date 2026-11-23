@@ -46,6 +46,11 @@ export interface InstanceHeader {
   columns: number;
   numberOfFrames: number;
   hasPixelData: boolean;
+  /** First Window Center/Width pair, if recorded (GEN-232). */
+  windowCenter: number | undefined;
+  windowWidth: number | undefined;
+  sliceThickness: number | undefined;
+  sliceLocation: number | undefined;
 }
 
 export type HeaderResult =
@@ -223,6 +228,10 @@ export function readHeader(bytes: Uint8Array): HeaderResult {
     columns: r.uint16("x00280011") ?? 0,
     numberOfFrames: r.num("x00280008") ?? 1,
     hasPixelData,
+    windowCenter: r.num("x00281050"),
+    windowWidth: r.num("x00281051"),
+    sliceThickness: r.num("x00180050"),
+    sliceLocation: r.num("x00201041"),
   };
   return { status: "ok", header, dataSet: parsed };
 }

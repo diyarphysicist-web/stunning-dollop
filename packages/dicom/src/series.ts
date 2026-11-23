@@ -43,8 +43,8 @@ function median(values: readonly (number | undefined)[]): number | undefined {
   return v.length % 2 ? v[mid] : ((v[mid - 1] as number) + (v[mid] as number)) / 2;
 }
 
-/** Slice position key: the position projected on the slice normal, rounded to 0.01 mm. */
-function sliceKey(h: InstanceHeader): string {
+/** Slice position key: the position projected on the slice normal, rounded to 0.01 mm (sorts numerically). */
+export function sliceKey(h: InstanceHeader): string {
   const p = h.imagePosition;
   const o = h.imageOrientation;
   if (p && o) {
