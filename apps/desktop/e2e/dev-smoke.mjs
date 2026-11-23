@@ -22,7 +22,9 @@ const freePort = () => new Promise((res, rej) => {
 const port = await freePort();
 const profile = mkdtempSync(join(tmpdir(), "neuromr-dev-smoke-"));
 const cli = join(appDir, "node_modules", "electron-vite", "bin", "electron-vite.js");
-const child = spawn(process.execPath, [cli, "dev", "--", `--remote-debugging-port=${port}`], {
+// CI runners have no GPU (see smoke.mjs).
+const gpuFlags = process.env.CI ? ["--disable-gpu", "--disable-gpu-compositing"] : [];
+const child = spawn(process.execPath, [cli, "dev", "--", `--remote-debugging-port=${port}`, ...gpuFlags], {
   cwd: appDir,
   env: { ...process.env, ELECTRON_ENABLE_LOGGING: "1", NEUROMR_USER_DATA: profile },
   stdio: ["ignore", "pipe", "pipe"],

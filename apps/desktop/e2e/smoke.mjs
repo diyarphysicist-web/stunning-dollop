@@ -61,16 +61,27 @@ function watchCrash(win) {
   win.on("crash", () => console.error("renderer process crashed"));
 }
 
-const launch = (env = {}) =>
-  electron.launch({ args: [appDir], cwd: appDir, env: { ...process.env, NEUROMR_USER_DATA: mkdtempSync(join(tmpdir(), "neuromr-smoke-")), ...env } });
+// CI runners have no GPU: Chromium's software path under Xvfb is what produces capturable frames.
+const CHROMIUM_FLAGS = process.env.CI ? ["--disable-gpu", "--disable-gpu-compositing"] : [];
+
+/** Launches the built app and returns it once its window is shown at 1920 × 1080 and has painted. */
+async function launch(env = {}) {
+  const app = await electron.launch({ args: [appDir, ...CHROMIUM_FLAGS], cwd: appDir, env: { ...process.env, NEUROMR_USER_DATA: mkdtempSync(join(tmpdir(), "neuromr-smoke-")), ...env } });
+  const win = await app.firstWindow();
+  watchCrash(win);
+  const deadline = Date.now() + 15000;
+  while (!(await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0]?.isVisible() ?? false))) {
+    if (Date.now() > deadline) throw new Error("main window was never shown");
+    await new Promise((r) => setTimeout(r, 100));
+  }
+  await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0]?.setSize(1920, 1080));
+  return { app, win };
+}
 
 // GEN-221: without an engine the status bar says so in one actionable sentence.
 {
-  const app = await launch({ NEUROMR_ENGINE_PYTHON: join(appDir, "no-such-python.exe") });
+  const { app, win } = await launch({ NEUROMR_ENGINE_PYTHON: join(appDir, "no-such-python.exe") });
   try {
-    const win = await app.firstWindow();
-    watchCrash(win);
-    await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0]?.setSize(1920, 1080));
     await win.locator("[data-engine-state=unavailable]").filter({ hasText: "Reinstall NeuroMR-PRO" }).waitFor({ timeout: 15000 });
     await shot(win, "desktop-shell-engine-unavailable.png");
   } finally {
@@ -78,14 +89,11 @@ const launch = (env = {}) =>
   }
 }
 
-const app = await launch();
+const { app, win } = await launch();
 const errors = [];
 try {
-  const win = await app.firstWindow();
-  watchCrash(win);
   win.on("pageerror", (e) => errors.push(String(e)));
   win.on("console", (m) => m.type() === "error" && errors.push(m.text()));
-  await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0]?.setSize(1920, 1080));
   await win.waitForSelector(".statusbar .sb-item:has-text('Version')", { timeout: 15000 });
   // GEN-220/221: the real engine starts and answers its health check.
   await win.locator("[data-engine-state=connected]").filter({ hasText: "connected · local" }).waitFor({ timeout: 60000 });
