@@ -359,6 +359,19 @@ try {
     await w.locator("[data-testid=bookmark-menu] [role=menuitem]").nth(1).click();
     await renamed.waitFor({ state: "detached", timeout: 5000 });
     console.log("bookmarks ok");
+
+    // GEN-244: Reset all asks first, removes the series' ROIs, and Ctrl+Z brings them back.
+    await w.locator("[data-testid=viewport-0] .vp__canvas").click({ button: "right" });
+    await w.locator("[data-testid=viewport-menu] [role=menuitem]").filter({ hasText: "Reset all" }).click();
+    const dialog = w.locator("[data-testid=reset-all-dialog]");
+    await dialog.waitFor({ timeout: 5000 });
+    if (!/2 ROIs/.test(await dialog.innerText())) throw new Error("Reset all does not name the ROIs it removes");
+    await shot(w, "desktop-viewer-reset-all.png");
+    await w.locator("[data-testid=reset-all-confirm]").click();
+    await labels0.first().waitFor({ state: "detached", timeout: 5000 });
+    await w.keyboard.press("Control+z");
+    await labels0.filter({ hasText: "Lesion" }).waitFor({ timeout: 5000 });
+    console.log("reset all ok");
   } finally {
     await again.close();
   }

@@ -101,13 +101,14 @@ function ViewportMenu({ index, at, onClose }: { index: number; at: { x: number; 
     ["vp.menu.rotateCcw", "vp.key.rotateCcw", () => transform(index, "rotate-ccw")],
     ["vp.menu.resetView", "vp.key.resetView", () => reset(index, "view")],
     ["vp.menu.resetWindow", null, () => reset(index, "window")],
+    ["vp.menu.resetAll", null, () => useViewer.getState().askResetAll(index)],
     ["vp.menu.deleteLastRoi", "vp.key.undo", () => useViewer.getState().deleteLastRoi(index)],
   ];
   return (
     <div ref={ref} className="menu" role="menu" data-testid="viewport-menu" style={{ left: pos.x, top: pos.y }} onKeyDown={(e) => e.key === "Escape" && onClose()}>
       {items.map(([label, key, run], i) => (
         <Fragment key={label}>
-          {(i === 4 || i === 6) && <div className="menu__sep" role="separator" />}
+          {(i === 4 || i === 7) && <div className="menu__sep" role="separator" />}
           <button
             role="menuitem"
             className="menu__item"

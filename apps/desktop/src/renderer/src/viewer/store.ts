@@ -103,6 +103,11 @@ interface ViewerState {
   renameRoi(pane: number, id: string, name: string): void;
   deleteRoi(pane: number, id: string): void;
   deleteLastRoi(pane: number): void;
+  /** Viewport waiting for the Reset all confirmation (GEN-244), or null. */
+  confirmReset: number | null;
+  askResetAll(pane: number | null): void;
+  /** GEN-244: resets zoom, pan, transform and window and removes every ROI of the series, as one undo step. */
+  resetAll(pane: number): void;
   undoRoi(pane: number): void;
   redoRoi(pane: number): void;
   setStats(pane: number, stats: Record<string, RoiStats | null>): void;
@@ -293,6 +298,19 @@ export const useViewer = create<ViewerState>((set, get) => {
       const next: ViewTransform =
         op === "mirror" ? { ...t, mirror: !t.mirror } : op === "flip" ? { ...t, flip: !t.flip } : { ...t, quarterTurns: (t.quarterTurns + (op === "rotate-cw" ? 1 : 3)) % 4 };
       patch(i, { transform: next });
+      remember(i);
+    },
+
+    confirmReset: null,
+    askResetAll(i) {
+      set({ confirmReset: i });
+    },
+    resetAll(i) {
+      const p = get().panes[i];
+      if (!p) return;
+      patch(i, { resetView: p.resetView + 1, resetWindow: p.resetWindow + 1, transform: IDENTITY });
+      patchRois(i, (r) => (r.rois.length ? { rois: [], ...history(r) } : null));
+      set({ confirmReset: null });
       remember(i);
     },
 

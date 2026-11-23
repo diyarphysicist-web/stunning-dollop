@@ -69,3 +69,25 @@ describe("GEN-236 ROIs belong to the series", () => {
     expect(useViewer.getState().roisBySeries).toEqual({});
   });
 });
+
+describe("GEN-244 Reset all", () => {
+  it("GEN-244 resets view and window, removes every ROI of the series as one undo step", async () => {
+    const v = useViewer.getState();
+    await v.open(["R.1"]);
+    v.transform(0, "mirror");
+    v.addRoi(0, { kind: "ellipse", center: [5, 5], a: 2, b: 1, angle: 0 });
+    v.addRoi(0, { kind: "ellipse", center: [9, 9], a: 2, b: 1, angle: 0 });
+    const before = useViewer.getState().panes[0];
+    v.askResetAll(0);
+    expect(useViewer.getState().confirmReset).toBe(0);
+    v.resetAll(0);
+    const st = useViewer.getState();
+    expect(st.confirmReset).toBeNull();
+    expect(st.panes[0]?.transform).toEqual({ mirror: false, flip: false, quarterTurns: 0 });
+    expect(st.panes[0]?.resetView).toBe((before?.resetView ?? 0) + 1);
+    expect(st.panes[0]?.resetWindow).toBe((before?.resetWindow ?? 0) + 1);
+    expect(paneRois(st, 0).rois).toEqual([]);
+    v.undoRoi(0);
+    expect(paneRois(useViewer.getState(), 0).rois).toHaveLength(2);
+  });
+});

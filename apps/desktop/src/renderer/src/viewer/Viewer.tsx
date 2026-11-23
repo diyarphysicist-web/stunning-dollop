@@ -47,6 +47,31 @@ function SeriesPanel() {
   );
 }
 
+/** GEN-244: confirmation before Reset all, naming the series and the ROIs it removes. */
+function ResetAllDialog() {
+  const pane = useViewer((s) => s.confirmReset);
+  const description = useViewer((s) => (s.confirmReset === null ? "" : (s.panes[s.confirmReset]?.stack?.description ?? "")));
+  const count = useViewer((s) => (s.confirmReset === null ? 0 : paneRois(s, s.confirmReset).rois.length));
+  const cancelRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (pane !== null) cancelRef.current?.focus();
+  }, [pane]);
+  if (pane === null) return null;
+  const { askResetAll, resetAll } = useViewer.getState();
+  return (
+    <div className="scrim" onKeyDown={(e) => e.key === "Escape" && askResetAll(null)}>
+      <div className="dialog" role="alertdialog" aria-modal="true" aria-labelledby="reset-all-title" aria-describedby="reset-all-body" data-testid="reset-all-dialog">
+        <div className="dialog__head"><span className="dialog__title" id="reset-all-title">{t("resetAll.title")}</span></div>
+        <div className="dialog__body"><p id="reset-all-body">{t("resetAll.body", { series: description, n: count })}</p></div>
+        <div className="dialog__foot">
+          <button ref={cancelRef} className="btn btn--secondary" onClick={() => askResetAll(null)}>{t("resetAll.cancel")}</button>
+          <button className="btn btn--destructive" data-testid="reset-all-confirm" onClick={() => resetAll(pane)}>{t("resetAll.confirm")}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /** Bookmarks of the active study (GEN-242): save, restore with a click, rename or delete from the context menu. */
 function BookmarkSection() {
   const study = useViewer((s) => {
@@ -288,7 +313,7 @@ function useViewerKeys() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const el = e.target as HTMLElement | null;
-      if (el?.closest("input, textarea, [role=menu]")) return;
+      if (el?.closest("input, textarea, [role=menu], [role=dialog], [role=alertdialog]") || useViewer.getState().confirmReset !== null) return;
       const s = useViewer.getState();
       // GEN-034: undo and redo of ROI create, edit and delete.
       if ((e.ctrlKey || e.metaKey) && !e.altKey) {
@@ -341,6 +366,7 @@ export function Viewer() {
         {Array.from({ length: cellCount(layout) }, (_, i) => <Viewport key={i} index={i} />)}
       </main>
       <Inspector />
+      <ResetAllDialog />
     </>
   );
 }
